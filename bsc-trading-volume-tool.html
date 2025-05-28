@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>币安BSC交易量查询工具 - APP原型</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      border: 8px solid #1a1a1a;
+      border-radius: 40px;
+      margin: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .phone-frame::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 30px;
+      background: #1a1a1a;
+      border-radius: 0 0 20px 20px;
+      z-index: 10;
+    }
+
+    .phone-content {
+      height: 100%;
+      overflow-y: auto;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 p-8">
+  <div class="max-w-7xl mx-auto">
+    <h1 class="text-4xl font-bold text-center mb-8 text-gray-800">币安BSC交易量查询工具 - APP原型</h1>
+
+    <!-- 第一行原型 -->
+    <div class="flex flex-wrap justify-center mb-8">
+      <!-- 1. 首页/搜索页 -->
+      <div class="phone-frame">
+        <div class="phone-content gradient-bg">
+          <!-- 状态栏 -->
+          <div class="flex justify-between items-center p-4 pt-12 text-white">
+            <span class="text-sm font-medium">9:41</span>
+            <div class="flex space-x-1">
+              <i class="fas fa-signal text-sm"></i>
+              <i class="fas fa-wifi text-sm"></i>
+              <i class="fas fa-battery-three-quarters text-sm"></i>
+            </div>
+          </div>
+
+          <!-- 头部 -->
+          <div class="px-6 pb-6">
+            <h1 class="text-2xl font-bold text-white mb-2">BSC交易查询</h1>
+            <p class="text-blue-100">输入BSC地址查看交易数据</p>
+          </div>
+
+          <!-- 搜索区域 -->
+          <div class="bg-white mx-4 rounded-2xl p-6 shadow-lg">
+            <div class="relative mb-4">
+              <input type="text" placeholder="输入BSC钱包地址..."
+                class="w-full p-4 pl-12 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <i class="fas fa-search absolute left-4 top-5 text-gray-400"></i>
+            </div>
+            <button
+              class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 rounded-xl font-semibold hover:shadow-lg transition-all">
+              <i class="fas fa-search-plus mr-2"></i>开始查询
+            </button>
+          </div>
+
+          <!-- 功能卡片 -->
+          <div class="px-4 mt-6">
+            <h3 class="text-white font-semibold mb-4">快速功能</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+                <i class="fas fa-chart-line text-white text-2xl mb-2"></i>
+                <p class="text-white text-sm">交易统计</p>
+              </div>
+              <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+                <i class="fas fa-history text-white text-2xl mb-2"></i>
+                <p class="text-white text-sm">历史记录</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 热门地址 -->
+          <div class="px-4 mt-6">
+            <h3 class="text-white font-semibold mb-4">热门地址</h3>
+            <div class="space-y-3">
+              <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 flex items-center">
+                <div class="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center mr-4">
+                  <i class="fas fa-star text-white"></i>
+                </div>
+                <div class="flex-1">
+                  <p class="text-white font-medium">0x1234...abcd</p>
+                  <p class="text-blue-100 text-sm">日交易量: $125,680</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. 搜索结果页 -->
+      <div class="phone-frame">
+        <div class="phone-content bg-gray-50">
+          <!-- 头部导航 -->
+          <div class="bg-white px-4 py-6 pt-12 shadow-sm">
+            <div class="flex items-center mb-4">
+              <i class="fas fa-arrow-left text-gray-600 mr-4"></i>
+              <h1 class="text-xl font-bold text-gray-800">交易数据</h1>
+            </div>
+            <div class="bg-gray-100 p-3 rounded-lg">
+              <p class="text-sm text-gray-600">地址:</p>
+              <p class="text-sm font-mono">0x1234...abcd</p>
+            </div>
+          </div>
+
+          <!-- 统计卡片 -->
+          <div class="px-4 py-4">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div class="bg-white rounded-xl p-4 shadow-sm">
+                <i class="fas fa-exchange-alt text-blue-500 text-xl mb-2"></i>
+                <p class="text-2xl font-bold text-gray-800">1,234</p>
+                <p class="text-gray-500 text-sm">总交易数</p>
+              </div>
+              <div class="bg-white rounded-xl p-4 shadow-sm">
+                <i class="fas fa-coins text-green-500 text-xl mb-2"></i>
+                <p class="text-2xl font-bold text-gray-800">$45.6K</p>
+                <p class="text-gray-500 text-sm">总交易量</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 数据列表 -->
+          <div class="px-4">
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div class="px-4 py-3 bg-gray-50 border-b">
+                <h3 class="font-semibold text-gray-800">交易记录</h3>
+              </div>
+
+              <div class="divide-y divide-gray-100">
+                <!-- 数据行1 -->
+                <div class="px-4 py-4">
+                  <div class="flex justify-between items-start mb-2">
+                    <span class="text-sm text-gray-500">2024-01-15</span>
+                    <span class="text-sm font-semibold text-green-600">+125 积分</span>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 text-sm">
+                    <div>
+                      <p class="text-gray-500">交易数</p>
+                      <p class="font-semibold">45笔</p>
+                    </div>
+                    <div>
+                      <p class="text-gray-500">交易量</p>
+                      <p class="font-semibold">$2,345</p>
+                    </div>
+                    <div>
+                      <p class="text-gray-500">磨损</p>
+                      <p class="font-semibold text-red-500">$23.4</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 数据行2 -->
+                <div class="px-4 py-4">
+                  <div class="flex justify-between items-start mb-2">
+                    <span class="text-sm text-gray-500">2024-01-14</span>
+                    <span class="text-sm font-semibold text-green-600">+89 积分</span>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 text-sm">
+                    <div>
+                      <p class="text-gray-500">交易数</p>
+                      <p class="font-semibold">32笔</p>
+                    </div>
+                    <div>
+                      <p class="text-gray-500">交易量</p>
+                      <p class="font-semibold">$1,789</p>
+                    </div>
+                    <div>
+                      <p class="text-gray-500">磨损</p>
+                      <p class="font-semibold text-red-500">$17.9</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 数据行3 -->
+                <div class="px-4 py-4">
+                  <div class="flex justify-between items-start mb-2">
+                    <span class="text-sm text-gray-500">2024-01-13</span>
+                    <span class="text-sm font-semibold text-green-600">+67 积分</span>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 text-sm">
+                    <div>
+                      <p class="text-gray-500">交易数</p>
+                      <p class="font-semibold">28笔</p>
+                    </div>
+                    <div>
+                      <p class="text-gray-500">交易量</p>
+                      <p class="font-semibold">$1,234</p>
+                    </div>
+                    <div>
+                      <p class="text-gray-500">磨损</p>
+                      <p class="font-semibold text-red-500">$12.3</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 底部导航 -->
+          <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+            <div class="flex justify-around">
+              <div class="flex flex-col items-center py-2">
+                <i class="fas fa-search text-blue-500 text-lg"></i>
+                <span class="text-xs text-blue-500 mt-1">搜索</span>
+              </div>
+              <div class="flex flex-col items-center py-2">
+                <i class="fas fa-chart-bar text-gray-400 text-lg"></i>
+                <span class="text-xs text-gray-400 mt-1">统计</span>
+              </div>
+              <div class="flex flex-col items-center py-2">
+                <i class="fas fa-cog text-gray-400 text-lg"></i>
+                <span class="text-xs text-gray-400 mt-1">设置</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. 详情页 -->
+      <div class="phone-frame">
+        <div class="phone-content bg-gray-50">
+          <!-- 头部 -->
+          <div class="bg-white px-4 py-6 pt-12 shadow-sm">
+            <div class="flex items-center mb-4">
+              <i class="fas fa-arrow-left text-gray-600 mr-4"></i>
+              <h1 class="text-xl font-bold text-gray-800">交易详情</h1>
+            </div>
+          </div>
+
+          <!-- 日期选择 -->
+          <div class="px-4 py-4">
+            <div class="bg-white rounded-xl p-4 shadow-sm mb-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-semibold text-gray-800">2024年1月15日</h3>
+                  <p class="text-sm text-gray-500">交易详细数据</p>
+                </div>
+                <i class="fas fa-calendar-alt text-blue-500 text-xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- 详细统计 -->
+          <div class="px-4">
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div class="px-4 py-3 bg-gray-50 border-b">
+                <h3 class="font-semibold text-gray-800">详细数据</h3>
+              </div>
+
+              <div class="p-4 space-y-4">
+                <div class="flex justify-between items-center">
+                  <div class="flex items-center">
+                    <i class="fas fa-exchange-alt text-blue-500 w-8"></i>
+                    <span class="text-gray-700">交易笔数</span>
+                  </div>
+                  <span class="font-semibold text-gray-800">45 笔</span>
+                </div>
+
+                <div class="flex justify-between items-center">
+                  <div class="flex items-center">
+                    <i class="fas fa-coins text-green-500 w-8"></i>
+                    <span class="text-gray-700">交易总量</span>
+                  </div>
+                  <span class="font-semibold text-gray-800">$2,345.67</span>
+                </div>
+
+                <div class="flex justify-between items-center">
+                  <div class="flex items-center">
+                    <i class="fas fa-chart-line text-purple-500 w-8"></i>
+                    <span class="text-gray-700">平均交易额</span>
+                  </div>
+                  <span class="font-semibold text-gray-800">$52.13</span>
+                </div>
+
+                <div class="flex justify-between items-center">
+                  <div class="flex items-center">
+                    <i class="fas fa-fire text-red-500 w-8"></i>
+                    <span class="text-gray-700">磨损金额</span>
+                  </div>
+                  <span class="font-semibold text-red-500">$23.46</span>
+                </div>
+
+                <div class="flex justify-between items-center">
+                  <div class="flex items-center">
+                    <i class="fas fa-star text-yellow-500 w-8"></i>
+                    <span class="text-gray-700">获得积分</span>
+                  </div>
+                  <span class="font-semibold text-green-600">+125 积分</span>
+                </div>
+
+                <div class="flex justify-between items-center">
+                  <div class="flex items-center">
+                    <i class="fas fa-clock text-gray-500 w-8"></i>
+                    <span class="text-gray-700">活跃时段</span>
+                  </div>
+                  <span class="font-semibold text-gray-800">14:30-18:45</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 时间分布图 -->
+          <div class="px-4 mt-4">
+            <div class="bg-white rounded-xl shadow-sm p-4">
+              <h3 class="font-semibold text-gray-800 mb-4">交易时间分布</h3>
+              <div class="h-32 bg-gray-100 rounded-lg flex items-end justify-center space-x-2 p-2">
+                <div class="bg-blue-500 w-4 h-8 rounded-t"></div>
+                <div class="bg-blue-500 w-4 h-16 rounded-t"></div>
+                <div class="bg-blue-500 w-4 h-12 rounded-t"></div>
+                <div class="bg-blue-500 w-4 h-20 rounded-t"></div>
+                <div class="bg-blue-500 w-4 h-24 rounded-t"></div>
+                <div class="bg-blue-500 w-4 h-16 rounded-t"></div>
+                <div class="bg-blue-500 w-4 h-10 rounded-t"></div>
+              </div>
+              <div class="flex justify-between text-xs text-gray-500 mt-2">
+                <span>00:00</span>
+                <span>06:00</span>
+                <span>12:00</span>
+                <span>18:00</span>
+                <span>24:00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 第二行原型 -->
+    <div class="flex flex-wrap justify-center mb-8">
+      <!-- 4. 统计页 -->
+      <div class="phone-frame">
+        <div class="phone-content bg-gray-50">
+          <!-- 头部 -->
+          <div class="gradient-bg px-4 py-6 pt-12 text-white">
+            <div class="flex items-center justify-between mb-4">
+              <h1 class="text-2xl font-bold">数据统计</h1>
+              <i class="fas fa-chart-bar text-2xl"></i>
+            </div>
+            <p class="text-blue-100">全面的交易数据分析</p>
+          </div>
+
+          <!-- 时间选择 -->
+          <div class="px-4 py-4">
+            <div class="flex space-x-2">
+              <button class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg text-sm font-medium">7天</button>
+              <button class="flex-1 bg-white text-gray-600 py-2 px-4 rounded-lg text-sm">30天</button>
+              <button class="flex-1 bg-white text-gray-600 py-2 px-4 rounded-lg text-sm">90天</button>
+            </div>
+          </div>
+
+          <!-- 核心指标 -->
+          <div class="px-4 mb-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-white rounded-xl p-4 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                  <i class="fas fa-chart-line text-green-500 text-xl"></i>
+                  <span class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">+12%</span>
+                </div>
+                <p class="text-2xl font-bold text-gray-800">$12.5K</p>
+                <p class="text-gray-500 text-sm">周交易量</p>
+              </div>
+
+              <div class="bg-white rounded-xl p-4 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                  <i class="fas fa-fire text-red-500 text-xl"></i>
+                  <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">-5%</span>
+                </div>
+                <p class="text-2xl font-bold text-gray-800">$156</p>
+                <p class="text-gray-500 text-sm">周磨损</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 交易趋势图 -->
+          <div class="px-4 mb-4">
+            <div class="bg-white rounded-xl shadow-sm p-4">
+              <h3 class="font-semibold text-gray-800 mb-4">交易量趋势</h3>
+              <div class="h-40 bg-gray-50 rounded-lg relative overflow-hidden">
+                <svg class="w-full h-full" viewBox="0 0 300 120">
+                  <polyline fill="none" stroke="#3B82F6" stroke-width="3"
+                    points="0,80 50,60 100,70 150,40 200,50 250,30 300,45" />
+                  <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:0.3" />
+                      <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:0" />
+                    </linearGradient>
+                  </defs>
+                  <polygon fill="url(#gradient)" points="0,80 50,60 100,70 150,40 200,50 250,30 300,45 300,120 0,120" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- 分类统计 -->
+          <div class="px-4">
+            <div class="bg-white rounded-xl shadow-sm p-4">
+              <h3 class="font-semibold text-gray-800 mb-4">交易类型分布</h3>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center">
+                    <div class="w-4 h-4 bg-blue-500 rounded mr-3"></div>
+                    <span class="text-gray-700">Swap</span>
+                  </div>
+                  <div class="flex items-center">
+                    <span class="text-gray-500 text-sm mr-2">65%</span>
+                    <span class="font-semibold">234笔</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center">
+                    <div class="w-4 h-4 bg-green-500 rounded mr-3"></div>
+                    <span class="text-gray-700">Transfer</span>
+                  </div>
+                  <div class="flex items-center">
+                    <span class="text-gray-500 text-sm mr-2">25%</span>
+                    <span class="font-semibold">90笔</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center">
+                    <div class="w-4 h-4 bg-purple-500 rounded mr-3"></div>
+                    <span class="text-gray-700">Liquidity</span>
+                  </div>
+                  <div class="flex items-center">
+                    <span class="text-gray-500 text-sm mr-2">10%</span>
+                    <span class="font-semibold">36笔</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. 设置页 -->
+      <div class="phone-frame">
+        <div class="phone-content bg-gray-50">
+          <!-- 头部 -->
+          <div class="bg-white px-4 py-6 pt-12 shadow-sm">
+            <div class="flex items-center mb-4">
+              <i class="fas fa-arrow-left text-gray-600 mr-4"></i>
+              <h1 class="text-xl font-bold text-gray-800">设置</h1>
+            </div>
+          </div>
+
+          <!-- 用户信息 -->
+          <div class="px-4 py-4">
+            <div class="bg-white rounded-xl p-4 shadow-sm mb-4">
+              <div class="flex items-center">
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face"
+                  class="w-12 h-12 rounded-full mr-4">
+                <div>
+                  <h3 class="font-semibold text-gray-800">用户123456</h3>
+                  <p class="text-sm text-gray-500">积分: 1,234 分</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 设置选项 -->
+          <div class="px-4">
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-4">
+              <div class="px-4 py-3 bg-gray-50 border-b">
+                <h3 class="font-semibold text-gray-800">数据设置</h3>
+              </div>
+
+              <div class="divide-y divide-gray-100">
+                <div class="px-4 py-4 flex items-center justify-between">
+                  <div class="flex items-center">
+                    <i class="fas fa-sync text-blue-500 w-8"></i>
+                    <span class="text-gray-700">自动刷新</span>
+                  </div>
+                  <div class="relative">
+                    <input type="checkbox" class="sr-only" checked>
+                    <div class="w-12 h-6 bg-blue-500 rounded-full shadow-inner relative">
+                      <div class="w-5 h-5 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="px-4 py-4 flex items-center justify-between">
+                  <div class="flex items-center">
+                    <i class="fas fa-bell text-yellow-500 w-8"></i>
+                    <span class="text-gray-700">推送通知</span>
+                  </div>
+                  <div class="relative">
+                    <input type="checkbox" class="sr-only">
+                    <div class="w-12 h-6 bg-gray-300 rounded-full shadow-inner relative">
+                      <div class="w-5 h-5 bg-white rounded-full absolute left-0.5 top-0.5"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="px-4 py-4 flex items-center justify-between">
+                  <div class="flex items-center">
+                    <i class="fas fa-clock text-green-500 w-8"></i>
+                    <span class="text-gray-700">刷新间隔</span>
+                  </div>
+                  <span class="text-gray-500">30秒</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-4">
+              <div class="px-4 py-3 bg-gray-50 border-b">
+                <h3 class="font-semibold text-gray-800">显示设置</h3>
+              </div>
+
+              <div class="divide-y divide-gray-100">
+                <div class="px-4 py-4 flex items-center justify-between">
+                  <div class="flex items-center">
+                    <i class="fas fa-eye text-purple-500 w-8"></i>
+                    <span class="text-gray-700">显示详情</span>
+                  </div>
+                  <div class="relative">
+                    <input type="checkbox" class="sr-only" checked>
+                    <div class="w-12 h-6 bg-blue-500 rounded-full shadow-inner relative">
+                      <div class="w-5 h-5 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="px-4 py-4 flex items-center justify-between">
+                  <div class="flex items-center">
+                    <i class="fas fa-palette text-pink-500 w-8"></i>
+                    <span class="text-gray-700">主题色彩</span>
+                  </div>
+                  <span class="text-gray-500">蓝色</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div class="divide-y divide-gray-100">
+                <div class="px-4 py-4 flex items-center">
+                  <i class="fas fa-question-circle text-blue-500 w-8"></i>
+                  <span class="text-gray-700">帮助与支持</span>
+                </div>
+
+                <div class="px-4 py-4 flex items-center">
+                  <i class="fas fa-info-circle text-green-500 w-8"></i>
+                  <span class="text-gray-700">关于我们</span>
+                </div>
+
+                <div class="px-4 py-4 flex items-center">
+                  <i class="fas fa-sign-out-alt text-red-500 w-8"></i>
+                  <span class="text-red-500">退出登录</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. 帮助页 -->
+      <div class="phone-frame">
+        <div class="phone-content bg-gray-50">
+          <!-- 头部 -->
+          <div class="bg-white px-4 py-6 pt-12 shadow-sm">
+            <div class="flex items-center mb-4">
+              <i class="fas fa-arrow-left text-gray-600 mr-4"></i>
+              <h1 class="text-xl font-bold text-gray-800">使用帮助</h1>
+            </div>
+          </div>
+
+          <!-- 搜索框 -->
+          <div class="px-4 py-4">
+            <div class="relative">
+              <input type="text" placeholder="搜索帮助内容..."
+                class="w-full p-3 pl-10 bg-white border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500">
+              <i class="fas fa-search absolute left-3 top-4 text-gray-400"></i>
+            </div>
+          </div>
+
+          <!-- 常见问题 -->
+          <div class="px-4">
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-4">
+              <div class="px-4 py-3 bg-gray-50 border-b">
+                <h3 class="font-semibold text-gray-800">常见问题</h3>
+              </div>
+
+              <div class="divide-y divide-gray-100">
+                <div class="px-4 py-4">
+                  <div class="flex items-start">
+                    <i class="fas fa-question-circle text-blue-500 mr-3 mt-1"></i>
+                    <div class="flex-1">
+                      <p class="font-medium text-gray-800 mb-1">如何查询BSC地址交易数据？</p>
+                      <p class="text-sm text-gray-600">在首页输入完整的BSC钱包地址，点击查询按钮即可获取详细的交易数据。</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="px-4 py-4">
+                  <div class="flex items-start">
+                    <i class="fas fa-question-circle text-blue-500 mr-3 mt-1"></i>
+                    <div class="flex-1">
+                      <p class="font-medium text-gray-800 mb-1">积分是如何计算的？</p>
+                      <p class="text-sm text-gray-600">积分根据交易量和交易频率综合计算，交易量越大、频率越高，积分越多。</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="px-4 py-4">
+                  <div class="flex items-start">
+                    <i class="fas fa-question-circle text-blue-500 mr-3 mt-1"></i>
+                    <div class="flex-1">
+                      <p class="font-medium text-gray-800 mb-1">什么是磨损金额？</p>
+                      <p class="text-sm text-gray-600">磨损金额指交易过程中产生的手续费和滑点损失的总和。</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 功能介绍 -->
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-4">
+              <div class="px-4 py-3 bg-gray-50 border-b">
+                <h3 class="font-semibold text-gray-800">功能介绍</h3>
+              </div>
+
+              <div class="p-4 space-y-4">
+                <div class="flex items-start">
+                  <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3 mt-1">
+                    <i class="fas fa-search text-blue-500"></i>
+                  </div>
+                  <div>
+                    <p class="font-medium text-gray-800">地址查询</p>
+                    <p class="text-sm text-gray-600">输入BSC地址快速查询交易历史</p>
+                  </div>
+                </div>
+
+                <div class="flex items-start">
+                  <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3 mt-1">
+                    <i class="fas fa-chart-bar text-green-500"></i>
+                  </div>
+                  <div>
+                    <p class="font-medium text-gray-800">数据统计</p>
+                    <p class="text-sm text-gray-600">多维度交易数据分析和可视化</p>
+                  </div>
+                </div>
+
+                <div class="flex items-start">
+                  <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3 mt-1">
+                    <i class="fas fa-star text-purple-500"></i>
+                  </div>
+                  <div>
+                    <p class="font-medium text-gray-800">积分系统</p>
+                    <p class="text-sm text-gray-600">根据交易活跃度获得积分奖励</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 联系我们 -->
+            <div class="bg-white rounded-xl shadow-sm p-4">
+              <h3 class="font-semibold text-gray-800 mb-4">联系我们</h3>
+              <div class="space-y-3">
+                <div class="flex items-center">
+                  <i class="fas fa-envelope text-blue-500 w-6"></i>
+                  <span class="text-gray-700 ml-3">support@bsctools.com</span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fab fa-telegram text-blue-500 w-6"></i>
+                  <span class="text-gray-700 ml-3">@BSCTools</span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fab fa-twitter text-blue-400 w-6"></i>
+                  <span class="text-gray-700 ml-3">@BSCToolsOfficial</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

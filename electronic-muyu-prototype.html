@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电子木鱼小程序 - UI原型</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .phone-frame {
+      width: 320px;
+      height: 600px;
+      background: linear-gradient(145deg, #f0f0f0, #cacaca);
+      border-radius: 30px;
+      padding: 20px 15px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      position: relative;
+      margin: 20px;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .muyu-bounce {
+      animation: bounce 0.3s ease-in-out;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(0.95);
+      }
+    }
+
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .zen-bg {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .merit-bg {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 p-8">
+  <div class="max-w-7xl mx-auto">
+    <h1 class="text-4xl font-bold text-center mb-12 text-gray-800">电子木鱼小程序 UI 原型</h1>
+
+    <!-- 第一行：主页、功德页、许愿页 -->
+    <div class="flex flex-wrap justify-center mb-8">
+      <!-- 主页 - 敲木鱼 -->
+      <div class="phone-frame">
+        <div class="phone-screen gradient-bg relative">
+          <!-- 状态栏 -->
+          <div class="flex justify-between items-center px-4 py-2 text-white text-xs">
+            <span>9:41</span>
+            <span class="flex items-center gap-1">
+              <i class="fas fa-signal"></i>
+              <i class="fas fa-wifi"></i>
+              <i class="fas fa-battery-full"></i>
+            </span>
+          </div>
+
+          <!-- 标题栏 -->
+          <div class="text-center py-4">
+            <h2 class="text-white text-xl font-bold">电子木鱼</h2>
+            <p class="text-white/80 text-sm">南无阿弥陀佛</p>
+          </div>
+
+          <!-- 功德显示 -->
+          <div class="bg-white/20 backdrop-blur-sm mx-4 rounded-xl p-4 mb-6">
+            <div class="text-center">
+              <p class="text-white/80 text-sm">今日功德</p>
+              <p class="text-white text-3xl font-bold">108</p>
+              <p class="text-white/60 text-xs">连续敲击 7 天</p>
+            </div>
+          </div>
+
+          <!-- 木鱼 -->
+          <div class="flex-1 flex items-center justify-center px-8">
+            <div class="relative">
+              <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=200&fit=crop&crop=center"
+                alt="木鱼"
+                class="w-40 h-40 rounded-full shadow-2xl cursor-pointer hover:scale-105 transition-transform muyu-bounce">
+              <div class="absolute -top-2 -right-2 bg-yellow-400 text-black text-xs px-2 py-1 rounded-full font-bold">
+                +1
+              </div>
+            </div>
+          </div>
+
+          <!-- 敲击提示 -->
+          <div class="text-center pb-6">
+            <p class="text-white/80 text-sm">轻触木鱼，积累功德</p>
+            <p class="text-white/60 text-xs mt-1">🙏 心诚则灵 🙏</p>
+          </div>
+
+          <!-- 底部导航 -->
+          <div class="absolute bottom-0 left-0 right-0 bg-white/10 backdrop-blur-sm">
+            <div class="flex justify-around py-3">
+              <div class="text-center text-white">
+                <i class="fas fa-home text-lg mb-1"></i>
+                <p class="text-xs">首页</p>
+              </div>
+              <div class="text-center text-white/60">
+                <i class="fas fa-chart-bar text-lg mb-1"></i>
+                <p class="text-xs">功德</p>
+              </div>
+              <div class="text-center text-white/60">
+                <i class="fas fa-heart text-lg mb-1"></i>
+                <p class="text-xs">许愿</p>
+              </div>
+              <div class="text-center text-white/60">
+                <i class="fas fa-cog text-lg mb-1"></i>
+                <p class="text-xs">设置</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 功德记录页 -->
+      <div class="phone-frame">
+        <div class="phone-screen merit-bg">
+          <!-- 状态栏 -->
+          <div class="flex justify-between items-center px-4 py-2 text-white text-xs">
+            <span>9:41</span>
+            <span class="flex items-center gap-1">
+              <i class="fas fa-signal"></i>
+              <i class="fas fa-wifi"></i>
+              <i class="fas fa-battery-full"></i>
+            </span>
+          </div>
+
+          <!-- 标题栏 -->
+          <div class="flex items-center justify-between px-4 py-4">
+            <i class="fas fa-arrow-left text-white text-lg"></i>
+            <h2 class="text-white text-xl font-bold">功德记录</h2>
+            <i class="fas fa-share-alt text-white text-lg"></i>
+          </div>
+
+          <!-- 总体统计 -->
+          <div class="mx-4 mb-6">
+            <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
+              <div class="text-center mb-4">
+                <p class="text-white text-4xl font-bold">1,234</p>
+                <p class="text-white/80">总功德值</p>
+              </div>
+              <div class="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <p class="text-white text-lg font-bold">108</p>
+                  <p class="text-white/70 text-xs">今日</p>
+                </div>
+                <div>
+                  <p class="text-white text-lg font-bold">756</p>
+                  <p class="text-white/70 text-xs">本周</p>
+                </div>
+                <div>
+                  <p class="text-white text-lg font-bold">7</p>
+                  <p class="text-white/70 text-xs">连续天数</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 成就徽章 -->
+          <div class="px-4 mb-6">
+            <h3 class="text-white font-bold mb-3">成就徽章</h3>
+            <div class="flex gap-3">
+              <div class="bg-yellow-400/20 p-3 rounded-lg text-center">
+                <i class="fas fa-medal text-yellow-400 text-xl mb-1"></i>
+                <p class="text-white text-xs">初心者</p>
+              </div>
+              <div class="bg-green-400/20 p-3 rounded-lg text-center">
+                <i class="fas fa-fire text-green-400 text-xl mb-1"></i>
+                <p class="text-white text-xs">坚持者</p>
+              </div>
+              <div class="bg-purple-400/20 p-3 rounded-lg text-center">
+                <i class="fas fa-crown text-purple-400 text-xl mb-1"></i>
+                <p class="text-white text-xs">功德主</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 历史记录 -->
+          <div class="px-4 flex-1">
+            <h3 class="text-white font-bold mb-3">最近记录</h3>
+            <div class="space-y-3">
+              <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 flex justify-between">
+                <div>
+                  <p class="text-white font-medium">今天</p>
+                  <p class="text-white/70 text-sm">敲击 108 次</p>
+                </div>
+                <p class="text-white text-lg font-bold">+108</p>
+              </div>
+              <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 flex justify-between">
+                <div>
+                  <p class="text-white font-medium">昨天</p>
+                  <p class="text-white/70 text-sm">敲击 89 次</p>
+                </div>
+                <p class="text-white text-lg font-bold">+89</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 底部导航 -->
+          <div class="absolute bottom-0 left-0 right-0 bg-white/10 backdrop-blur-sm">
+            <div class="flex justify-around py-3">
+              <div class="text-center text-white/60">
+                <i class="fas fa-home text-lg mb-1"></i>
+                <p class="text-xs">首页</p>
+              </div>
+              <div class="text-center text-white">
+                <i class="fas fa-chart-bar text-lg mb-1"></i>
+                <p class="text-xs">功德</p>
+              </div>
+              <div class="text-center text-white/60">
+                <i class="fas fa-heart text-lg mb-1"></i>
+                <p class="text-xs">许愿</p>
+              </div>
+              <div class="text-center text-white/60">
+                <i class="fas fa-cog text-lg mb-1"></i>
+                <p class="text-xs">设置</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 许愿祈福页 -->
+      <div class="phone-frame">
+        <div class="phone-screen zen-bg">
+          <!-- 状态栏 -->
+          <div class="flex justify-between items-center px-4 py-2 text-white text-xs">
+            <span>9:41</span>
+            <span class="flex items-center gap-1">
+              <i class="fas fa-signal"></i>
+              <i class="fas fa-wifi"></i>
+              <i class="fas fa-battery-full"></i>
+            </span>
+          </div>
+
+          <!-- 标题栏 -->
+          <div class="flex items-center justify-between px-4 py-4">
+            <i class="fas fa-arrow-left text-white text-lg"></i>
+            <h2 class="text-white text-xl font-bold">许愿祈福</h2>
+            <i class="fas fa-plus text-white text-lg"></i>
+          </div>
+
+          <!-- 祈福统计 -->
+          <div class="mx-4 mb-6">
+            <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+              <p class="text-white/80 text-sm">本月已为心愿祈福</p>
+              <p class="text-white text-2xl font-bold">365 次</p>
+            </div>
+          </div>
+
+          <!-- 心愿列表 -->
+          <div class="px-4 flex-1">
+            <div class="space-y-4">
+              <!-- 心愿1 -->
+              <div class="bg-white/15 backdrop-blur-sm rounded-xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-3">
+                    <i class="fas fa-heart text-red-400 text-lg"></i>
+                    <div>
+                      <p class="text-white font-medium">身体健康</p>
+                      <p class="text-white/70 text-sm">祈福 89 次</p>
+                    </div>
+                  </div>
+                  <span class="bg-green-400 text-white text-xs px-2 py-1 rounded-full">进行中</span>
+                </div>
+                <div class="bg-white/20 rounded-full h-2 mb-2">
+                  <div class="bg-gradient-to-r from-pink-400 to-red-400 h-2 rounded-full w-3/4"></div>
+                </div>
+                <p class="text-white/70 text-xs">距离目标还需 11 次祈福</p>
+              </div>
+
+              <!-- 心愿2 -->
+              <div class="bg-white/15 backdrop-blur-sm rounded-xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-3">
+                    <i class="fas fa-briefcase text-blue-400 text-lg"></i>
+                    <div>
+                      <p class="text-white font-medium">工作顺利</p>
+                      <p class="text-white/70 text-sm">祈福 156 次</p>
+                    </div>
+                  </div>
+                  <span class="bg-yellow-400 text-black text-xs px-2 py-1 rounded-full">已达成</span>
+                </div>
+                <div class="bg-white/20 rounded-full h-2 mb-2">
+                  <div class="bg-gradient-to-r from-blue-400 to-purple-400 h-2 rounded-full w-full"></div>
+                </div>
+                <p class="text-white/70 text-xs">🎉 心愿已达成！</p>
+              </div>
+
+              <!-- 心愿3 -->
+              <div class="bg-white/15 backdrop-blur-sm rounded-xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-3">
+                    <i class="fas fa-users text-green-400 text-lg"></i>
+                    <div>
+                      <p class="text-white font-medium">家庭和睦</p>
+                      <p class="text-white/70 text-sm">祈福 45 次</p>
+                    </div>
+                  </div>
+                  <span class="bg-green-400 text-white text-xs px-2 py-1 rounded-full">进行中</span>
+                </div>
+                <div class="bg-white/20 rounded-full h-2 mb-2">
+                  <div class="bg-gradient-to-r from-green-400 to-teal-400 h-2 rounded-full w-1/2"></div>
+                </div>
+                <p class="text-white/70 text-xs">距离目标还需 55 次祈福</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 底部导航 -->
+          <div class="absolute bottom-0 left-0 right-0 bg-white/10 backdrop-blur-sm">
+            <div class="flex justify-around py-3">
+              <div class="text-center text-white/60">
+                <i class="fas fa-home text-lg mb-1"></i>
+                <p class="text-xs">首页</p>
+              </div>
+              <div class="text-center text-white/60">
+                <i class="fas fa-chart-bar text-lg mb-1"></i>
+                <p class="text-xs">功德</p>
+              </div>
+              <div class="text-center text-white">
+                <i class="fas fa-heart text-lg mb-1"></i>
+                <p class="text-xs">许愿</p>
+              </div>
+              <div class="text-center text-white/60">
+                <i class="fas fa-cog text-lg mb-1"></i>
+                <p class="text-xs">设置</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 第二行：设置页、分享页、添加心愿页 -->
+    <div class="flex flex-wrap justify-center">
+      <!-- 设置页面 -->
+      <div class="phone-frame">
+        <div class="phone-screen bg-gray-50">
+          <!-- 状态栏 -->
+          <div class="flex justify-between items-center px-4 py-2 text-black text-xs bg-white">
+            <span>9:41</span>
+            <span class="flex items-center gap-1">
+              <i class="fas fa-signal"></i>
+              <i class="fas fa-wifi"></i>
+              <i class="fas fa-battery-full"></i>
+            </span>
+          </div>
+
+          <!-- 标题栏 -->
+          <div class="flex items-center justify-between px-4 py-4 bg-white border-b">
+            <i class="fas fa-arrow-left text-gray-700 text-lg"></i>
+            <h2 class="text-gray-800 text-xl font-bold">设置</h2>
+            <div></div>
+          </div>
+
+          <!-- 设置列表 -->
+          <div class="px-4 py-4 space-y-6">
+            <!-- 音效设置 -->
+            <div class="bg-white rounded-xl p-4 shadow-sm">
+              <h3 class="text-gray-800 font-bold mb-4">音效设置</h3>
+              <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-700">音效开关</span>
+                  <div class="w-12 h-6 bg-blue-500 rounded-full relative">
+                    <div class="w-5 h-5 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-700">震动反馈</span>
+                  <div class="w-12 h-6 bg-gray-300 rounded-full relative">
+                    <div class="w-5 h-5 bg-white rounded-full absolute left-0.5 top-0.5"></div>
+                  </div>
+                </div>
+                <div>
+                  <span class="text-gray-700 block mb-2">音量</span>
+                  <div class="bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-500 h-2 rounded-full w-3/4"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 个性化 -->
+            <div class="bg-white rounded-xl p-4 shadow-sm">
+              <h3 class="text-gray-800 font-bold mb-4">个性化</h3>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-700">木鱼皮肤</span>
+                  <div class="flex gap-2">
+                    <div class="w-8 h-8 bg-yellow-600 rounded-full border-2 border-blue-500"></div>
+                    <div class="w-8 h-8 bg-red-600 rounded-full"></div>
+                    <div class="w-8 h-8 bg-green-600 rounded-full"></div>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-700">主题色彩</span>
+                  <span class="text-gray-500 text-sm">经典蓝紫</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 数据管理 -->
+            <div class="bg-white rounded-xl p-4 shadow-sm">
+              <h3 class="text-gray-800 font-bold mb-4">数据管理</h3>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-700">数据备份</span>
+                  <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-700">数据恢复</span>
+                  <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-red-500">重置数据</span>
+                  <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- 关于 -->
+            <div class="bg-white rounded-xl p-4 shadow-sm">
+              <h3 class="text-gray-800 font-bold mb-4">关于</h3>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-700">版本号</span>
+                  <span class="text-gray-500 text-sm">v1.0.0</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-700">隐私政策</span>
+                  <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-700">用户协议</span>
+                  <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 底部导航 -->
+          <div class="absolute bottom-0 left-0 right-0 bg-white border-t">
+            <div class="flex justify-around py-3">
+              <div class="text-center text-gray-400">
+                <i class="fas fa-home text-lg mb-1"></i>
+                <p class="text-xs">首页</p>
+              </div>
+              <div class="text-center text-gray-400">
+                <i class="fas fa-chart-bar text-lg mb-1"></i>
+                <p class="text-xs">功德</p>
+              </div>
+              <div class="text-center text-gray-400">
+                <i class="fas fa-heart text-lg mb-1"></i>
+                <p class="text-xs">许愿</p>
+              </div>
+              <div class="text-center text-purple-500">
+                <i class="fas fa-cog text-lg mb-1"></i>
+                <p class="text-xs">设置</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 分享页面 -->
+      <div class="phone-frame">
+        <div class="phone-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500">
+          <!-- 状态栏 -->
+          <div class="flex justify-between items-center px-4 py-2 text-white text-xs">
+            <span>9:41</span>
+            <span class="flex items-center gap-1">
+              <i class="fas fa-signal"></i>
+              <i class="fas fa-wifi"></i>
+              <i class="fas fa-battery-full"></i>
+            </span>
+          </div>
+
+          <!-- 标题栏 -->
+          <div class="flex items-center justify-between px-4 py-4">
+            <i class="fas fa-arrow-left text-white text-lg"></i>
+            <h2 class="text-white text-xl font-bold">分享功德</h2>
+            <i class="fas fa-download text-white text-lg"></i>
+          </div>
+
+          <!-- 分享卡片 -->
+          <div class="mx-4 mb-6">
+            <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6">
+              <div class="text-center mb-6">
+                <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=80&h=80&fit=crop&crop=center"
+                  alt="木鱼" class="w-20 h-20 rounded-full mx-auto mb-4 shadow-lg">
+                <h3 class="text-gray-800 text-xl font-bold mb-2">今日功德 +108</h3>
+                <p class="text-gray-600 text-sm">南无阿弥陀佛 🙏</p>
+              </div>
+
+              <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl p-4 mb-4">
+                <div class="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <p class="text-purple-600 text-lg font-bold">1,234</p>
+                    <p class="text-gray-600 text-xs">总功德</p>
+                  </div>
+                  <div>
+                    <p class="text-purple-600 text-lg font-bold">7</p>
+                    <p class="text-gray-600 text-xs">连续天数</p>
+                  </div>
+                  <div>
+                    <p class="text-purple-600 text-lg font-bold">3</p>
+                    <p class="text-gray-600 text-xs">心愿达成</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-center">
+                <p class="text-gray-500 text-xs">扫码体验电子木鱼</p>
+                <div class="w-16 h-16 bg-gray-200 rounded-lg mx-auto mt-2 flex items-center justify-center">
+                  <i class="fas fa-qrcode text-gray-400 text-2xl"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 分享选项 -->
+          <div class="px-4 mb-6">
+            <h3 class="text-white font-bold mb-4">分享到</h3>
+            <div class="grid grid-cols-4 gap-4">
+              <div class="text-center">
+                <div class="bg-green-500 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <i class="fab fa-weixin text-white text-xl"></i>
+                </div>
+                <p class="text-white text-xs">微信</p>
+              </div>
+              <div class="text-center">
+                <div class="bg-green-600 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <i class="fas fa-users text-white text-xl"></i>
+                </div>
+                <p class="text-white text-xs">朋友圈</p>
+              </div>
+              <div class="text-center">
+                <div class="bg-blue-500 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <i class="fab fa-qq text-white text-xl"></i>
+                </div>
+                <p class="text-white text-xs">QQ</p>
+              </div>
+              <div class="text-center">
+                <div class="bg-red-500 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <i class="fab fa-weibo text-white text-xl"></i>
+                </div>
+                <p class="text-white text-xs">微博</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 邀请好友 -->
+          <div class="px-4">
+            <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+              <h3 class="text-white font-bold mb-2">邀请好友一起敲木鱼</h3>
+              <p class="text-white/80 text-sm mb-3">分享给好友，一起积累功德值</p>
+              <button class="bg-white text-purple-600 px-4 py-2 rounded-full text-sm font-bold w-full">
+                生成邀请码
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 添加心愿页 -->
+      <div class="phone-frame">
+        <div class="phone-screen bg-gradient-to-br from-indigo-400 via-purple-500 to-pink-500">
+          <!-- 状态栏 -->
+          <div class="flex justify-between items-center px-4 py-2 text-white text-xs">
+            <span>9:41</span>
+            <span class="flex items-center gap-1">
+              <i class="fas fa-signal"></i>
+              <i class="fas fa-wifi"></i>
+              <i class="fas fa-battery-full"></i>
+            </span>
+          </div>
+
+          <!-- 标题栏 -->
+          <div class="flex items-center justify-between px-4 py-4">
+            <i class="fas fa-arrow-left text-white text-lg"></i>
+            <h2 class="text-white text-xl font-bold">添加心愿</h2>
+            <span class="text-white/60 text-sm">保存</span>
+          </div>
+
+          <!-- 表单 -->
+          <div class="px-4 space-y-6">
+            <!-- 心愿内容 -->
+            <div>
+              <label class="text-white font-medium block mb-3">心愿内容</label>
+              <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                <textarea
+                  class="w-full bg-transparent text-white placeholder-white/60 resize-none border-none outline-none"
+                  rows="3" placeholder="写下你的心愿..."></textarea>
+              </div>
+            </div>
+
+            <!-- 心愿分类 -->
+            <div>
+              <label class="text-white font-medium block mb-3">心愿分类</label>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="bg-red-400/30 backdrop-blur-sm rounded-xl p-4 text-center border-2 border-red-400">
+                  <i class="fas fa-heart text-red-400 text-2xl mb-2"></i>
+                  <p class="text-white text-sm">健康平安</p>
+                </div>
+                <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+                  <i class="fas fa-briefcase text-white/70 text-2xl mb-2"></i>
+                  <p class="text-white/70 text-sm">事业发展</p>
+                </div>
+                <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+                  <i class="fas fa-heart text-white/70 text-2xl mb-2"></i>
+                  <p class="text-white/70 text-sm">感情顺利</p>
+                </div>
+                <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+                  <i class="fas fa-users text-white/70 text-2xl mb-2"></i>
+                  <p class="text-white/70 text-sm">家庭和睦</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 目标设定 -->
+            <div>
+              <label class="text-white font-medium block mb-3">祈福目标</label>
+              <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-white">目标次数</span>
+                  <span class="text-white font-bold">100 次</span>
+                </div>
+                <div class="bg-white/20 rounded-full h-2">
+                  <div class="bg-white h-2 rounded-full w-0"></div>
+                </div>
+                <div class="flex justify-between mt-2 text-white/70 text-sm">
+                  <span>50次</span>
+                  <span>100次</span>
+                  <span>200次</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 心愿可见性 -->
+            <div>
+              <label class="text-white font-medium block mb-3">隐私设置</label>
+              <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-white font-medium">仅自己可见</p>
+                    <p class="text-white/70 text-sm">心愿内容只有你能看到</p>
+                  </div>
+                  <div class="w-12 h-6 bg-white/30 rounded-full relative">
+                    <div class="w-5 h-5 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 提交按钮 -->
+            <div class="pt-4">
+              <button class="bg-white text-purple-600 font-bold py-4 px-6 rounded-xl w-full text-lg">
+                开始为心愿祈福 🙏
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 设计说明 -->
+    <div class="mt-12 bg-white rounded-xl p-8 shadow-lg">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">设计说明</h2>
+      <div class="grid md:grid-cols-2 gap-6 text-gray-600">
+        <div>
+          <h3 class="font-bold text-gray-800 mb-3">设计理念</h3>
+          <ul class="space-y-2 text-sm">
+            <li>• <strong>禅意美学:</strong> 采用渐变色彩和毛玻璃效果，营造宁静祥和的氛围</li>
+            <li>• <strong>情感化设计:</strong> 温暖的色彩搭配和圆润的界面元素，给用户心理慰藉</li>
+            <li>• <strong>简约至上:</strong> 界面布局简洁清晰，减少认知负担</li>
+            <li>• <strong>文化融合:</strong> 传统佛教元素与现代UI设计完美结合</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-bold text-gray-800 mb-3">交互特色</h3>
+          <ul class="space-y-2 text-sm">
+            <li>• <strong>触觉反馈:</strong> 敲击木鱼时的弹性动画和音效反馈</li>
+            <li>• <strong>成就系统:</strong> 功德值累积和徽章奖励，增强用户粘性</li>
+            <li>• <strong>情感连接:</strong> 许愿祈福功能满足用户精神需求</li>
+            <li>• <strong>社交分享:</strong> 精美的分享卡片设计，便于传播</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 简单的交互效果
+    document.querySelectorAll('.muyu-bounce').forEach(el => {
+      el.addEventListener('click', function () {
+        this.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+          this.style.transform = 'scale(1)';
+        }, 150);
+      });
+    });
+  </script>
+</body>
+
+</html>
