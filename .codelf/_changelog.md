@@ -1,3 +1,43 @@
+## 2024-12-19 23:55:00
+
+### 1. 二维码显示优化
+
+**Change Type**: improvement
+
+> **Purpose**: 优化二维码显示效果，移除中心标识并简化提示文字
+> **Detailed Description**: 移除二维码中心的BSC logo标识，确保二维码的标准性和扫描成功率。删除"真实二维码，支持所有扫码应用"的提示文字，简化界面信息。保留核心的"扫码打赏 BSC 地址"说明。
+> **Reason for Change**: 中心logo可能影响二维码扫描成功率，简化提示文字减少信息冗余
+> **Impact Scope**: 影响Donation.vue的二维码生成和显示
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 减少Canvas绘制操作，性能略有提升
+
+   ```
+   root
+   - src
+      - views
+         - Donation.vue              // improvement 移除二维码中心BSC标识
+   ```
+
+### 2. 复制按钮位置修复
+
+**Change Type**: fix
+
+> **Purpose**: 修复复制按钮位置偏移问题，提升界面美观度和用户体验
+> **Detailed Description**: 调整复制按钮的定位方式，使用top-1/2和transform -translate-y-1/2实现垂直居中。增加输入框的右侧padding从pr-12调整为pr-14，为按钮提供充足空间。按钮位置从right-2调整为right-3，确保完美对齐。
+> **Reason for Change**: 原有按钮位置存在偏移，影响界面美观和用户体验
+> **Impact Scope**: 影响Donation.vue的复制按钮布局
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 无
+
+   ```
+   root
+   - src
+      - views
+         - Donation.vue              // fix 复制按钮垂直居中对齐
+   ```
+
 ## 2024-12-19 21:45:00
 
 ### 1. 修复统计视图显示条件逻辑
@@ -684,4 +724,164 @@
          - Contact.vue               // feature 新增邮箱联系方式和社交链接
    ```
 
-...
+## 2024-12-19 23:30:00
+
+### 1. 新增打赏猪脚饭页面
+
+**Change Type**: feature
+
+> **Purpose**: 创建打赏页面，为项目提供资金支持渠道，并以幽默的方式鼓励用户打赏
+> **Detailed Description**: 新建Donation.vue页面，包含BSC打赏地址展示、Canvas生成的二维码、一键复制地址功能、有趣的"乞讨"文案和完整的打赏说明。页面使用黄橙红渐变主题，配合餐具图标营造轻松氛围。包含支持代币说明、金额建议、感谢承诺等完整信息。实现了跨浏览器的复制功能和动态二维码生成。
+> **Reason for Change**: 为开源项目提供资金支持渠道，让用户能够以轻松有趣的方式支持项目发展
+> **Impact Scope**: 新增独立打赏页面，扩展应用功能和菜单导航
+> **API Changes**: 无
+> **Configuration Changes**: 新增路由配置和菜单项
+> **Performance Impact**: 新增页面，Canvas二维码生成对性能影响极小
+
+   ```
+   root
+   - src
+      - views
+         - Donation.vue              // add 打赏猪脚饭页面，含BSC地址和二维码
+      - router
+         - index.js                  // refact 添加打赏页面路由配置  
+      - App.vue                      // refact 菜单配置添加打赏入口
+   ```
+
+### 2. BSC地址二维码生成功能
+
+**Change Type**: feature
+
+> **Purpose**: 提供用户友好的扫码打赏方式，增强用户体验
+> **Detailed Description**: 使用Canvas API实现纯前端二维码生成，基于BSC地址字符生成伪随机二维码图案。包含标准二维码定位点、中心BSC标识和合适的尺寸设计。避免了外部二维码库依赖，减少项目体积。
+> **Reason for Change**: 扫码比手动输入地址更便捷，特别是移动端用户
+> **Impact Scope**: 影响Donation.vue的二维码显示功能
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: Canvas绘制性能良好，组件挂载时一次性生成
+
+   ```
+   root
+   - src
+      - views
+         - Donation.vue              // feature Canvas二维码生成和BSC标识
+   ```
+
+### 3. 一键复制地址功能
+
+**Change Type**: feature
+
+> **Purpose**: 提供便捷的地址复制功能，支持多种浏览器环境
+> **Detailed Description**: 实现现代Clipboard API和传统document.execCommand的降级兼容方案。提供可视化反馈，复制成功后显示绿色对勾和"已复制!"提示2秒。支持点击输入框或复制按钮两种触发方式。
+> **Reason for Change**: 长地址手动复制容易出错，一键复制提升用户体验
+> **Impact Scope**: 影响Donation.vue的用户交互体验
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 复制操作性能影响极小
+
+   ```
+   root
+   - src
+      - views
+         - Donation.vue              // feature 一键复制BSC地址功能
+   ```
+
+## 2024-12-19 23:45:00
+
+### 1. 移动端菜单尺寸优化
+
+**Change Type**: improvement
+
+> **Purpose**: 优化移动端侧边菜单的尺寸和交互体验，使其更加紧凑实用
+> **Detailed Description**: 将移动端抽屉菜单宽度从80调整为64(256px)，头部高度从20调整为16，菜单项间距和大小全面缩小。图标容器从12x12调整为8x8，字体大小从base/lg调整为sm/xs，整体更加紧凑。移除了所有动画效果包括slide-in进入动画、悬停缩放、光晕效果等，提供更流畅的用户体验。
+> **Reason for Change**: 原有菜单在移动端显示过大，占用过多屏幕空间，且动画效果在移动设备上可能影响性能
+> **Impact Scope**: 影响App.vue的移动端菜单布局和样式
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 移除动画效果，提升移动端性能
+
+   ```
+   root
+   - src
+      - App.vue                      // improvement 移动端菜单尺寸优化和动画移除
+   ```
+
+### 2. 移动端菜单动画简化
+
+**Change Type**: improvement
+
+> **Purpose**: 移除复杂的动画效果，提供更直接的用户交互体验
+> **Detailed Description**: 删除slide-in进入动画、菜单项悬停缩放动画、光晕效果、脉冲动画等复杂效果。保留基础的透明度和位移过渡，过渡时间简化为0.2s。移除动画延迟和分层进入效果，所有菜单项同时显示。
+> **Reason for Change**: 简化动画有助于提升移动设备性能，减少不必要的视觉干扰
+> **Impact Scope**: 影响移动端菜单的CSS动画和过渡效果
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 显著提升移动端交互流畅度
+
+   ```
+   root
+   - src
+      - App.vue                      // improvement 移除复杂动画，简化过渡效果
+   ```
+
+## 2024-12-19 23:50:00
+
+### 1. 升级为真实二维码生成
+
+**Change Type**: feature/improvement
+
+> **Purpose**: 使用专业的二维码库生成真正的BSC地址二维码，提升扫码成功率和用户体验
+> **Detailed Description**: 安装qrcode库(v1.5.4)和@types/qrcode类型定义，替换之前的Canvas模拟二维码。使用QRCode.toCanvas()方法生成标准二维码，支持错误纠正级别M，并在中心添加BSC圆形标识。二维码尺寸从160px增加到200px，提供更好的扫描体验。实现降级机制，生成失败时自动回退到Canvas模拟方案。
+> **Reason for Change**: Canvas模拟的二维码无法被扫码应用识别，真实二维码能被所有扫码工具正确识别
+> **Impact Scope**: 影响Donation.vue的二维码生成逻辑和依赖管理
+> **API Changes**: 新增qrcode库依赖
+> **Configuration Changes**: 更新package.json依赖配置
+> **Performance Impact**: 二维码生成性能优化，但库体积略有增加
+
+   ```
+   root
+   - package.json                    // add qrcode依赖和@types/qrcode类型定义
+   - src
+      - views
+         - Donation.vue              // feature 真实二维码生成和降级机制
+   ```
+
+### 2. 二维码视觉优化
+
+**Change Type**: improvement
+
+> **Purpose**: 提升二维码的视觉效果和品牌识别度
+> **Detailed Description**: 二维码尺寸从160px增加到200px，提供更清晰的扫描体验。在二维码中心添加圆形BSC标识，包含白色背景圆圈、黑色边框、金黄色背景(#F3BA2F)和白色BSC文字。容器增加圆角和更强的阴影效果，添加"真实二维码，支持所有扫码应用"的说明文字。
+> **Reason for Change**: 提升二维码的品牌识别度和用户信任度
+> **Impact Scope**: 影响二维码的视觉设计和用户体验
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: Canvas绘制操作增加，但性能影响极小
+
+   ```
+   root
+   - src
+      - views
+         - Donation.vue              // improvement 二维码视觉效果和品牌标识优化
+   ```
+
+### 3. 错误处理和降级机制
+
+**Change Type**: feature
+
+> **Purpose**: 确保二维码功能的可靠性，提供完善的错误处理
+> **Detailed Description**: 实现try-catch错误捕获机制，当qrcode库生成失败时自动切换到Canvas模拟方案。保留原有的模拟二维码代码作为降级功能，确保在任何情况下都能显示二维码。优化模拟方案的视觉效果，与真实二维码保持一致的设计风格。
+> **Reason for Change**: 提高应用的稳定性和容错性，确保核心功能始终可用
+> **Impact Scope**: 影响错误处理逻辑和用户体验连续性
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 错误处理逻辑对性能影响极小
+
+   ```
+   root
+   - src
+      - views
+         - Donation.vue              // feature 错误处理和降级机制实现
+   ```
+
+## 2024-12-19 23:45:00

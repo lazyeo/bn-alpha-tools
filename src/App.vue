@@ -14,9 +14,10 @@ const isMenuOpen = ref(false)
 const menuItems = [
   { path: '/', name: 'home', label: '首页', icon: 'fas fa-home', color: 'from-blue-500 to-blue-600' },
   { path: '/alpha-points-rules', name: 'alpha-points-rules', label: 'Alpha积分规则', icon: 'fas fa-coins', color: 'from-yellow-500 to-orange-600' },
-  { path: '/settings', name: 'settings', label: '设置', icon: 'fas fa-cog', color: 'from-purple-500 to-purple-600' },
+  // { path: '/settings', name: 'settings', label: '设置', icon: 'fas fa-cog', color: 'from-purple-500 to-purple-600' },
   { path: '/help', name: 'help', label: '帮助', icon: 'fas fa-question-circle', color: 'from-orange-500 to-orange-600' },
-  { path: '/contact', name: 'contact', label: '联系我们', icon: 'fas fa-envelope', color: 'from-teal-500 to-cyan-600' }
+  { path: '/contact', name: 'contact', label: '联系我们', icon: 'fas fa-envelope', color: 'from-teal-500 to-cyan-600' },
+  { path: '/donation', name: 'donation', label: '打赏猪脚饭', icon: 'fas fa-utensils', color: 'from-yellow-500 to-red-600' }
 ]
 
 // 检测屏幕尺寸
@@ -169,78 +170,78 @@ onUnmounted(() => {
     <div
       v-if="isMobile"
       :class="[
-        'fixed inset-0 z-50 transition-all duration-500',
+        'fixed inset-0 z-50',
         isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
       ]"
     >
-      <!-- 动态模糊遮罩层 -->
+      <!-- 静态遮罩层 -->
       <div
         @click="closeMenu"
         :class="[
-          'absolute inset-0 backdrop-blur-sm transition-all duration-500',
+          'absolute inset-0',
           isMenuOpen ? 'bg-black/30' : 'bg-black/0'
         ]"
       ></div>
 
-      <!-- 抽屉内容 -->
+      <!-- 抽屉内容 - 调小尺寸 -->
       <div
         :class="[
-          'absolute left-0 top-0 h-full w-80 bg-white/95 backdrop-blur-xl shadow-2xl transform transition-all duration-500 ease-out border-r border-gray-200/30',
+          'absolute left-0 top-0 h-full w-64 bg-white/95 backdrop-blur-xl shadow-2xl border-r border-gray-200/30',
           isMenuOpen ? 'translate-x-0' : '-translate-x-full'
         ]"
       >
-        <!-- 抽屉头部 -->
-        <div class="h-20 bg-gradient-to-br from-blue-500 via-purple-600 to-blue-700 flex items-center justify-between px-6 relative overflow-hidden">
+        <!-- 抽屉头部 - 调小高度 -->
+        <div class="h-16 bg-gradient-to-br from-blue-500 via-purple-600 to-blue-700 flex items-center justify-between px-4 relative overflow-hidden">
           <!-- 背景装饰 -->
           <div class="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-600/20"></div>
-          <div class="absolute -top-4 -right-4 w-16 h-16 bg-white/10 rounded-full"></div>
-          <div class="absolute -bottom-2 -left-2 w-12 h-12 bg-white/10 rounded-full"></div>
+          <div class="absolute -top-3 -right-3 w-12 h-12 bg-white/10 rounded-full"></div>
+          <div class="absolute -bottom-1 -left-1 w-8 h-8 bg-white/10 rounded-full"></div>
 
           <div class="flex items-center relative z-10">
-            <div class="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-3">
-              <i class="fas fa-cube text-white"></i>
+            <div class="w-6 h-6 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center mr-2">
+              <i class="fas fa-cube text-white text-sm"></i>
             </div>
-            <h2 class="text-white font-bold text-lg">导航菜单</h2>
+            <h2 class="text-white font-bold text-base">导航菜单</h2>
           </div>
 
           <button
             @click="closeMenu"
-            class="relative z-10 p-2 rounded-xl bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-all duration-300 transform hover:scale-110 active:scale-95"
+            class="relative z-10 p-1.5 rounded-lg bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
           >
-            <i class="fas fa-times text-lg"></i>
+            <i class="fas fa-times text-base"></i>
           </button>
         </div>
 
-        <!-- 菜单项 -->
-        <div class="py-6 px-4 space-y-2">
+        <!-- 菜单项 - 调小间距和大小 -->
+        <div class="py-3 px-3 space-y-1">
           <button
             v-for="item in menuItems"
             :key="item.path"
             @click="navigateTo(item.path)"
             :class="[
-              'w-full flex items-center px-6 py-4 rounded-2xl text-left transition-all duration-300 transform hover:scale-105 group relative overflow-hidden',
+              'w-full flex items-center px-4 py-3 rounded-lg text-left group relative overflow-hidden',
               isActiveRoute(item.path)
-                ? 'text-white shadow-xl'
-                : 'text-gray-700 hover:bg-gray-50 hover:shadow-lg'
+                ? 'text-white shadow-lg'
+                : 'text-gray-700 hover:bg-gray-50 hover:shadow-md'
             ]"
             :style="isActiveRoute(item.path) ? `background: linear-gradient(135deg, ${item.color.replace('from-', '').replace('to-', ', ')});` : ''"
           >
-            <!-- 背景动画效果 -->
+            <!-- 背景效果 -->
             <div
               v-if="!isActiveRoute(item.path)"
-              :class="`absolute inset-0 rounded-2xl bg-gradient-to-r ${item.color} opacity-0 group-hover:opacity-10 transition-all duration-300`"
+              :class="`absolute inset-0 rounded-lg bg-gradient-to-r ${item.color} opacity-0 group-hover:opacity-10`"
             ></div>
 
             <!-- 活跃状态的光晕 -->
             <div
               v-if="isActiveRoute(item.path)"
-              :class="`absolute inset-0 rounded-2xl bg-gradient-to-r ${item.color} opacity-20 blur-sm`"
+              :class="`absolute inset-0 rounded-lg bg-gradient-to-r ${item.color} opacity-20`"
             ></div>
 
-            <!-- 图标容器 -->
+            <!-- 图标容器 - 调小尺寸 -->
             <div
               :class="[
-                'w-12 h-12 rounded-xl flex items-center justify-center mr-4 relative z-10 transition-all duration-300',
+                'w-8 h-8 rounded-lg flex items-center justify-center mr-3 relative z-10',
                 isActiveRoute(item.path)
                   ? 'bg-white/20 backdrop-blur-sm'
                   : 'bg-gray-100 group-hover:bg-white'
@@ -249,18 +250,18 @@ onUnmounted(() => {
               <i
                 :class="[
                   item.icon,
-                  'text-lg transition-all duration-300',
+                  'text-sm',
                   isActiveRoute(item.path) ? 'text-white' : 'text-gray-600 group-hover:text-gray-800'
                 ]"
               ></i>
             </div>
 
-            <!-- 文字内容 -->
+            <!-- 文字内容 - 调小字体 -->
             <div class="relative z-10">
-              <span class="font-semibold text-base">{{ item.label }}</span>
+              <span class="font-medium text-sm">{{ item.label }}</span>
               <div
                 v-if="isActiveRoute(item.path)"
-                class="text-white/80 text-sm mt-1"
+                class="text-white/80 text-xs mt-0.5"
               >
                 当前页面
               </div>
@@ -271,28 +272,28 @@ onUnmounted(() => {
               v-if="isActiveRoute(item.path)"
               class="ml-auto relative z-10"
             >
-              <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+              <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
             </div>
 
             <!-- 右侧箭头（非活跃状态） -->
             <div
               v-else
-              class="ml-auto relative z-10 opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300"
+              class="ml-auto relative z-10 opacity-0 group-hover:opacity-100"
             >
-              <i class="fas fa-chevron-right text-gray-400"></i>
+              <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
             </div>
           </button>
         </div>
 
-        <!-- 底部装饰 -->
-        <div class="absolute bottom-6 left-4 right-4">
-          <div class="bg-gradient-to-r from-gray-100 to-gray-50 rounded-2xl p-4 border border-gray-200/50">
+        <!-- 底部装饰 - 调小尺寸 -->
+        <div class="absolute bottom-3 left-3 right-3">
+          <div class="bg-gradient-to-r from-gray-100 to-gray-50 rounded-lg p-3 border border-gray-200/50">
             <div class="flex items-center">
-              <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
-                <i class="fas fa-sparkles text-white text-sm"></i>
+              <div class="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-2">
+                <i class="fas fa-sparkles text-white text-xs"></i>
               </div>
               <div>
-                <div class="text-sm font-medium text-gray-800">版本 v1.0.0</div>
+                <div class="text-xs font-medium text-gray-800">版本 v1.0.0</div>
                 <div class="text-xs text-gray-500">BSC交易查询工具</div>
               </div>
             </div>
@@ -422,36 +423,6 @@ nav button:hover {
   }
 }
 
-@keyframes slide-in {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* 菜单项进入动画 */
-.space-y-2 > button {
-  animation: slide-in 0.5s ease-out forwards;
-}
-
-.space-y-2 > button:nth-child(1) { animation-delay: 0.1s; }
-.space-y-2 > button:nth-child(2) { animation-delay: 0.2s; }
-.space-y-2 > button:nth-child(3) { animation-delay: 0.3s; }
-.space-y-2 > button:nth-child(4) { animation-delay: 0.4s; }
-
-/* 悬停时的光晕效果增强 */
-.group:hover .blur-sm {
-  filter: blur(8px);
-}
-
-.group:hover .blur-lg {
-  filter: blur(20px);
-}
-
 /* 活跃状态的脉冲效果 */
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -505,9 +476,29 @@ button[style*="background: linear-gradient"] {
 
 /* 响应式调整 */
 @media (max-width: 640px) {
-  .w-80 {
-    width: 85vw;
-    max-width: 320px;
+  .w-64 {
+    width: 256px;
+    max-width: 80vw;
+  }
+}
+
+/* 移动端菜单简化样式 */
+@media (max-width: 768px) {
+  .space-y-1 > button {
+    transition: background-color 0.2s ease;
+  }
+
+  .space-y-1 > button:hover {
+    transform: none;
+  }
+
+  /* 简化过渡效果 */
+  .fixed.inset-0 {
+    transition: opacity 0.2s ease;
+  }
+
+  .absolute.left-0 {
+    transition: transform 0.2s ease;
   }
 }
 
@@ -567,3 +558,4 @@ nav::before {
   }
 }
 </style>
+

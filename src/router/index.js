@@ -5,6 +5,7 @@ import Settings from '@/views/Settings.vue'
 import Help from '@/views/Help.vue'
 import AlphaPointsRules from '@/views/AlphaPointsRules.vue'
 import Contact from '@/views/Contact.vue'
+import Donation from '@/views/Donation.vue'
 import NotFound from '@/views/NotFound.vue'
 
 // BSC地址验证函数
@@ -59,6 +60,14 @@ const routes = [
     component: Contact,
     meta: {
       title: '联系我们'
+    }
+  },
+  {
+    path: '/donation',
+    name: 'donation',
+    component: Donation,
+    meta: {
+      title: '打赏猪脚饭'
     }
   },
   {
