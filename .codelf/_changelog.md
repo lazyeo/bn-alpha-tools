@@ -1,3 +1,284 @@
+## 2024-12-19 21:45:00
+
+### 1. 修复统计视图显示条件逻辑
+
+**Change Type**: fix
+
+> **Purpose**: 修复有数据时切换到统计视图仍显示"暂无数据"的问题
+> **Detailed Description**: 优化无数据提示的显示条件，只有在真正没有任何交易数据时（transactionData.length === 0）才显示"暂无数据"提示。当有数据时，切换到统计视图应该正常显示统计图表和数据表格，而不是显示无数据提示。
+> **Reason for Change**: 用户切换到统计视图时，即使有数据也显示"暂无统计数据"，导致功能无法正常使用
+> **Impact Scope**: 影响TransactionResults.vue的条件渲染逻辑
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 无性能影响，仅逻辑条件优化
+
+   ```
+   root
+   - src
+      - views
+         - TransactionResults.vue   // fix 无数据提示显示条件优化
+   ```
+
+## 2024-12-19 21:30:00
+
+### 1. 修复统计视图无数据提示缺失bug
+
+**Change Type**: fix
+
+> **Purpose**: 修复切换到15日统计视图时不显示"暂无数据"提示的问题
+> **Detailed Description**: 原有的无数据提示只适用于列表视图，统计视图没有对应的提示逻辑。现在根据当前视图类型显示不同的无数据提示：列表视图显示"暂无交易数据"，统计视图显示"暂无统计数据"并提供额外说明。
+> **Reason for Change**: 用户切换到统计视图时没有数据却看不到任何提示，体验不佳
+> **Impact Scope**: 影响TransactionResults.vue的无数据状态显示逻辑
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 无性能影响，仅UI显示逻辑调整
+
+   ```
+   root
+   - src
+      - views
+         - TransactionResults.vue   // fix 统计视图无数据提示显示
+   ```
+
+### 2. 优化无数据提示用户体验
+
+**Change Type**: improvement
+
+> **Purpose**: 提供更明确的无数据状态说明，改善用户体验
+> **Detailed Description**: 为不同视图设计专门的图标和文案。列表视图使用搜索图标配合"暂无交易数据"，统计视图使用图表图标配合"暂无统计数据"并添加"请先搜索BSC地址获取交易数据"的操作提示。
+> **Reason for Change**: 让用户更清楚当前状态和下一步操作
+> **Impact Scope**: 影响TransactionResults.vue的用户界面文案和图标
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 无
+
+   ```
+   root
+   - src
+      - views
+         - TransactionResults.vue   // improvement 差异化无数据提示设计
+   ```
+
+## 2024-12-19 21:00:00
+
+### 1. 统计范围改为15日限定
+
+**Change Type**: improvement
+
+> **Purpose**: 将统计功能从全量数据改为15日范围，提供更聚焦的近期数据分析
+> **Detailed Description**: 修改统计视图为"15日统计"，所有统计指标（交易总数、总交易量、总盈亏）都基于最近15天的数据计算。统计卡片标签更新为"15日交易数"、"15日交易量"、"15日盈亏"，使数据范围更明确。
+> **Reason for Change**: 用户希望统计功能聚焦于近期数据，15日范围更有分析价值
+> **Impact Scope**: 影响TransactionResults.vue的统计数据计算逻辑和显示文本
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 减少了计算范围，性能有所提升
+
+   ```
+   root
+   - src
+      - views
+         - TransactionResults.vue   // improvement 统计范围限定为15日
+   ```
+
+### 2. 图表数据排序优化
+
+**Change Type**: improvement
+
+> **Purpose**: 优化图表数据的时间顺序，从远到近显示更符合时间线逻辑
+> **Detailed Description**: 修改图表数据的排序逻辑，将原来的从近到远改为从远到近排序。图表X轴现在按时间顺序显示，用户可以更直观地观察数据趋势变化。
+> **Reason for Change**: 从远到近的时间顺序更符合用户的阅读习惯和数据分析需求
+> **Impact Scope**: 影响所有图表（交易量、盈亏、积分）的数据显示顺序
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 仅改变数据排序，性能影响可忽略
+
+   ```
+   root
+   - src
+      - views
+         - TransactionResults.vue   // improvement 图表数据从远到近排序
+   ```
+
+### 3. 统计数据计算逻辑重构
+
+**Change Type**: refactor
+
+> **Purpose**: 重构统计数据计算逻辑，确保数据一致性和准确性
+> **Detailed Description**: 新增statistics15Days计算属性，专门处理15日范围内的统计数据。移除全量数据的totalProfit计算属性，统一使用15日范围的数据计算。确保图表数据和统计卡片数据来源一致。
+> **Reason for Change**: 统一数据来源，避免全量数据和15日数据混用导致的不一致
+> **Impact Scope**: 影响TransactionResults.vue的数据计算逻辑
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 优化了计算逻辑，性能有所提升
+
+   ```
+   root
+   - src
+      - views
+         - TransactionResults.vue   // refactor 统计数据计算逻辑重构
+   ```
+
+## 2024-12-19 20:30:00
+
+### 1. 图表Tooltip智能定位优化
+
+**Change Type**: improvement
+
+> **Purpose**: 解决图表tooltip位置固定导致移动端无法查看的问题
+> **Detailed Description**: 重构tooltip定位逻辑，实现智能跟随鼠标位置并自动避免超出屏幕边界。移动端采用居中显示策略，避免被手指遮挡。PC端支持hover显示，移动端支持触摸交互。添加小箭头指示器增强视觉效果。
+> **Reason for Change**: 原有tooltip固定在左上角，移动端用户无法正常查看数据
+> **Impact Scope**: 影响TransactionResults.vue的图表交互和tooltip显示逻辑
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 增加了动态计算逻辑，但性能影响很小
+
+   ```
+   root
+   - src
+      - views
+         - TransactionResults.vue   // improvement 智能tooltip定位和移动端适配
+   ```
+
+### 2. 多种交互方式支持
+
+**Change Type**: feature
+
+> **Purpose**: 提供更丰富的图表交互体验，支持hover和点击两种方式
+> **Detailed Description**: PC端支持鼠标hover即时显示tooltip，移动端支持触摸点击显示。添加点击外部区域隐藏tooltip功能。优化触摸事件处理，防止滚动等默认行为干扰。
+> **Reason for Change**: 提升用户体验，让数据查看更便捷
+> **Impact Scope**: 影响所有三个图表（交易量、盈亏、积分）的交互逻辑
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 无明显性能影响
+
+   ```
+   root
+   - src
+      - views
+         - TransactionResults.vue   // feature hover和点击双重交互支持
+   ```
+
+### 3. 响应式设备检测
+
+**Change Type**: feature
+
+> **Purpose**: 准确识别设备类型，为不同设备提供最适合的交互方式
+> **Detailed Description**: 基于屏幕宽度和触摸能力检测设备类型，PC端和移动端采用不同的tooltip显示策略。添加窗口resize监听确保设备类型实时更新。
+> **Reason for Change**: 确保在不同设备上都有最佳的用户体验
+> **Impact Scope**: 影响TransactionResults.vue的设备检测和交互逻辑
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 设备检测开销极小
+
+   ```
+   root
+   - src
+      - views
+         - TransactionResults.vue   // feature 响应式设备检测和适配
+   ```
+
+## 2024-12-19 20:00:00
+
+### 1. 结果页面布局优化
+
+**Change Type**: improvement
+
+> **Purpose**: 优化结果页面的布局结构，提供更清晰的功能分层
+> **Detailed Description**: 将视图切换按钮和刷新按钮从头部右侧移动到标题下方，占据独立的一整行。同时显示完整的BSC地址而非缩短版本，提高信息可读性。移动端适配优化，确保按钮在小屏幕上的可用性。
+> **Reason for Change**: 用户希望功能按钮布局更清晰，BSC地址信息更完整
+> **Impact Scope**: 影响TransactionResults.vue的头部布局和信息展示
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 无明显性能影响，纯UI优化
+
+   ```
+   root
+   - src
+      - views
+         - TransactionResults.vue   // improvement 头部布局和地址显示优化
+   ```
+
+### 2. 移动端按钮适配
+
+**Change Type**: improvement
+
+> **Purpose**: 提升移动端用户体验，优化按钮布局和文字显示
+> **Detailed Description**: 视图切换按钮采用flex-1平分宽度设计，刷新按钮在移动端简化显示文字。添加响应式设计确保在不同屏幕尺寸下的最佳显示效果。
+> **Reason for Change**: 确保移动端界面的可用性和美观性
+> **Impact Scope**: 影响TransactionResults.vue的移动端布局
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 无
+
+   ```
+   root
+   - src
+      - views
+         - TransactionResults.vue   // improvement 移动端按钮布局优化
+   ```
+
+## 2024-12-19 19:30:00
+
+### 1. 统计功能集成到结果页面
+
+**Change Type**: feature/refactor
+
+> **Purpose**: 将独立的统计页面功能集成到结果页面，实现视图切换功能
+> **Detailed Description**: 在TransactionResults.vue中添加双视图模式（列表视图和统计视图），包含15日交易量/盈亏/积分柱状图、详细数据表格、tooltip交互等功能。用户可以在同一页面内切换查看交易列表和统计图表。
+> **Reason for Change**: 用户希望在结果页面直接查看统计信息，无需单独的统计页面
+> **Impact Scope**: 影响TransactionResults.vue的界面布局和功能逻辑，删除独立的Statistics.vue页面
+> **API Changes**: 无API变更
+> **Configuration Changes**: 移除统计页面路由配置
+> **Performance Impact**: 统计计算都在客户端进行，对性能影响较小
+
+   ```
+   root
+   - src
+      - views
+         - TransactionResults.vue   // feature 集成列表和统计双视图功能
+         - Statistics.vue           // del 删除独立统计页面
+      - router
+         - index.js                 // refact 移除统计路由配置
+      - App.vue                     // refact 移除统计菜单项
+   ```
+
+### 2. 双视图切换功能
+
+**Change Type**: feature
+
+> **Purpose**: 提供灵活的数据查看方式，用户可以在列表和统计视图间切换
+> **Detailed Description**: 在头部添加视图切换按钮，支持列表视图和统计视图的无缝切换。列表视图显示交易明细和排序筛选功能，统计视图显示图表分析和数据表格。两个视图共享相同的数据源但展示方式不同。
+> **Reason for Change**: 提供更好的用户体验，在同一页面内实现不同维度的数据查看
+> **Impact Scope**: 影响TransactionResults.vue的用户界面和交互逻辑
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 仅在需要时渲染对应视图，性能优化良好
+
+   ```
+   root
+   - src
+      - views
+         - TransactionResults.vue   // feature 双视图切换按钮和条件渲染
+   ```
+
+### 3. 导航菜单简化
+
+**Change Type**: improvement
+
+> **Purpose**: 简化导航结构，移除独立统计入口
+> **Detailed Description**: 从PC端顶部导航和移动端抽屉菜单中移除统计选项，统计功能通过结果页面的视图切换访问。简化菜单结构，减少用户认知负担。
+> **Reason for Change**: 统计功能已集成到结果页面，不再需要独立的菜单入口
+> **Impact Scope**: 影响App.vue的导航菜单配置
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 无
+
+   ```
+   root
+   - src
+      - App.vue                     // improvement 移除统计菜单项
+   ```
+
 ## 2024-12-19 16:00:00
 
 ### 1. URL参数化搜索系统

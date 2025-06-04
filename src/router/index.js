@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import BscHome from '@/views/BscHome.vue'
 import TransactionResults from '@/views/TransactionResults.vue'
-import Statistics from '@/views/Statistics.vue'
 import Settings from '@/views/Settings.vue'
 import Help from '@/views/Help.vue'
 import NotFound from '@/views/NotFound.vue'
@@ -33,11 +32,6 @@ const routes = [
         next()
       }
     }
-  },
-  {
-    path: '/statistics',
-    name: 'statistics',
-    component: Statistics
   },
   {
     path: '/settings',

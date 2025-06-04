@@ -13,7 +13,6 @@ const isMenuOpen = ref(false)
 // 菜单项配置
 const menuItems = [
   { path: '/', name: 'home', label: '首页', icon: 'fas fa-home', color: 'from-blue-500 to-blue-600' },
-  { path: '/statistics', name: 'statistics', label: '统计', icon: 'fas fa-chart-bar', color: 'from-green-500 to-green-600' },
   { path: '/settings', name: 'settings', label: '设置', icon: 'fas fa-cog', color: 'from-purple-500 to-purple-600' },
   { path: '/help', name: 'help', label: '帮助', icon: 'fas fa-question-circle', color: 'from-orange-500 to-orange-600' }
 ]
