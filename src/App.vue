@@ -12,12 +12,12 @@ const isMenuOpen = ref(false)
 
 // 菜单项配置
 const menuItems = [
-  { path: '/', name: 'home', label: '首页', icon: 'fas fa-home', color: 'from-blue-500 to-blue-600' },
-  { path: '/alpha-points-rules', name: 'alpha-points-rules', label: 'Alpha积分规则', icon: 'fas fa-coins', color: 'from-yellow-500 to-orange-600' },
-  // { path: '/settings', name: 'settings', label: '设置', icon: 'fas fa-cog', color: 'from-purple-500 to-purple-600' },
-  { path: '/help', name: 'help', label: '帮助', icon: 'fas fa-question-circle', color: 'from-orange-500 to-orange-600' },
-  { path: '/contact', name: 'contact', label: '联系我们', icon: 'fas fa-envelope', color: 'from-teal-500 to-cyan-600' },
-  { path: '/donation', name: 'donation', label: '打赏猪脚饭', icon: 'fas fa-utensils', color: 'from-yellow-500 to-red-600' }
+  { name: '首页', path: '/', icon: 'fas fa-home', gradient: 'from-blue-500 to-purple-600' },
+  { name: '多地址管理', path: '/address-manager', icon: 'fas fa-address-book', gradient: 'from-indigo-500 to-purple-600' },
+  { name: 'Alpha积分规则', path: '/alpha-points-rules', icon: 'fas fa-coins', gradient: 'from-yellow-500 to-orange-600' },
+  // { name: '使用帮助', path: '/help', icon: 'fas fa-question-circle', gradient: 'from-green-500 to-blue-600' },
+  { name: '联系我们', path: '/contact', icon: 'fas fa-envelope', gradient: 'from-cyan-500 to-teal-600' },
+  { name: '打赏猪脚饭', path: '/donation', icon: 'fas fa-utensils', gradient: 'from-yellow-500 to-red-600' }
 ]
 
 // 检测屏幕尺寸
@@ -98,12 +98,12 @@ onUnmounted(() => {
                     ? 'text-white shadow-2xl border-white/40 bg-white/20'
                     : 'text-white/90 hover:text-white hover:bg-white/10 border-white/20 hover:border-white/30 hover:shadow-xl'
                 ]"
-                :style="isActiveRoute(item.path) ? `background: linear-gradient(135deg, ${item.color.replace('from-', '').replace('to-', ', ')}, rgba(255,255,255,0.1));` : ''"
+                :style="isActiveRoute(item.path) ? `background: linear-gradient(135deg, ${item.gradient.replace('from-', '').replace('to-', ', ')}, rgba(255,255,255,0.1));` : ''"
               >
                 <!-- 活跃状态的内发光效果 -->
                 <div
                   v-if="isActiveRoute(item.path)"
-                  :class="`absolute inset-0 rounded-2xl bg-gradient-to-r ${item.color} opacity-40 blur-lg scale-110`"
+                  :class="`absolute inset-0 rounded-2xl bg-gradient-to-r ${item.gradient} opacity-40 blur-lg scale-110`"
                 ></div>
 
                 <!-- 非活跃状态的背景光晕 -->
@@ -113,7 +113,7 @@ onUnmounted(() => {
                 ></div>
 
                 <i :class="[item.icon, 'mr-2 relative z-10 text-base drop-shadow-sm']"></i>
-                <span class="relative z-10 font-medium drop-shadow-sm">{{ item.label }}</span>
+                <span class="relative z-10 font-medium drop-shadow-sm">{{ item.name }}</span>
 
                 <!-- 活跃状态底部指示器 -->
                 <div
@@ -224,18 +224,18 @@ onUnmounted(() => {
                 ? 'text-white shadow-lg'
                 : 'text-gray-700 hover:bg-gray-50 hover:shadow-md'
             ]"
-            :style="isActiveRoute(item.path) ? `background: linear-gradient(135deg, ${item.color.replace('from-', '').replace('to-', ', ')});` : ''"
+            :style="isActiveRoute(item.path) ? `background: linear-gradient(135deg, ${item.gradient.replace('from-', '').replace('to-', ', ')});` : ''"
           >
             <!-- 背景效果 -->
             <div
               v-if="!isActiveRoute(item.path)"
-              :class="`absolute inset-0 rounded-lg bg-gradient-to-r ${item.color} opacity-0 group-hover:opacity-10`"
+              :class="`absolute inset-0 rounded-lg bg-gradient-to-r ${item.gradient} opacity-0 group-hover:opacity-10`"
             ></div>
 
             <!-- 活跃状态的光晕 -->
             <div
               v-if="isActiveRoute(item.path)"
-              :class="`absolute inset-0 rounded-lg bg-gradient-to-r ${item.color} opacity-20`"
+              :class="`absolute inset-0 rounded-lg bg-gradient-to-r ${item.gradient} opacity-20`"
             ></div>
 
             <!-- 图标容器 - 调小尺寸 -->
@@ -258,7 +258,7 @@ onUnmounted(() => {
 
             <!-- 文字内容 - 调小字体 -->
             <div class="relative z-10">
-              <span class="font-medium text-sm">{{ item.label }}</span>
+              <span class="font-medium text-sm">{{ item.name }}</span>
               <div
                 v-if="isActiveRoute(item.path)"
                 class="text-white/80 text-xs mt-0.5"

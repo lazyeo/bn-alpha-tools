@@ -71,9 +71,9 @@
             <div class="flex items-center space-x-2">
               <span :class="[
                 'text-xs px-2 py-1 rounded-full',
-                copySuccess ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'
+                copied ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'
               ]">
-                {{ copySuccess ? '已复制!' : 'BSC' }}
+                {{ copied ? '已复制!' : 'BSC' }}
               </span>
             </div>
           </div>
@@ -90,12 +90,12 @@
               @click="copyAddress"
               :class="[
                 'absolute right-3 top-1/2 transform -translate-y-1/2 p-2 rounded-lg transition-all duration-200',
-                copySuccess
+                copied
                   ? 'bg-green-500 text-white'
                   : 'bg-yellow-500 hover:bg-yellow-600 text-white'
               ]"
             >
-              <i :class="copySuccess ? 'fas fa-check' : 'fas fa-copy'"></i>
+              <i :class="copied ? 'fas fa-check' : 'fas fa-copy'"></i>
             </button>
           </div>
 
@@ -192,6 +192,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import QRCode from 'qrcode'
+import { useClipboard } from '@vueuse/core'
 
 // 定义组件名
 defineOptions({
@@ -201,8 +202,8 @@ defineOptions({
 // 打赏地址
 const donationAddress = '0xAc285F9BF78eC7B16cb1999A5c7Ddd7867C3e3c9'
 
-// 复制状态
-const copySuccess = ref(false)
+// 使用VueUse的剪贴板功能
+const { copy, copied } = useClipboard()
 
 // 二维码相关
 const qrCanvas = ref(null)
@@ -294,24 +295,10 @@ const generateFallbackQRCode = () => {
 // 复制地址功能
 const copyAddress = async () => {
   try {
-    await navigator.clipboard.writeText(donationAddress)
-    copySuccess.value = true
-    setTimeout(() => {
-      copySuccess.value = false
-    }, 2000)
-  } catch {
-    // 降级方案
-    const textArea = document.createElement('textarea')
-    textArea.value = donationAddress
-    document.body.appendChild(textArea)
-    textArea.select()
-    document.execCommand('copy')
-    document.body.removeChild(textArea)
-
-    copySuccess.value = true
-    setTimeout(() => {
-      copySuccess.value = false
-    }, 2000)
+    await copy(donationAddress)
+    // copied 会自动变为 true，然后在一段时间后变为 false
+  } catch (error) {
+    console.error('复制失败:', error)
   }
 }
 

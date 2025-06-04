@@ -1,3 +1,303 @@
+## 2024-12-20 01:00:00
+
+### 1. 统一使用VueUse复制功能
+
+**Change Type**: improvement/refactor
+
+> **Purpose**: 使用VueUse的useClipboard替换原有的复制功能，提供更可靠和现代的复制体验
+> **Detailed Description**: 安装@vueuse/core依赖，在Donation.vue和AddressManager.vue中引入useClipboard。移除原有的navigator.clipboard.writeText和document.execCommand降级方案，统一使用VueUse的copy函数。在Donation.vue中使用copied状态替换原有的copySuccess响应式变量，自动管理复制状态的显示和重置。
+> **Reason for Change**: VueUse提供了更可靠的跨浏览器复制功能，内置了降级处理和状态管理，减少代码复杂度
+> **Impact Scope**: 影响Donation.vue和AddressManager.vue的复制功能实现
+> **API Changes**: 新增@vueuse/core依赖
+> **Configuration Changes**: package.json添加VueUse依赖
+> **Performance Impact**: VueUse优化的复制功能性能更好，状态管理更高效
+
+   ```
+   root
+   - package.json                   // add @vueuse/core依赖
+   - src
+      - views
+         - Donation.vue              // refact 使用useClipboard替换原有复制逻辑
+         - AddressManager.vue        // refact 使用useClipboard替换原有复制逻辑
+   ```
+
+### 2. 优化复制状态管理
+
+**Change Type**: improvement
+
+> **Purpose**: 使用VueUse的自动状态管理简化复制反馈逻辑
+> **Detailed Description**: 移除Donation.vue中的手动copySuccess状态管理和setTimeout重置逻辑，使用VueUse的copied状态自动管理复制反馈。保持原有的视觉反馈效果（绿色成功状态、图标切换），但简化了实现逻辑。AddressManager.vue保持Element UI的消息提示，但底层复制功能使用VueUse实现。
+> **Reason for Change**: VueUse的useClipboard自动管理copied状态，无需手动重置，代码更简洁可靠
+> **Impact Scope**: 简化复制状态管理逻辑，减少代码复杂度
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 自动状态管理减少内存泄漏风险，性能更稳定
+
+   ```
+   root
+   - src
+      - views
+         - Donation.vue              // improvement 使用copied自动状态管理
+         - AddressManager.vue        // improvement 简化复制错误处理
+   ```
+
+### 3. 移除降级复制方案
+
+**Change Type**: refactor
+
+> **Purpose**: 清理旧的document.execCommand降级方案，依托VueUse的内置处理
+> **Detailed Description**: 移除手动创建textarea元素和document.execCommand的降级复制方案，VueUse内部已处理了跨浏览器兼容性。简化错误处理逻辑，使用统一的try-catch结构。减少了大量模板代码，提高代码维护性。
+> **Reason for Change**: VueUse已内置完善的降级处理，无需重复实现
+> **Impact Scope**: 简化复制函数实现，减少代码量
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 减少DOM操作和内存占用，性能有所提升
+
+   ```
+   root
+   - src
+      - views
+         - Donation.vue              // refact 移除手动降级复制方案
+         - AddressManager.vue        // refact 移除手动降级复制方案
+   ```
+
+## 2024-12-20 00:45:00
+
+### 1. 集成Element UI消息提示系统
+
+**Change Type**: improvement
+
+> **Purpose**: 使用Element UI的Message组件替换原有的自定义提示，提供更统一和专业的用户反馈体验
+> **Detailed Description**: 引入Element Plus库和ElMessage组件，替换所有操作的提示反馈。包括复制成功、地址添加成功、地址修改成功、地址删除成功的绿色成功提示，以及验证失败的红色错误提示。移除原有的fixed定位复制成功提示元素，使用Element UI统一的消息提示样式。
+> **Reason for Change**: 用户希望使用Element UI的提示组件，提供更统一和美观的用户反馈体验
+> **Impact Scope**: 影响AddressManager.vue的所有用户反馈提示，以及项目的依赖配置
+> **API Changes**: 新增Element Plus依赖
+> **Configuration Changes**: main.js中已配置Element Plus
+> **Performance Impact**: Element UI组件性能优秀，提升用户体验
+
+   ```
+   root
+   - package.json                   // add Element Plus依赖配置
+   - src
+      - views
+         - AddressManager.vue        // refact 使用ElMessage替换自定义提示
+   ```
+
+### 2. 统一操作反馈体验
+
+**Change Type**: improvement
+
+> **Purpose**: 为所有CRUD操作提供一致的成功和错误反馈
+> **Detailed Description**: 为地址添加、修改、删除、复制操作都添加相应的Element UI成功提示。为表单验证错误添加具体的错误提示，用户能够清楚了解操作结果和错误原因。所有提示都使用Element UI的Message组件，保持视觉风格统一。
+> **Reason for Change**: 统一的反馈体验能让用户更清楚操作结果，提升整体用户体验
+> **Impact Scope**: 影响所有用户操作的反馈机制
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 提示组件轻量化，用户体验显著提升
+
+   ```
+   root
+   - src
+      - views
+         - AddressManager.vue        // improvement 统一CRUD操作反馈机制
+   ```
+
+### 3. 移除自定义提示组件
+
+**Change Type**: refactor
+
+> **Purpose**: 清理不再需要的自定义提示代码，简化组件结构
+> **Detailed Description**: 移除copySuccess响应式状态和相关的fixed定位提示元素。删除自定义的复制成功提示样式和动画代码。简化组件状态管理，减少代码复杂度。
+> **Reason for Change**: 使用Element UI后，自定义提示组件成为冗余代码，需要清理
+> **Impact Scope**: 减少AddressManager.vue的代码量和复杂度
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 减少DOM元素和状态管理，性能有所提升
+
+   ```
+   root
+   - src
+      - views
+         - AddressManager.vue        // refact 移除自定义提示组件和相关代码
+   ```
+
+## 2024-12-20 00:30:00
+
+### 1. 地址管理弹窗模式重构
+
+**Change Type**: feature/improvement
+
+> **Purpose**: 将地址添加/编辑功能改为弹窗模式，提升用户体验和界面美观度
+> **Detailed Description**: 移除页面内嵌的表单，改为弹窗方式处理地址的添加和编辑。弹窗包含渐变色头部、表单验证、动画效果和响应式设计。页面布局更加简洁，操作流程更加直观。支持点击遮罩和ESC键关闭弹窗。
+> **Reason for Change**: 用户希望使用弹窗添加地址，避免页面滚动，提供更现代的操作体验
+> **Impact Scope**: 重构AddressManager.vue的界面布局和交互逻辑
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 弹窗按需渲染，性能更优
+
+   ```
+   root
+   - src
+      - views
+         - AddressManager.vue        // refact 弹窗模式地址添加/编辑
+   ```
+
+### 2. 备注字段必填验证
+
+**Change Type**: improvement
+
+> **Purpose**: 将备注字段改为必填，确保每个地址都有明确的标识
+> **Detailed Description**: 备注字段添加必填验证，最少2个字符要求。增加remarkError状态管理和validateRemark验证函数。表单提交前进行完整验证，确保数据质量。更新UI提示，明确告知用户备注必填。
+> **Reason for Change**: 备注是识别地址的重要信息，必填可以避免用户添加难以识别的地址
+> **Impact Scope**: 影响表单验证逻辑和用户输入要求
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 增加验证逻辑，对性能影响极小
+
+   ```
+   root
+   - src
+      - views
+         - AddressManager.vue        // improvement 备注必填验证和错误处理
+   ```
+
+### 3. 表单验证系统优化
+
+**Change Type**: improvement
+
+> **Purpose**: 增强表单验证系统，提供实时反馈和更好的用户体验
+> **Detailed Description**: 添加computed属性isFormValid统一管理表单验证状态。实现实时验证（input和blur事件）和错误状态样式。按钮禁用状态与验证结果联动，防止无效提交。错误提示精确到字段级别，用户体验更友好。
+> **Reason for Change**: 实时验证能让用户及时发现并修正输入错误，避免提交失败
+> **Impact Scope**: 影响表单交互体验和验证逻辑
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 验证计算高效，用户体验显著提升
+
+   ```
+   root
+   - src
+      - views
+         - AddressManager.vue        // improvement 实时表单验证和状态管理
+   ```
+
+### 4. 修复添加按钮无响应bug
+
+**Change Type**: fix
+
+> **Purpose**: 修复原有添加按钮点击无反应的问题
+> **Detailed Description**: 重新设计按钮点击处理逻辑，使用openAddModal和openEditModal函数替代原有的saveAddress直接调用。修复表单提交逻辑，确保验证通过后才执行保存操作。清理无用的编辑状态管理代码。
+> **Reason for Change**: 用户反馈点击添加按钮没有反应，需要修复这个功能性bug
+> **Impact Scope**: 修复AddressManager.vue的按钮响应和表单提交逻辑
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 修复功能，无性能影响
+
+   ```
+   root
+   - src
+      - views
+         - AddressManager.vue        // fix 添加按钮响应和表单提交逻辑
+   ```
+
+### 5. 弹窗动画和视觉效果
+
+**Change Type**: feature
+
+> **Purpose**: 为弹窗添加平滑的动画效果，提升视觉体验
+> **Detailed Description**: 实现fadeIn和slideUp CSS动画，弹窗出现时有渐显和上滑效果。添加遮罩层渐变动画，关闭时平滑过渡。优化弹窗阴影和圆角效果，使用渐变色头部和响应式设计。支持滚动内容，适配小屏幕设备。
+> **Reason for Change**: 动画效果能提供更现代和流畅的用户体验
+> **Impact Scope**: 影响弹窗的视觉呈现和交互动画
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: CSS动画性能优秀，硬件加速支持
+
+   ```
+   root
+   - src
+      - views
+         - AddressManager.vue        // feature 弹窗动画和视觉效果优化
+   ```
+
+## 2024-12-20 00:10:00
+
+### 1. 新增多地址管理功能
+
+**Change Type**: feature
+
+> **Purpose**: 创建BSC地址管理系统，支持批量管理和本地存储
+> **Detailed Description**: 新建AddressManager.vue页面，提供完整的BSC地址管理功能。支持添加地址和备注、编辑现有地址信息、删除不需要的地址、BSC地址格式验证、重复地址检测、一键复制地址、直接跳转查询等功能。所有数据使用localStorage本地存储，保证隐私安全。
+> **Reason for Change**: 用户希望能够管理多个BSC地址，添加备注便于识别，并快速访问常用地址
+> **Impact Scope**: 新增独立的地址管理页面和完整的CRUD功能
+> **API Changes**: 无，纯前端本地存储实现
+> **Configuration Changes**: 新增路由配置和菜单项
+> **Performance Impact**: 本地存储性能优秀，无服务器压力
+
+   ```
+   root
+   - src
+      - views
+         - AddressManager.vue        // add 多地址管理页面
+      - router
+         - index.js                  // refact 添加地址管理路由
+      - App.vue                      // refact 菜单配置添加地址管理入口
+   ```
+
+### 2. BSC地址验证和本地存储系统
+
+**Change Type**: feature
+
+> **Purpose**: 确保地址格式正确性和数据持久化存储
+> **Detailed Description**: 实现严格的BSC地址格式验证（0x开头42位十六进制字符），重复地址检测机制。使用localStorage实现数据持久化，支持数据加载/保存的错误处理。地址列表按创建时间倒序排列，新添加的地址显示在顶部。
+> **Reason for Change**: 确保用户输入的地址格式正确，避免查询失败，同时提供可靠的本地存储
+> **Impact Scope**: 影响地址输入验证逻辑和数据持久化机制
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 验证和存储操作高效，用户体验良好
+
+   ```
+   root
+   - src
+      - views
+         - AddressManager.vue        // feature BSC地址验证和localStorage存储
+   ```
+
+### 3. 地址列表操作和用户体验优化
+
+**Change Type**: feature
+
+> **Purpose**: 提供丰富的地址操作功能和优秀的用户体验
+> **Detailed Description**: 每个地址项提供查询、复制、编辑、删除四个操作按钮。支持备注编辑，显示创建和修改时间。编辑时自动滚动到表单顶部，复制成功显示浮动提示。包含空状态提示、操作确认对话框、使用提示说明等完整的用户体验设计。
+> **Reason for Change**: 提供完整易用的地址管理体验，让用户能够高效管理多个BSC地址
+> **Impact Scope**: 影响用户交互体验和界面设计
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 界面操作流畅，交互响应迅速
+
+   ```
+   root
+   - src
+      - views
+         - AddressManager.vue        // feature 完整的地址操作和用户体验
+   ```
+
+### 4. 菜单系统扩展和导航优化
+
+**Change Type**: improvement
+
+> **Purpose**: 在主导航中添加多地址管理入口，完善应用功能架构
+> **Detailed Description**: 在PC端和移动端菜单中添加"多地址管理"选项，使用地址簿图标(fas fa-address-book)和靛蓝紫色渐变主题。调整菜单顺序，将地址管理放在首页之后，体现其重要性。统一菜单配置格式，使用name、path、icon、gradient字段。
+> **Reason for Change**: 地址管理是核心功能，需要在主导航中提供便捷入口
+> **Impact Scope**: 影响App.vue的菜单配置和导航结构
+> **API Changes**: 无
+> **Configuration Changes**: 更新menuItems配置
+> **Performance Impact**: 无
+
+   ```
+   root
+   - src
+      - App.vue                      // improvement 菜单添加地址管理入口
+   ```
+
 ## 2024-12-19 23:55:00
 
 ### 1. 二维码显示优化

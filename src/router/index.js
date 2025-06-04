@@ -7,6 +7,7 @@ import AlphaPointsRules from '@/views/AlphaPointsRules.vue'
 import Contact from '@/views/Contact.vue'
 import Donation from '@/views/Donation.vue'
 import NotFound from '@/views/NotFound.vue'
+import AddressManager from '@/views/AddressManager.vue'
 
 // BSC地址验证函数
 const isValidBscAddress = (address) => {
@@ -17,7 +18,8 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: BscHome
+    component: BscHome,
+    meta: { title: 'BSC交易量查询工具' }
   },
   {
     path: '/results',
@@ -34,7 +36,8 @@ const routes = [
       } else {
         next()
       }
-    }
+    },
+    meta: { title: '交易查询结果' }
   },
   {
     path: '/settings',
@@ -44,31 +47,32 @@ const routes = [
   {
     path: '/help',
     name: 'help',
-    component: Help
+    component: Help,
+    meta: { title: '使用帮助' }
   },
   {
     path: '/alpha-points-rules',
     name: 'alpha-points-rules',
     component: AlphaPointsRules,
-    meta: {
-      title: '币安Alpha积分规则'
-    }
+    meta: { title: '币安Alpha积分规则' }
   },
   {
     path: '/contact',
     name: 'contact',
     component: Contact,
-    meta: {
-      title: '联系我们'
-    }
+    meta: { title: '联系我们' }
   },
   {
     path: '/donation',
     name: 'donation',
     component: Donation,
-    meta: {
-      title: '打赏猪脚饭'
-    }
+    meta: { title: '打赏猪脚饭' }
+  },
+  {
+    path: '/address-manager',
+    name: 'address-manager',
+    component: AddressManager,
+    meta: { title: '多地址管理' }
   },
   {
     path: '/404',
