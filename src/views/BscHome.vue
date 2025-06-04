@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- 头部 -->
-    <div class="bg-gradient-to-br from-blue-500 via-purple-600 to-blue-700 px-4 py-6 pt-12 text-white">
+    <div class="bg-gradient-to-br from-blue-500 via-purple-600 to-blue-700 px-4 py-6 text-white">
       <div class="text-center mb-8">
         <h1 class="text-3xl font-bold mb-2">BSC交易查询</h1>
         <p class="text-blue-100">专业的币安智能链交易数据分析工具</p>
@@ -41,7 +41,7 @@
     </div>
 
     <!-- 主要内容 -->
-    <div class="px-4 py-6">
+    <div class="px-4 py-6 pb-8">
       <!-- 搜索历史 -->
       <div v-if="searchHistory.length > 0" class="mb-6">
         <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
@@ -109,32 +109,6 @@
           <div class="text-2xl font-bold text-gray-800">{{ currentTime }}</div>
           <div class="text-sm text-gray-500">当前时间</div>
         </div>
-      </div>
-    </div>
-
-    <!-- 底部导航 -->
-    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
-      <div class="flex justify-around">
-        <router-link to="/" class="flex flex-col items-center py-2 text-blue-500">
-          <i class="fas fa-home text-xl mb-1"></i>
-          <span class="text-xs">首页</span>
-        </router-link>
-        <router-link
-          v-if="bscStore.currentAddress || bscStore.searchResults.length > 0"
-          to="/statistics"
-          class="flex flex-col items-center py-2 text-gray-400"
-        >
-          <i class="fas fa-chart-bar text-xl mb-1"></i>
-          <span class="text-xs">统计</span>
-        </router-link>
-        <router-link to="/settings" class="flex flex-col items-center py-2 text-gray-400">
-          <i class="fas fa-cog text-xl mb-1"></i>
-          <span class="text-xs">设置</span>
-        </router-link>
-        <router-link to="/help" class="flex flex-col items-center py-2 text-gray-400">
-          <i class="fas fa-question-circle text-xl mb-1"></i>
-          <span class="text-xs">帮助</span>
-        </router-link>
       </div>
     </div>
   </div>

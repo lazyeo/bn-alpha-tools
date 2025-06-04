@@ -1,13 +1,9 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- 头部 -->
-    <div class="bg-white px-4 py-6 pt-12 shadow-sm">
-      <div class="flex items-center mb-4">
-        <button @click="$router.go(-1)" class="mr-4">
-          <i class="fas fa-arrow-left text-gray-600"></i>
-        </button>
-        <h1 class="text-xl font-bold text-gray-800">设置</h1>
-      </div>
+    <div class="bg-white px-4 py-6 shadow-sm">
+      <h1 class="text-xl font-bold text-gray-800">设置</h1>
     </div>
 
     <!-- 用户信息 -->
@@ -119,7 +115,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { reactive } from 'vue'
 import { useBscStore } from '@/stores/bsc'
 import ToggleSwitch from '@/components/ToggleSwitch.vue'
 

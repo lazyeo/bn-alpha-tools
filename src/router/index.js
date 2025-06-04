@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import BscHome from '@/views/BscHome.vue'
 import TransactionResults from '@/views/TransactionResults.vue'
-import TransactionDetail from '@/views/TransactionDetail.vue'
 import Statistics from '@/views/Statistics.vue'
 import Settings from '@/views/Settings.vue'
 import Help from '@/views/Help.vue'
@@ -30,21 +29,6 @@ const routes = [
     beforeEnter: (to, from, next) => {
       const address = to.params.address
       if (!isValidBscAddress(address)) {
-        next('/404')
-      } else {
-        next()
-      }
-    }
-  },
-  {
-    path: '/detail/:date',
-    name: 'transaction-detail',
-    component: TransactionDetail,
-    beforeEnter: (to, from, next) => {
-      const date = to.params.date
-      // 验证日期格式 YYYY-MM-DD
-      const dateRegex = /^\d{4}-\d{2}-\d{2}$/
-      if (!dateRegex.test(date)) {
         next('/404')
       } else {
         next()

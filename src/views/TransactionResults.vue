@@ -1,17 +1,12 @@
 <template>
-  <div class="min-h-screen bg-gray-50 pb-20">
+  <div class="min-h-screen bg-gray-50">
     <!-- 头部 -->
-    <div class="bg-gradient-to-br from-blue-500 via-purple-600 to-blue-700 px-4 py-6 pt-12 text-white">
-      <div class="flex items-center mb-4">
-        <button @click="$router.go(-1)" class="mr-4">
-          <i class="fas fa-arrow-left text-white"></i>
-        </button>
-        <div class="flex-1">
-          <h1 class="text-2xl font-bold">交易数据</h1>
-          <p v-if="bscStore.currentAddress" class="text-blue-100 text-sm">
-            {{ bscStore.currentAddressShort }}
-          </p>
-        </div>
+    <div class="bg-gradient-to-br from-blue-500 via-purple-600 to-blue-700 px-4 py-6 text-white">
+      <div class="mb-4">
+        <h1 class="text-2xl font-bold">交易数据</h1>
+        <p v-if="bscStore.currentAddress" class="text-blue-100 text-sm">
+          {{ bscStore.currentAddressShort }}
+        </p>
       </div>
 
       <!-- 统计卡片 -->
@@ -35,7 +30,7 @@
     </div>
 
     <!-- 交易数据列表 -->
-    <div v-if="transactionData.length > 0" class="px-4 py-4">
+    <div v-if="transactionData.length > 0" class="px-4 py-4 pb-8">
       <!-- 排序和筛选 -->
       <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
         <div class="flex items-center justify-between mb-3">
@@ -190,32 +185,6 @@
       <router-link to="/" class="text-blue-500 hover:text-blue-600 mt-2 inline-block">
         返回搜索页面
       </router-link>
-    </div>
-
-    <!-- 底部导航 -->
-    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
-      <div class="flex justify-around">
-        <router-link to="/" class="flex flex-col items-center py-2 text-gray-400">
-          <i class="fas fa-home text-xl mb-1"></i>
-          <span class="text-xs">首页</span>
-        </router-link>
-        <router-link to="/results" class="flex flex-col items-center py-2 text-blue-500">
-          <i class="fas fa-list text-xl mb-1"></i>
-          <span class="text-xs">结果</span>
-        </router-link>
-        <router-link
-          v-if="bscStore.currentAddress || bscStore.searchResults.length > 0"
-          to="/statistics"
-          class="flex flex-col items-center py-2 text-gray-400"
-        >
-          <i class="fas fa-chart-bar text-xl mb-1"></i>
-          <span class="text-xs">统计</span>
-        </router-link>
-        <router-link to="/settings" class="flex flex-col items-center py-2 text-gray-400">
-          <i class="fas fa-cog text-xl mb-1"></i>
-          <span class="text-xs">设置</span>
-        </router-link>
-      </div>
     </div>
   </div>
 </template>

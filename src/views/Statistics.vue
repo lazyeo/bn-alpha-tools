@@ -1,17 +1,12 @@
 <template>
-  <div class="min-h-screen bg-gray-50 pb-20">
+  <div class="min-h-screen bg-gray-50">
     <!-- 头部 -->
-    <div class="bg-gradient-to-br from-blue-500 via-purple-600 to-blue-700 px-4 py-6 pt-12 text-white">
-      <div class="flex items-center mb-4">
-        <button @click="$router.go(-1)" class="mr-4">
-          <i class="fas fa-arrow-left text-white"></i>
-        </button>
-        <div class="flex-1">
-          <h1 class="text-2xl font-bold">数据统计</h1>
-          <p v-if="bscStore.currentAddress" class="text-blue-100 text-sm">
-            {{ bscStore.currentAddressShort }}
-          </p>
-        </div>
+    <div class="bg-gradient-to-br from-blue-500 via-purple-600 to-blue-700 px-4 py-6 text-white">
+      <div class="mb-4">
+        <h1 class="text-2xl font-bold">数据统计</h1>
+        <p v-if="bscStore.currentAddress" class="text-blue-100 text-sm">
+          {{ bscStore.currentAddressShort }}
+        </p>
       </div>
 
       <!-- 总体统计卡片 -->
