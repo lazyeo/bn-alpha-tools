@@ -641,4 +641,47 @@
          - index.js                  // feature 添加联系我们页面路由
    ```
 
+## 2024-12-19 23:00:00
+
+### 1. Twitter图标更新为X图标
+
+**Change Type**: improvement
+
+> **Purpose**: 更新Twitter图标为X图标，反映平台更名变化
+> **Detailed Description**: 将Contact.vue页面和HTML演示文件中的所有Twitter图标(`fab fa-twitter`)更新为X图标(`fab fa-x-twitter`)。同时调整相关的颜色方案，X平台使用黑色主题色(`bg-gray-900`)替代之前的蓝色主题，更符合X平台的视觉标识。更新了标题文本从"Twitter / X 平台"简化为"X 平台"。
+> **Reason for Change**: Twitter已正式更名为X，需要更新相关的视觉元素和品牌标识
+> **Impact Scope**: 影响Contact.vue联系我们页面和bsc-trading-volume-tool.html演示文件
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 无性能影响，仅视觉元素更新
+
+   ```
+   root
+   - src
+      - views
+         - Contact.vue               // improvement Twitter图标更新为X图标
+   - bsc-trading-volume-tool.html     // improvement Twitter图标更新为X图标
+   ```
+
+## 2024-12-19 23:15:00
+
+### 1. 新增邮箱联系方式
+
+**Change Type**: feature
+
+> **Purpose**: 在联系我们页面添加邮箱联系方式，提供更直接的沟通渠道
+> **Detailed Description**: 在Contact.vue页面的主要联系方式部分新增邮箱联系卡片(songsongqaq@gmail.com)，使用红色渐变主题和邮件图标。同时在开发团队部分添加邮箱信息和对应的社交链接图标。邮箱链接使用mailto协议，用户点击后可以直接打开邮件客户端发送邮件。
+> **Reason for Change**: 为用户提供更便捷的联系方式，特别是对于不使用GitHub或X平台的用户
+> **Impact Scope**: 影响Contact.vue联系我们页面，增加邮箱联系渠道
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 无性能影响，仅增加联系方式显示
+
+   ```
+   root
+   - src
+      - views
+         - Contact.vue               // feature 新增邮箱联系方式和社交链接
+   ```
+
 ...
