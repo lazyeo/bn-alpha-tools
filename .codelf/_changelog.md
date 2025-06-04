@@ -453,44 +453,83 @@
       - App.vue                     // feature 多层光晕和智能边框系统
    ```
 
-## {datetime: YYYY-MM-DD HH:mm:ss}
+## 2024-12-19 22:00:00
 
-### 1. {function simple description}
+### 1. 新增币安Alpha积分规则独立页面
 
-**Change Type**: {type: feature/fix/improvement/refactor/docs/test/build}
+**Change Type**: feature
 
-> **Purpose**: {function purpose}
-> **Detailed Description**: {function detailed description}
-> **Reason for Change**: {why this change is needed}
-> **Impact Scope**: {other modules or functions that may be affected by this change}
-> **API Changes**: {if there are API changes, detail the old and new APIs}
-> **Configuration Changes**: {changes to environment variables, config files, etc.}
-> **Performance Impact**: {impact of the change on system performance}
-
-   ```
-   root
-   - pkg    // {type: add/del/refact/-} {The role of a folder}
-    - utils // {type: add/del/refact} {The function of the file}
-   - xxx    // {type: add/del/refact} {The function of the file}
-   ```
-
-### 2. {function simple description}
-
-**Change Type**: {type: feature/fix/improvement/refactor/docs/test/build}
-
-> **Purpose**: {function purpose}
-> **Detailed Description**: {function detailed description}
-> **Reason for Change**: {why this change is needed}
-> **Impact Scope**: {other modules or functions that may be affected by this change}
-> **API Changes**: {if there are API changes, detail the old and new APIs}
-> **Configuration Changes**: {changes to environment variables, config files, etc.}
-> **Performance Impact**: {impact of the change on system performance}
+> **Purpose**: 创建专门的币安Alpha积分规则页面，提供更详细和专业的积分规则说明
+> **Detailed Description**: 新建AlphaPointsRules.vue页面，包含完整的积分规则概述、余额积分规则、交易量积分规则、计算示例、重要提醒和相关链接。页面采用卡片式设计，提供更好的阅读体验和视觉层次。
+> **Reason for Change**: 用户希望有独立的积分规则页面，便于详细了解和快速查找积分相关信息
+> **Impact Scope**: 新增独立页面文件，完善积分规则信息结构
+> **API Changes**: 无
+> **Configuration Changes**: 新增路由配置
+> **Performance Impact**: 新增页面，无性能影响
 
    ```
    root
-   - pkg    // {type: add/del/refact/-} {The role of a folder}
-    - utils // {type: add/del/refact} {The function of the file}
-   - xxx    // {type: add/del/refact} {The function of the file}
+   - src
+      - views
+         - AlphaPointsRules.vue      // add 币安Alpha积分规则专门页面
+      - router
+         - index.js                  // refact 添加积分规则路由配置
+   ```
+
+### 2. 导航菜单集成积分规则入口
+
+**Change Type**: feature
+
+> **Purpose**: 在主导航菜单中添加币安Alpha积分规则入口，便于用户访问
+> **Detailed Description**: 在PC端导航栏和移动端抽屉菜单中添加"Alpha积分规则"菜单项，使用金币图标(fas fa-coins)和黄色到橙色的渐变主题色。菜单项位于首页和设置之间，保持良好的信息架构。
+> **Reason for Change**: 积分规则是重要功能，需要在主导航中提供便捷入口
+> **Impact Scope**: 影响App.vue的菜单配置和导航逻辑
+> **API Changes**: 无
+> **Configuration Changes**: 更新menuItems配置
+> **Performance Impact**: 无
+
+   ```
+   root
+   - src
+      - App.vue                      // refact 菜单配置添加积分规则入口
+   ```
+
+### 3. 帮助页面积分规则重构
+
+**Change Type**: improvement/refactor
+
+> **Purpose**: 简化帮助页面内容，移除详细积分规则并添加引导链接
+> **Detailed Description**: 从Help.vue中移除完整的积分规则内容，替换为精简的积分规则快捷入口卡片。卡片包含简要说明和"查看积分规则"按钮，引导用户到专门页面。保持帮助页面聚焦于使用指南而非详细规则。
+> **Reason for Change**: 避免帮助页面内容过于冗长，通过专门页面提供更好的积分规则浏览体验
+> **Impact Scope**: 影响Help.vue的内容结构和页面布局
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 帮助页面内容减少，加载速度提升
+
+   ```
+   root
+   - src
+      - views
+         - Help.vue                  // refact 移除详细积分规则，添加引导入口
+   ```
+
+### 4. 路由系统扩展
+
+**Change Type**: feature
+
+> **Purpose**: 扩展路由系统以支持新的积分规则页面
+> **Detailed Description**: 在router/index.js中添加/alpha-points-rules路由配置，设置页面标题meta信息。导入AlphaPointsRules组件并配置路由导航。确保路由系统的完整性和一致性。
+> **Reason for Change**: 支持新页面的访问和导航功能
+> **Impact Scope**: 影响路由配置和页面导航系统
+> **API Changes**: 无
+> **Configuration Changes**: 新增路由配置项
+> **Performance Impact**: 路由数量增加，但对性能影响极小
+
+   ```
+   root
+   - src
+      - router
+         - index.js                  // feature 添加积分规则页面路由
    ```
 
 ## 2024-06-08  
@@ -521,6 +560,85 @@
       - router
          - index.js         // refact 仅保留BSC查询页面路由
       - App.vue             // refact 移除旧导航和组件
+   ```
+
+## 2024-12-19 22:30:00
+
+### 1. 新增联系我们独立页面
+
+**Change Type**: feature
+
+> **Purpose**: 创建专门的联系我们页面，提供更全面的联系方式和技术支持信息
+> **Detailed Description**: 新建Contact.vue页面，包含主要联系方式（GitHub、Twitter）、反馈与建议、技术支持、开发团队介绍、项目信息和免责声明。页面采用多卡片布局，提供更丰富的联系渠道和项目信息展示。
+> **Reason for Change**: 用户希望有独立的联系页面，便于获得技术支持和提供反馈建议
+> **Impact Scope**: 新增独立页面文件，完善联系信息和技术支持结构
+> **API Changes**: 无
+> **Configuration Changes**: 新增路由配置
+> **Performance Impact**: 新增页面，无性能影响
+
+   ```
+   root
+   - src
+      - views
+         - Contact.vue               // add 联系我们专门页面
+      - router
+         - index.js                  // refact 添加联系页面路由配置
+   ```
+
+### 2. 导航菜单添加联系入口
+
+**Change Type**: feature
+
+> **Purpose**: 在主导航菜单中添加联系我们入口，便于用户获得技术支持
+> **Detailed Description**: 在PC端导航栏和移动端抽屉菜单中添加"联系我们"菜单项，使用信封图标(fas fa-envelope)和青绿色到青色的渐变主题色。菜单项位于帮助菜单之后，形成完整的信息架构。
+> **Reason for Change**: 联系支持是重要功能，需要在主导航中提供便捷入口
+> **Impact Scope**: 影响App.vue的菜单配置和导航逻辑
+> **API Changes**: 无
+> **Configuration Changes**: 更新menuItems配置
+> **Performance Impact**: 无
+
+   ```
+   root
+   - src
+      - App.vue                      // refact 菜单配置添加联系我们入口
+   ```
+
+### 3. 帮助页面联系信息重构
+
+**Change Type**: improvement/refactor
+
+> **Purpose**: 简化帮助页面内容，移除详细联系信息并添加引导链接
+> **Detailed Description**: 从Help.vue中移除联系方式信息，替换为精简的联系与支持快捷入口卡片。卡片包含技术支持说明和"联系我们"按钮，引导用户到专门页面。保持帮助页面聚焦于使用指南功能。
+> **Reason for Change**: 避免帮助页面信息冗余，通过专门页面提供更全面的联系和支持体验
+> **Impact Scope**: 影响Help.vue的内容结构和页面布局
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 帮助页面内容简化，加载速度提升
+
+   ```
+   root
+   - src
+      - views
+         - Help.vue                  // refact 移除详细联系信息，添加引导入口
+   ```
+
+### 4. 路由系统进一步扩展
+
+**Change Type**: feature
+
+> **Purpose**: 扩展路由系统以支持新的联系我们页面
+> **Detailed Description**: 在router/index.js中添加/contact路由配置，设置页面标题meta信息。导入Contact组件并配置路由导航。完善应用的页面导航体系。
+> **Reason for Change**: 支持新页面的访问和导航功能
+> **Impact Scope**: 影响路由配置和页面导航系统
+> **API Changes**: 无
+> **Configuration Changes**: 新增路由配置项
+> **Performance Impact**: 路由数量增加，但对性能影响极小
+
+   ```
+   root
+   - src
+      - router
+         - index.js                  // feature 添加联系我们页面路由
    ```
 
 ...

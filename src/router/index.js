@@ -3,6 +3,8 @@ import BscHome from '@/views/BscHome.vue'
 import TransactionResults from '@/views/TransactionResults.vue'
 import Settings from '@/views/Settings.vue'
 import Help from '@/views/Help.vue'
+import AlphaPointsRules from '@/views/AlphaPointsRules.vue'
+import Contact from '@/views/Contact.vue'
 import NotFound from '@/views/NotFound.vue'
 
 // BSC地址验证函数
@@ -42,6 +44,22 @@ const routes = [
     path: '/help',
     name: 'help',
     component: Help
+  },
+  {
+    path: '/alpha-points-rules',
+    name: 'alpha-points-rules',
+    component: AlphaPointsRules,
+    meta: {
+      title: '币安Alpha积分规则'
+    }
+  },
+  {
+    path: '/contact',
+    name: 'contact',
+    component: Contact,
+    meta: {
+      title: '联系我们'
+    }
   },
   {
     path: '/404',

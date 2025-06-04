@@ -3,7 +3,7 @@
     <!-- 头部 -->
     <div class="bg-gradient-to-br from-blue-500 via-purple-600 to-blue-700 px-4 py-6 text-white">
       <div class="text-center mb-8">
-        <p class="text-blue-100">专业的币安智能链交易数据分析工具</p>
+        <p class="text-blue-100">并不是很专业的币安智能链交易数据分析工具</p>
       </div>
 
       <!-- 搜索框 -->

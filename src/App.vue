@@ -13,8 +13,10 @@ const isMenuOpen = ref(false)
 // 菜单项配置
 const menuItems = [
   { path: '/', name: 'home', label: '首页', icon: 'fas fa-home', color: 'from-blue-500 to-blue-600' },
+  { path: '/alpha-points-rules', name: 'alpha-points-rules', label: 'Alpha积分规则', icon: 'fas fa-coins', color: 'from-yellow-500 to-orange-600' },
   { path: '/settings', name: 'settings', label: '设置', icon: 'fas fa-cog', color: 'from-purple-500 to-purple-600' },
-  { path: '/help', name: 'help', label: '帮助', icon: 'fas fa-question-circle', color: 'from-orange-500 to-orange-600' }
+  { path: '/help', name: 'help', label: '帮助', icon: 'fas fa-question-circle', color: 'from-orange-500 to-orange-600' },
+  { path: '/contact', name: 'contact', label: '联系我们', icon: 'fas fa-envelope', color: 'from-teal-500 to-cyan-600' }
 ]
 
 // 检测屏幕尺寸
