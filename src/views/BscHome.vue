@@ -3,7 +3,6 @@
     <!-- 头部 -->
     <div class="bg-gradient-to-br from-blue-500 via-purple-600 to-blue-700 px-4 py-6 text-white">
       <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold mb-2">BSC交易查询</h1>
         <p class="text-blue-100">专业的币安智能链交易数据分析工具</p>
       </div>
 
