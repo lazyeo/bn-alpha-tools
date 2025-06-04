@@ -14,6 +14,7 @@ const isMenuOpen = ref(false)
 const menuItems = [
   { name: '首页', path: '/', icon: 'fas fa-home', gradient: 'from-blue-500 to-purple-600' },
   { name: '多地址管理', path: '/address-manager', icon: 'fas fa-address-book', gradient: 'from-indigo-500 to-purple-600' },
+  { name: '空投预告', path: '/airdrop-preview', icon: 'fas fa-gift', gradient: 'from-purple-500 to-pink-600' },
   { name: 'Alpha积分规则', path: '/alpha-points-rules', icon: 'fas fa-coins', gradient: 'from-yellow-500 to-orange-600' },
   // { name: '使用帮助', path: '/help', icon: 'fas fa-question-circle', gradient: 'from-green-500 to-blue-600' },
   { name: '联系我们', path: '/contact', icon: 'fas fa-envelope', gradient: 'from-cyan-500 to-teal-600' },

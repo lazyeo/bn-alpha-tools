@@ -1,3 +1,64 @@
+## 2024-12-20 01:15:00
+
+### 1. 新增空投预告页面
+
+**Change Type**: feature
+
+> **Purpose**: 创建空投预告页面，为即将到来的空投活动做好准备和宣传
+> **Detailed Description**: 新建AirdropPreview.vue页面，采用紫粉渐变主题色和礼物图标设计。页面包含"敬请期待"主要文案、预期功能介绍（代币空投、奖励活动、社区福利、定期活动）、关注提醒和动态loading动画效果。使用响应式卡片布局和现代化设计语言，营造期待感和吸引力。
+> **Reason for Change**: 用户希望了解即将到来的空投活动，需要专门页面进行预告和信息展示
+> **Impact Scope**: 新增独立空投预告页面，扩展应用功能和导航菜单
+> **API Changes**: 无
+> **Configuration Changes**: 新增路由配置和菜单项
+> **Performance Impact**: 新增页面，包含轻量级CSS动画，性能影响极小
+
+   ```
+   root
+   - src
+      - views
+         - AirdropPreview.vue        // add 空投预告页面，敬请期待文案
+      - router
+         - index.js                  // refact 添加空投预告路由配置
+      - App.vue                      // refact 菜单配置添加空投预告入口
+   ```
+
+### 2. 菜单导航扩展
+
+**Change Type**: feature
+
+> **Purpose**: 在主导航菜单中添加空投预告入口，位于多地址管理之后
+> **Detailed Description**: 在PC端导航栏和移动端抽屉菜单中添加"空投预告"菜单项，使用礼物图标(fas fa-gift)和紫色到粉色的渐变主题色。菜单项位于多地址管理和Alpha积分规则之间，保持良好的功能分组逻辑。
+> **Reason for Change**: 空投预告是重要的用户关注功能，需要在主导航中提供便捷入口
+> **Impact Scope**: 影响App.vue的菜单配置和导航体验
+> **API Changes**: 无
+> **Configuration Changes**: 更新menuItems配置数组
+> **Performance Impact**: 无
+
+   ```
+   root
+   - src
+      - App.vue                      // improvement 菜单添加空投预告入口
+   ```
+
+### 3. 预期功能展示设计
+
+**Change Type**: feature
+
+> **Purpose**: 展示空投功能的预期价值，增强用户期待感和参与意愿
+> **Detailed Description**: 设计四个功能卡片展示预期的空投相关功能：代币空投（优质项目代币）、奖励活动（社区互动奖励）、社区福利（专属成员福利）、定期活动（定期举办）。每个卡片使用不同的渐变色彩和图标，提供清晰的功能分类和说明。
+> **Reason for Change**: 让用户了解即将推出的功能价值，提升用户期待感和留存率
+> **Impact Scope**: 影响AirdropPreview.vue的内容设计和用户体验
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 静态内容展示，无性能影响
+
+   ```
+   root
+   - src
+      - views
+         - AirdropPreview.vue        // feature 预期功能展示和关注提醒
+   ```
+
 ## 2024-12-20 01:00:00
 
 ### 1. 统一使用VueUse复制功能

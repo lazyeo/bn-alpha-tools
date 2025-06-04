@@ -8,6 +8,7 @@ import Contact from '@/views/Contact.vue'
 import Donation from '@/views/Donation.vue'
 import NotFound from '@/views/NotFound.vue'
 import AddressManager from '@/views/AddressManager.vue'
+import AirdropPreview from '@/views/AirdropPreview.vue'
 
 // BSC地址验证函数
 const isValidBscAddress = (address) => {
@@ -73,6 +74,12 @@ const routes = [
     name: 'address-manager',
     component: AddressManager,
     meta: { title: '多地址管理' }
+  },
+  {
+    path: '/airdrop-preview',
+    name: 'airdrop-preview',
+    component: AirdropPreview,
+    meta: { title: '空投预告' }
   },
   {
     path: '/404',
