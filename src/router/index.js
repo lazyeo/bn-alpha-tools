@@ -19,8 +19,7 @@ const routes = [
   },
   {
     path: '/results',
-    name: 'results',
-    component: TransactionResults
+    redirect: '/'
   },
   {
     path: '/results/:address',

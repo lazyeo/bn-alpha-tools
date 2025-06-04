@@ -80,7 +80,7 @@ onUnmounted(() => {
                 <i class="fas fa-cube text-white text-lg drop-shadow-lg"></i>
               </div>
               <h1 class="text-xl font-bold text-white drop-shadow-lg">
-                BSC Alpha tool
+                Binance Alpha tool
               </h1>
             </div>
 
@@ -153,7 +153,7 @@ onUnmounted(() => {
             <i class="fas fa-cube text-white text-xs drop-shadow-lg"></i>
           </div>
           <h1 class="text-lg font-semibold text-white drop-shadow-lg">
-            BSC Alpha tool
+            Binance Alpha tool
           </h1>
         </div>
 

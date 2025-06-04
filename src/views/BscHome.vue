@@ -116,12 +116,8 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useBscStore } from '@/stores/bsc'
-import { ApiUtils } from '@/utils/api'
-import { TransactionUtils } from '@/utils/transaction'
 
 const router = useRouter()
-const bscStore = useBscStore()
 
 // 搜索历史记录相关
 const SEARCH_HISTORY_KEY = 'bsc_search_history'
@@ -210,8 +206,11 @@ const removeHistoryAddress = (index) => {
 
 // 使用历史记录中的地址
 const useHistoryAddress = (address) => {
-  bscAddress.value = address
-  queryTransactions()
+  // 直接跳转到结果页面，带上地址参数
+  router.push({
+    name: 'transaction-results',
+    params: { address: address }
+  })
 }
 
 // 格式化地址时间（模拟）
@@ -241,38 +240,16 @@ const queryTransactions = async () => {
     return
   }
 
+  const address = bscAddress.value.trim()
+
   // 添加到搜索历史
-  addToSearchHistory(bscAddress.value.trim())
+  addToSearchHistory(address)
 
-  loading.value = true
-
-  try {
-    // 获取交易数据
-    const filteredTransactions = await ApiUtils.fetchAddressData(bscAddress.value.trim())
-
-    if (filteredTransactions.length === 0) {
-      errorMessage.value = '未找到与目标合约的交易记录'
-      loading.value = false
-      return
-    }
-
-    // 处理交易数据
-    const sortedDays = TransactionUtils.groupTransactionsByDay(filteredTransactions)
-    const processedData = sortedDays.map((item) => item['1'])
-
-    // 更新store中的数据
-    bscStore.setSearchResults(processedData)
-    bscStore.setCurrentAddress(bscAddress.value.trim())
-
-    // 跳转到结果页面
-    router.push('/results')
-
-  } catch (error) {
-    console.error('查询失败:', error)
-    errorMessage.value = '查询失败，请稍后重试'
-  } finally {
-    loading.value = false
-  }
+  // 直接跳转到结果页面，带上地址参数
+  router.push({
+    name: 'transaction-results',
+    params: { address: address }
+  })
 }
 </script>
 

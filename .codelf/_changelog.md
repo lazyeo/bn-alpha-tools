@@ -1,3 +1,65 @@
+## 2024-12-19 16:00:00
+
+### 1. URL参数化搜索系统
+
+**Change Type**: feature
+
+> **Purpose**: 实现URL参数化搜索，支持页面刷新和URL分享功能
+> **Detailed Description**: 修改搜索逻辑，点击搜索时跳转到/results/:address页面而非直接查询。TransactionResults.vue增加从URL参数获取地址并自动查询的功能。用户可以通过刷新页面获取最新数据，也可以分享带参数的URL给他人。
+> **Reason for Change**: 用户希望能够刷新页面查看最新数据，同时URL参数化便于分享和书签
+> **Impact Scope**: 影响BscHome.vue的搜索逻辑、TransactionResults.vue的数据加载逻辑和路由配置
+> **API Changes**: 无API变更
+> **Configuration Changes**: 修改router/index.js路由配置
+> **Performance Impact**: 优化了数据加载逻辑，减少不必要的重复查询
+
+   ```
+   root
+   - src
+      - views
+         - BscHome.vue              // refact 搜索跳转逻辑改为参数化URL
+         - TransactionResults.vue   // feature 支持URL参数自动查询
+      - router
+         - index.js                 // refact 路由配置支持地址参数
+   ```
+
+### 2. 自动数据加载和刷新功能
+
+**Change Type**: feature
+
+> **Purpose**: 增强用户体验，支持页面刷新和手动刷新数据
+> **Detailed Description**: TransactionResults.vue页面加载时自动检测URL参数中的地址并查询数据。添加刷新按钮，用户可以手动重新获取最新交易数据。支持浏览器刷新页面重新加载数据。
+> **Reason for Change**: 提供更灵活的数据获取方式，用户可以随时获取最新数据
+> **Impact Scope**: 影响TransactionResults.vue的用户交互和数据管理
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 优化了数据查询时机，只在需要时进行查询
+
+   ```
+   root
+   - src
+      - views
+         - TransactionResults.vue   // feature 自动数据加载和刷新功能
+   ```
+
+### 3. 历史记录参数化优化
+
+**Change Type**: improvement
+
+> **Purpose**: 统一搜索体验，历史记录也支持URL参数化
+> **Detailed Description**: 修改BscHome.vue中历史记录的点击逻辑，从直接设置输入框值改为跳转到参数化URL。确保所有搜索入口都使用统一的URL参数化方式。
+> **Reason for Change**: 保持搜索逻辑的一致性，无论从哪里发起搜索都使用相同的流程
+> **Impact Scope**: 影响首页历史记录的交互逻辑
+> **API Changes**: 无
+> **Configuration Changes**: 无
+> **Performance Impact**: 无明显性能影响
+
+   ```
+   root
+   - src
+      - views
+         - BscHome.vue              // improvement 历史记录参数化跳转
+   ```
+
 ## 2024-12-19 15:30:00
 
 ### 1. 真正沉浸式融合设计

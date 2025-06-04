@@ -2,11 +2,21 @@
   <div class="min-h-screen bg-gray-50">
     <!-- 头部 -->
     <div class="bg-gradient-to-br from-blue-500 via-purple-600 to-blue-700 px-4 py-6 text-white">
-      <div class="mb-4">
-        <h1 class="text-2xl font-bold">交易数据</h1>
-        <p v-if="bscStore.currentAddress" class="text-blue-100 text-sm">
-          {{ bscStore.currentAddressShort }}
-        </p>
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h1 class="text-2xl font-bold">交易数据</h1>
+          <p v-if="bscStore.currentAddress" class="text-blue-100 text-sm">
+            {{ bscStore.currentAddressShort }}
+          </p>
+        </div>
+        <button
+          @click="refreshData"
+          :disabled="loading"
+          class="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-all duration-300 disabled:opacity-50 flex items-center"
+        >
+          <i :class="[loading ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt', 'mr-2']"></i>
+          {{ loading ? '刷新中' : '刷新' }}
+        </button>
       </div>
 
       <!-- 统计卡片 -->
@@ -191,13 +201,17 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useBscStore } from '@/stores/bsc'
+import { ApiUtils } from '@/utils/api'
+import { TransactionUtils } from '@/utils/transaction'
 
 const router = useRouter()
+const route = useRoute()
 const bscStore = useBscStore()
 
 const errorMessage = ref('')
+const loading = ref(false)
 const sortBy = ref('date')
 const sortOrder = ref('desc')
 const expandedRows = ref(new Set())
@@ -232,9 +246,46 @@ const sortedTransactionData = computed(() => {
 
 const hasMore = computed(() => displayCount.value < transactionData.value.length)
 
-onMounted(() => {
-  // 如果没有数据且有当前地址，尝试生成模拟数据
-  if (!bscStore.searchResults.length && bscStore.currentAddress) {
+// 查询交易数据
+const queryTransactionData = async (address) => {
+  loading.value = true
+  errorMessage.value = ''
+
+  try {
+    // 获取交易数据
+    const filteredTransactions = await ApiUtils.fetchAddressData(address)
+
+    if (filteredTransactions.length === 0) {
+      errorMessage.value = '未找到与目标合约的交易记录'
+      loading.value = false
+      return
+    }
+
+    // 处理交易数据
+    const sortedDays = TransactionUtils.groupTransactionsByDay(filteredTransactions)
+    const processedData = sortedDays.map((item) => item['1'])
+
+    // 更新store中的数据
+    bscStore.setSearchResults(processedData)
+    bscStore.setCurrentAddress(address)
+
+  } catch (error) {
+    console.error('查询失败:', error)
+    errorMessage.value = '查询失败，请稍后重试'
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(async () => {
+  // 从URL参数获取地址
+  const addressFromParams = route.params.address
+
+  if (addressFromParams) {
+    // 如果有地址参数，直接查询
+    await queryTransactionData(addressFromParams)
+  } else if (!bscStore.searchResults.length && bscStore.currentAddress) {
+    // 如果没有地址参数但有store中的地址，尝试生成模拟数据
     try {
       const mockData = bscStore.generateMockData(bscStore.currentAddress)
       bscStore.setSearchResults(mockData)
@@ -295,6 +346,14 @@ const calculatePoints = (tokenStats) => {
 
   // 返回2的幂次方作为积分
   return power
+}
+
+// 刷新数据
+const refreshData = async () => {
+  const currentAddress = route.params.address || bscStore.currentAddress
+  if (currentAddress) {
+    await queryTransactionData(currentAddress)
+  }
 }
 </script>
 
