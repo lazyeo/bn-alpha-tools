@@ -19,27 +19,34 @@ export class CoinGeckoPriceConnector implements IPriceConnector {
         this.apiKey = apiKey;
     }
 
+    /**
+     * Makes a request with optional API key authentication and better error handling.
+     * @param url The URL to fetch.
+     * @returns The fetch response.
+     */
     private async fetchWithApiKey(url: string): Promise<Response> {
-        const headers = new Headers();
+        const headers: Record<string, string> = {};
         if (this.apiKey) {
-            headers.append('x_cg_pro_api_key', this.apiKey);
-        }
-        const response = await fetch(url, { headers });
-
-        // 根据API密钥状态调整延迟策略
-        if (this.apiKey) {
-            // 有API密钥：30次/分钟 = 2秒间隔
-            await this.delay(2000);
-        } else {
-            // 免费用户：更保守的延迟，但不要太长
-            await this.delay(1500); // 1.5秒，约40次/分钟
+            headers['x-cg-pro-api-key'] = this.apiKey;
         }
 
-        return response;
-    }
-
-    private delay(ms: number): Promise<void> {
-        return new Promise(resolve => setTimeout(resolve, ms));
+        try {
+            const response = await fetch(url, {
+                headers,
+                signal: AbortSignal.timeout(15000) // 15 second timeout
+            });
+            return response;
+        } catch (error: any) {
+            // Handle CORS and network errors gracefully
+            if (error.name === 'TypeError' && error.message.includes('CORS')) {
+                console.warn('[CoinGecko] CORS error detected - API proxy may not be available in production');
+            } else if (error.name === 'TimeoutError') {
+                console.warn('[CoinGecko] Request timeout - API may be slow or unavailable');
+            } else {
+                console.warn('[CoinGecko] Network error:', error.message);
+            }
+            throw error;
+        }
     }
 
     // This method is for compatibility with the IPriceConnector interface for current prices.
