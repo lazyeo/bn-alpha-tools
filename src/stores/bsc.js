@@ -629,60 +629,61 @@ export const useBscStore = defineStore('bsc', {
         const priceConnector = new CoinGeckoPriceConnector(priceCache, this.apiKeys.coingecko);
         const allTxs = allDailyGroups.flatMap(day => day.transactions);
 
-        // --- Step 1: Batch fetch historical prices ---
-        console.log('[STATS] Step 1: Building unique price requests...');
-        const priceRequests = new Map();
+        // --- Step 1: Build batch price requests (optimized) ---
+        console.log('[STATS] Step 1: Building batch price requests...');
+        const tokenDatePairs = [];
+        const priceRequestMap = new Map(); // For quick lookup
+
         allTxs.forEach(tx => {
           tx.flows.forEach(flow => {
-            const date = new Date(tx.timeStamp * 1000).toISOString().split('T')[0];
-            const cacheKey = `${flow.token.contractAddress}-${date}`;
-            if (!priceRequests.has(cacheKey) && !flow.historicalPrice) { // Only request if not already priced
-              priceRequests.set(cacheKey, { contractAddress: flow.token.contractAddress, timestamp: tx.timeStamp });
+            if (!flow.historicalPrice) { // Only request if not already priced
+              const date = new Date(tx.timeStamp * 1000).toISOString().split('T')[0];
+              const requestKey = `${flow.token.contractAddress.toLowerCase()}-${date}`;
+
+              if (!priceRequestMap.has(requestKey)) {
+                tokenDatePairs.push({
+                  contractAddress: flow.token.contractAddress,
+                  date: date
+                });
+                priceRequestMap.set(requestKey, true);
+              }
             }
           });
         });
-        console.log(`[STATS] Found ${priceRequests.size} unique token/date pairs needing prices.`);
 
-        const prices = new Map();
-        const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        console.log(`[STATS] Found ${tokenDatePairs.length} unique token/date pairs needing prices.`);
 
-        console.log('[STATS] Starting sequential price fetching to respect API rate limits.');
-        for (const [key, req] of priceRequests.entries()) {
-          console.log(`[STATS] Fetching price for ${key}`);
-          const price = await priceConnector.getHistoricalPrice(req.contractAddress, req.timestamp);
-          console.log(`[STATS] Fetched price for ${key}:`, price);
-          prices.set(key, price);
+        // --- Step 2: Batch fetch historical prices (much more efficient) ---
+        console.log('[STATS] Step 2: Batch fetching historical prices...');
+        const batchPrices = await priceConnector.getBatchHistoricalPrices(tokenDatePairs);
+        console.log(`[STATS] Batch fetch completed: ${batchPrices.size} price results.`);
 
-          // Unconditionally delay to respect public API rate limits.
-          await delay(2000);
-        }
-        console.log('[STATS] Step 1 Complete: Batch price fetching finished.');
-
-        // --- Step 2: Update transactions with fetched prices ---
-        console.log('[STATS] Step 2: Injecting prices into transaction flows...');
+        // --- Step 3: Update transactions with fetched prices ---
+        console.log('[STATS] Step 3: Injecting prices into transaction flows...');
         let priceUpdatedCount = 0;
         allTxs.forEach(tx => {
           tx.flows.forEach(flow => {
             if (!flow.historicalPrice) { // Avoid overwriting existing prices
-                const date = new Date(tx.timeStamp * 1000).toISOString().split('T')[0];
-                const cacheKey = `${flow.token.contractAddress}-${date}`;
-                if (prices.has(cacheKey)) {
-                  flow.historicalPrice = prices.get(cacheKey) || null;
-                  priceUpdatedCount++;
-                }
+              const date = new Date(tx.timeStamp * 1000).toISOString().split('T')[0];
+              const lookupKey = `${flow.token.contractAddress.toLowerCase()}-${date}`;
+
+              if (batchPrices.has(lookupKey)) {
+                flow.historicalPrice = batchPrices.get(lookupKey);
+                priceUpdatedCount++;
+              }
             }
           });
         });
-        console.log(`[STATS] Step 2 Complete: Price injection finished. Updated ${priceUpdatedCount} flows with historical prices.`);
+        console.log(`[STATS] Step 3 Complete: Price injection finished. Updated ${priceUpdatedCount} flows with historical prices.`);
 
-        // --- Step 3: Re-group transactions by day with updated price info and calculate stats ---
-        console.log('[STATS] Step 3: Re-grouping transactions and calculating final statistics...');
+        // --- Step 4: Re-group transactions by day with updated price info and calculate stats ---
+        console.log('[STATS] Step 4: Re-grouping transactions and calculating final statistics...');
         const groupedWithStats = _groupTransactionsByDay(allTxs);
 
         this.setSearchResults(Array.from(groupedWithStats.values()).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
 
-        // --- Step 4: Update cache with enriched transaction data (including historical prices) ---
-        console.log('[STATS] Step 4: Updating cache with enriched transaction data...');
+        // --- Step 5: Update cache with enriched transaction data (including historical prices) ---
+        console.log('[STATS] Step 5: Updating cache with enriched transaction data...');
         if (this.currentAddress) {
           const cacheKey = `${CACHE_PREFIX}${this.currentAddress}`;
           const cacheData = {
@@ -695,7 +696,7 @@ export const useBscStore = defineStore('bsc', {
           console.log(`[STATS] Updated cache for ${this.currentAddress} with enriched price data.`);
         }
 
-        console.log('✅ [SUCCESS] Statistics calculation complete.');
+        console.log('✅ [SUCCESS] Optimized statistics calculation complete.');
 
       } catch (error) {
         console.error('Error during statistics calculation:', error);
@@ -728,75 +729,34 @@ export const useBscStore = defineStore('bsc', {
             });
             console.log(`[DAILY_STATS] Found ${uniqueTokens.size} unique tokens for ${dayData.date}.`);
 
-            // --- Step 2: 批量获取15天的价格数据（优化API调用）---
-            const targetDate = new Date(dayData.date);
-            const startDate = new Date(targetDate.getTime() - 7 * 24 * 60 * 60 * 1000); // 前7天
-            const endDate = new Date(targetDate.getTime() + 7 * 24 * 60 * 60 * 1000);   // 后7天
+            // --- Step 2: Batch fetch prices for the specific date (optimized) ---
+            console.log(`[DAILY_STATS] Building batch price request for ${dayData.date}`);
 
-            console.log(`[DAILY_STATS] Fetching price data from ${startDate.toISOString().split('T')[0]} to ${endDate.toISOString().split('T')[0]}`);
+            const tokenDatePairs = Array.from(uniqueTokens).map(contractAddress => ({
+                contractAddress,
+                date: dayData.date
+            }));
 
-            const priceCharts = new Map();
-            let apiCallCount = 0;
-            let cacheHitCount = 0;
+            console.log(`[DAILY_STATS] Batch fetching prices for ${tokenDatePairs.length} tokens on ${dayData.date}`);
+            const batchPrices = await priceConnector.getBatchHistoricalPrices(tokenDatePairs);
+            console.log(`[DAILY_STATS] Batch fetch completed: ${batchPrices.size} price results.`);
 
-            for (const tokenAddress of uniqueTokens) {
-                // 检查缓存中是否已有该代币在目标日期的价格数据
-                const cacheKey = `chart_${tokenAddress}_${dayData.date}`;
-                const cachedChart = priceCache.get(cacheKey);
-
-                if (cachedChart) {
-                    console.log(`[DAILY_STATS] Using cached price data for ${tokenAddress} on ${dayData.date}`);
-                    priceCharts.set(tokenAddress.toLowerCase(), cachedChart);
-                    cacheHitCount++;
-                    continue;
-                }
-
-                // 检查是否已经在当前批次中处理过该代币
-                if (priceCharts.has(tokenAddress.toLowerCase())) {
-                    console.log(`[DAILY_STATS] Already processed ${tokenAddress} in this batch`);
-                    continue;
-                }
-
-                // 验证日期是否太新（CoinGecko历史数据通常有24小时延迟）
-                const targetDateObj = new Date(dayData.date);
-                const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-                if (targetDateObj > oneDayAgo) {
-                    console.warn(`[DAILY_STATS] Date ${dayData.date} is too recent for reliable historical data, may use fallback`);
-                    // 不跳过，让API处理，它会自动回退到昨天的数据
-                }
-
-                // 如果缓存中没有，则获取15天范围的数据
-                console.log(`[DAILY_STATS] Fetching 15-day price chart for ${tokenAddress}`);
-                try {
-                    const chart = await priceConnector.getDailyMarketChart(tokenAddress, targetDateObj);
-                    priceCharts.set(tokenAddress.toLowerCase(), chart);
-                    apiCallCount++;
-
-                    // 每3次API调用后暂停，避免频率限制
-                    if (apiCallCount % 3 === 0) {
-                        console.log(`[DAILY_STATS] Pausing after ${apiCallCount} API calls to respect rate limits...`);
-                        await new Promise(resolve => setTimeout(resolve, 2000)); // 增加暂停时间
-                    }
-                } catch (error) {
-                    console.error(`[DAILY_STATS] Error fetching price chart for ${tokenAddress}:`, error);
-                    priceCharts.set(tokenAddress.toLowerCase(), null);
-                }
-            }
-
-            console.log(`[DAILY_STATS] Price data summary: ${cacheHitCount} cache hits, ${apiCallCount} API calls for ${uniqueTokens.size} unique tokens.`);
-
-            // --- Step 3: Update flows with prices from charts ---
+            // --- Step 3: Update flows with prices from batch results ---
             console.log(`[DAILY_STATS] Step 3: Injecting prices for ${dayData.date}`);
+            let priceUpdatedCount = 0;
             dayData.transactions.forEach(tx => {
                 tx.flows.forEach(flow => {
                     // Only fetch if price is missing
                     if (!flow.historicalPrice) {
-                        const chart = priceCharts.get(flow.token.contractAddress.toLowerCase());
-                        flow.historicalPrice = findPriceInChart(chart, tx.timeStamp);
+                        const lookupKey = `${flow.token.contractAddress.toLowerCase()}-${dayData.date}`;
+                        if (batchPrices.has(lookupKey)) {
+                            flow.historicalPrice = batchPrices.get(lookupKey);
+                            priceUpdatedCount++;
+                        }
                     }
                 });
             });
-            console.log(`[DAILY_STATS] Step 3 Complete for ${dayData.date}.`);
+            console.log(`[DAILY_STATS] Step 3 Complete for ${dayData.date}. Updated ${priceUpdatedCount} flows with prices.`);
 
                         // --- Step 4: Recalculate stats for the day ---
             console.log(`[DAILY_STATS] Step 4: Recalculating stats for ${dayData.date}`);

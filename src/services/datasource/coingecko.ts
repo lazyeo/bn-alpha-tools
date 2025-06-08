@@ -334,6 +334,143 @@ export class CoinGeckoPriceConnector implements IPriceConnector {
     }
 
     /**
+     * Fetches current prices for multiple tokens in a single API call.
+     * This is much more efficient than individual calls.
+     * @param contractAddresses Array of contract addresses to fetch prices for
+     * @returns Map of contract address to current price
+     */
+    async getBatchCurrentPrices(contractAddresses: string[]): Promise<Map<string, number | null>> {
+        const result = new Map<string, number | null>();
+
+        if (contractAddresses.length === 0) {
+            return result;
+        }
+
+        // Remove duplicates and normalize addresses
+        const uniqueAddresses = [...new Set(contractAddresses.map(addr => addr.toLowerCase()))];
+        console.log(`[CoinGecko] Batch fetching current prices for ${uniqueAddresses.length} tokens`);
+
+        try {
+            // Build the contract addresses parameter for CoinGecko API
+            const contractsParam = uniqueAddresses.join(',');
+            const url = `${this.getApiBaseUrl()}/simple/token_price/${CoinGeckoPriceConnector.ASSET_PLATFORM}?contract_addresses=${contractsParam}&vs_currencies=usd&include_24hr_change=false`;
+
+            const response = await this.fetchWithApiKey(url);
+
+            if (!response.ok) {
+                console.error(`[CoinGecko] Failed to fetch batch prices, status: ${response.status}`);
+                // Return null for all addresses
+                uniqueAddresses.forEach(addr => result.set(addr, null));
+                return result;
+            }
+
+            const priceData = await response.json();
+
+            // Map the results back to the original addresses
+            uniqueAddresses.forEach(address => {
+                const price = priceData[address]?.usd;
+                result.set(address, price !== undefined ? price : null);
+            });
+
+            console.log(`[CoinGecko] Successfully fetched batch prices for ${result.size} tokens`);
+            return result;
+
+        } catch (error) {
+            console.error('[CoinGecko] Error in batch price fetch:', error);
+            // Return null for all addresses
+            uniqueAddresses.forEach(addr => result.set(addr, null));
+            return result;
+        }
+    }
+
+    /**
+     * Fetches historical prices for multiple tokens on a specific date.
+     * Uses batch API calls where possible to reduce rate limiting.
+     * @param tokenDatePairs Array of {contractAddress, date} pairs
+     * @returns Map of "contractAddress-date" to price
+     */
+    async getBatchHistoricalPrices(tokenDatePairs: Array<{contractAddress: string, date: string}>): Promise<Map<string, number | null>> {
+        const result = new Map<string, number | null>();
+
+        if (tokenDatePairs.length === 0) {
+            return result;
+        }
+
+        // Group by date to minimize API calls
+        const dateGroups = new Map<string, string[]>();
+        tokenDatePairs.forEach(({contractAddress, date}) => {
+            const normalizedAddress = contractAddress.toLowerCase();
+            if (!dateGroups.has(date)) {
+                dateGroups.set(date, []);
+            }
+            if (!dateGroups.get(date)!.includes(normalizedAddress)) {
+                dateGroups.get(date)!.push(normalizedAddress);
+            }
+        });
+
+        console.log(`[CoinGecko] Batch fetching historical prices for ${tokenDatePairs.length} token-date pairs across ${dateGroups.size} dates`);
+
+        // Process each date group
+        for (const [date, addresses] of dateGroups.entries()) {
+            console.log(`[CoinGecko] Processing ${addresses.length} tokens for date ${date}`);
+
+            // For each address in this date group, get the price
+            for (const address of addresses) {
+                const cacheKey = `price_${address}_${date}`;
+
+                // Check cache first
+                let price = this.cachingService.get<number>(cacheKey);
+                if (price !== null && price !== undefined) {
+                    result.set(`${address}-${date}`, price);
+                    continue;
+                }
+
+                // Fetch from API
+                try {
+                    const targetDate = new Date(date + 'T12:00:00.000Z'); // Use noon UTC
+                    const chart = await this.getDailyMarketChart(address, targetDate);
+
+                    if (chart && chart.length > 0) {
+                        // Find the price closest to the target date
+                        const targetTimestamp = targetDate.getTime();
+                        let closestPrice = null;
+                        let minDifference = Infinity;
+
+                        for (const [timestamp, priceValue] of chart) {
+                            const difference = Math.abs(timestamp - targetTimestamp);
+                            if (difference < minDifference) {
+                                minDifference = difference;
+                                closestPrice = priceValue;
+                            }
+                        }
+
+                        price = closestPrice;
+
+                        // Cache the result for 6 hours
+                        if (price !== null) {
+                            this.cachingService.set(cacheKey, price, 6 * 3600);
+                        }
+                    } else {
+                        price = null;
+                    }
+
+                    result.set(`${address}-${date}`, price);
+
+                    // Add delay between API calls to respect rate limits
+                    await new Promise(resolve => setTimeout(resolve, 1200)); // 1.2 second delay
+
+                } catch (error) {
+                    console.error(`[CoinGecko] Error fetching price for ${address} on ${date}:`, error);
+                    result.set(`${address}-${date}`, null);
+                }
+            }
+        }
+
+        console.log(`[CoinGecko] Completed batch historical price fetch: ${result.size} results`);
+        return result;
+    }
+
+    /**
      * Gets the fixed alpha token ID.
      * @returns The fixed alpha token ID string.
      */
