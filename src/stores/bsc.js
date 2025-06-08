@@ -366,6 +366,7 @@ export const useBscStore = defineStore('bsc', {
           });
 
           console.log(`[ALPHA] Successfully fetched ${this.alphaTokens.size} Alpha tokens using fixed CMC category ID.`);
+          console.log(`[ALPHA] Alpha token filtering is now active for transaction processing.`);
 
         } else {
           // 如果没有CMC API密钥，回退到查找category方式
@@ -549,7 +550,7 @@ export const useBscStore = defineStore('bsc', {
         console.log(`[FETCH] Querying transactions from ${fifteenDaysAgo.toISOString().split('T')[0]} to ${now.toISOString().split('T')[0]}`);
 
         const bscConnector = new BscScanConnector(this.apiKeys.bsc, startTimestamp);
-        const dataProcessor = new DataProcessingService();
+        const dataProcessor = new DataProcessingService(this.alphaTokens);
         const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
         // Fetch all transaction types serially with a delay to avoid rate limiting
