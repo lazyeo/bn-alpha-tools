@@ -134,7 +134,7 @@ npm run build
 
 ### 必需API密钥
 1. **BSCScan API Key**：获取交易数据
-   - 申请地址：https://bscscan.com/apis
+   - 申请地址：https://bscscan.com/apidashboard
    - 配置位置：设置页面
 
 2. **CoinMarketCap API Key**：获取Alpha代币列表

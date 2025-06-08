@@ -91,7 +91,7 @@
               关于API密钥
             </h4>
             <ul class="text-xs text-blue-700 space-y-1">
-              <li>• 免费API密钥：访问 <a href="https://bscscan.com/apis" target="_blank" class="underline">BSCScan API</a> 免费注册获取</li>
+                              <li>• 免费API密钥：访问 <a href="https://bscscan.com/apidashboard" target="_blank" class="underline">BSCScan API</a> 免费注册获取</li>
               <li>• 默认密钥：如不设置，将使用内置的公共API密钥</li>
               <li>• 查询限制：个人API密钥通常有更高的查询频率限制</li>
               <li>• 数据安全：API密钥仅保存在本地浏览器，不会上传到服务器</li>

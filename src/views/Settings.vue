@@ -69,7 +69,7 @@
             </div>
             <div class="text-sm text-gray-500 space-y-1">
               <p>• 当前使用: {{ currentBscApiKey || '默认密钥' }}</p>
-              <p>• 获取地址: <a href="https://bscscan.com/apis" target="_blank" class="text-blue-600 hover:underline">https://bscscan.com/apis</a></p>
+                              <p>• 获取地址: <a href="https://bscscan.com/apidashboard" target="_blank" class="text-blue-600 hover:underline">https://bscscan.com/apidashboard</a></p>
               <p>• 免费用户每秒5次请求，每天100,000次请求</p>
             </div>
           </div>
