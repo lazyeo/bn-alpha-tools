@@ -1,5 +1,4 @@
 import axios from 'axios';
-import alphaTokensConfig from '@/config/alpha-tokens.json';
 
 const API_BASE_URL = '/api/cmc';
 
@@ -8,127 +7,55 @@ const API_BASE_URL = '/api/cmc';
  */
 export class CmcConnector {
     /**
-   * Finds the ID of a specific category by its name.
-   * In production (when CORS prevents direct API access), uses static config as fallback.
+   * Gets the fixed Binance Alpha category ID.
+   * Uses the known category ID: 6762acaeb5d1b043d3342f44
    * @param apiKey The CoinMarketCap API key.
-   * @param categoryName The name of the category to find.
-   * @returns The category ID, or null if not found.
+   * @param categoryName The name of the category (should be 'Binance Alpha').
+   * @returns The fixed category ID.
    */
   public async findCategoryId(apiKey: string, categoryName: string): Promise<string | null> {
-    // Check user preference for data source
-    const dataSource = localStorage.getItem('alpha_data_source') || 'api';
-
-    if (dataSource === 'static') {
-      console.log('[CMC] User selected static data source, using static config');
-      if (categoryName === 'Binance Alpha') {
-        return 'static_binance_alpha';
-      }
-      throw new Error(`No static fallback available for category: ${categoryName}`);
-    }
-
     if (!apiKey) throw new Error('CoinMarketCap API key is required.');
 
-    try {
-      const response = await axios.get(`${API_BASE_URL}/v1/cryptocurrency/categories`, {
-        headers: { 'X-CMC_PRO_API_KEY': apiKey, 'Accept': 'application/json' },
-        timeout: 10000, // 10 second timeout
-      });
-      const categories = response.data.data;
-      const found = categories.find(cat => cat.name === categoryName);
-      return found ? found.id : null;
-    } catch (error: any) {
-      console.warn(`[CMC] API request failed, falling back to static config:`, error.response?.data || error.message);
-
-      // Fallback to static config in production environments (CORS blocked)
-      if (categoryName === 'Binance Alpha') {
-        return 'static_binance_alpha'; // Static identifier for fallback
-      }
-
-      throw new Error(`CoinMarketCap API request failed and no static fallback available for category: ${categoryName}`);
+    if (categoryName === 'Binance Alpha') {
+      console.log('[CMC] Using fixed Binance Alpha category ID: 6762acaeb5d1b043d3342f44');
+      return '6762acaeb5d1b043d3342f44';
     }
+
+    throw new Error(`Only 'Binance Alpha' category is supported, got: ${categoryName}`);
   }
 
     /**
-   * Fetches all tokens belonging to a specific category ID.
-   * In production (when CORS prevents direct API access), uses static config as fallback.
+   * Fetches all tokens belonging to the Binance Alpha category.
+   * Uses the fixed category ID: 6762acaeb5d1b043d3342f44
    * @param apiKey The CoinMarketCap API key.
-   * @param categoryId The ID of the category.
+   * @param categoryId The ID of the category (should be 6762acaeb5d1b043d3342f44).
    * @returns The list of coins in that category.
    */
   public async getTokensByCategoryId(apiKey: string, categoryId: string): Promise<any[]> {
-    // Check for static fallback first
-    if (categoryId === 'static_binance_alpha') {
-      console.log('[CMC] Using static config for Binance Alpha tokens');
-      return this.convertStaticConfigToApiFormat(alphaTokensConfig);
-    }
-
-    // Check user preference for data source
-    const dataSource = localStorage.getItem('alpha_data_source') || 'api';
-
-    if (dataSource === 'static') {
-      throw new Error(`Static data source selected but unexpected category ID: ${categoryId}`);
-    }
-
     if (!apiKey) throw new Error('CoinMarketCap API key is required.');
 
+    // Ensure we're using the correct fixed category ID
+    if (categoryId !== '6762acaeb5d1b043d3342f44') {
+      console.warn(`[CMC] Unexpected category ID: ${categoryId}, using fixed Binance Alpha ID instead`);
+      categoryId = '6762acaeb5d1b043d3342f44';
+    }
+
     try {
+      console.log(`[CMC] Fetching tokens for Binance Alpha category: ${categoryId}`);
       const response = await axios.get(`${API_BASE_URL}/v1/cryptocurrency/category`, {
         headers: { 'X-CMC_PRO_API_KEY': apiKey, 'Accept': 'application/json' },
         params: { id: categoryId, convert: 'USD', limit: 500 },
-        timeout: 10000, // 10 second timeout
+        timeout: 15000, // 15 second timeout
       });
-      return response.data.data.coins || [];
+
+      const coins = response.data.data.coins || [];
+      console.log(`[CMC] Successfully fetched ${coins.length} Binance Alpha tokens`);
+      return coins;
     } catch (error: any) {
-      console.warn(`[CMC] API request failed, falling back to static config:`, error.response?.data || error.message);
-
-      // Fallback to static config for Binance Alpha tokens
-      if (categoryId.includes('alpha') || categoryId.includes('binance')) {
-        console.log('[CMC] Using static config fallback for Binance Alpha tokens');
-        return this.convertStaticConfigToApiFormat(alphaTokensConfig);
-      }
-
-      throw new Error(`CoinMarketCap API request failed and no static fallback available for category ID: ${categoryId}`);
+      console.error(`[CMC] Failed to fetch Binance Alpha tokens:`, error.response?.data || error.message);
+      throw new Error(`CoinMarketCap API request failed: ${error.response?.data?.status?.error_message || error.message}`);
     }
   }
 
-  /**
-   * Converts static config format to CMC API format for compatibility.
-   * @param config The static alpha tokens configuration.
-   * @returns Array of tokens in CMC API format.
-   */
-  private convertStaticConfigToApiFormat(config: any): any[] {
-    const tokens: any[] = [];
 
-    if (config.tokens_by_chain) {
-      Object.entries(config.tokens_by_chain).forEach(([chainName, chainTokens]: [string, any[]]) => {
-        chainTokens.forEach((token, index) => {
-          // Skip tokens without contract addresses (like native coins)
-          if (token.contract_address && token.contract_address !== 'N/A') {
-            tokens.push({
-              id: token.id || (1000 + index),
-              name: token.name,
-              symbol: token.symbol,
-              slug: token.slug || token.symbol.toLowerCase(),
-              cmc_rank: index + 1,
-              platform: {
-                name: chainName,
-                token_address: token.contract_address
-              },
-              quote: {
-                USD: {
-                  price: 1.0, // Placeholder price - will be fetched separately
-                  volume_24h: 0,
-                  market_cap: 0,
-                  percent_change_24h: 0
-                }
-              }
-            });
-          }
-        });
-      });
-    }
-
-    console.log(`[CMC] Converted ${tokens.length} tokens from static config`);
-    return tokens;
-  }
 }
