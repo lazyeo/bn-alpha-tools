@@ -1,0 +1,64 @@
+{
+  "category_name": "Binance Alpha (Static Fallback Data)",
+  "total_tokens": 15,
+  "tokens_by_chain": {
+    "BNB Smart Chain (BEP20)": [
+      {
+        "id": 1001,
+        "name": "USUAL",
+        "symbol": "USUAL",
+        "slug": "usual",
+        "contract_address": "0xC4441c2BE5d8fA8126822B9929CA0b81Ea0DE38E"
+      },
+      {
+        "id": 1002,
+        "name": "Pencils Protocol",
+        "symbol": "DAPP",
+        "slug": "pencils-protocol",
+        "contract_address": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+      },
+      {
+        "id": 1003,
+        "name": "Movement",
+        "symbol": "MOVE",
+        "slug": "movement",
+        "contract_address": "0xA0b86a33E6441e936E73Bc8e74D23CecD55c5E7"
+      }
+    ],
+    "Ethereum": [
+      {
+        "id": 1006,
+        "name": "ETHFI",
+        "symbol": "ETHFI",
+        "slug": "ethfi",
+        "contract_address": "0xFe0c30065B384F05761f15d0CC899D4F9F9Cc0eB"
+      },
+      {
+        "id": 1007,
+        "name": "Renzo",
+        "symbol": "REZ",
+        "slug": "renzo",
+        "contract_address": "0x3B50805453023a91a8bf641e279401a0b23FA6F9"
+      }
+    ],
+    "Solana": [
+      {
+        "id": 1008,
+        "name": "JUP",
+        "symbol": "JUP",
+        "slug": "jupiter",
+        "contract_address": "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN"
+      }
+    ],
+    "Native Coins": [
+      {
+        "id": 1009,
+        "name": "Sui",
+        "symbol": "SUI",
+        "slug": "sui",
+        "contract_address": "N/A"
+      }
+    ]
+  },
+  "data_source": "Static JSON Fallback"
+} 

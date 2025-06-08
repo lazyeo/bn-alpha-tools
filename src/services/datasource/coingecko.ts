@@ -1,0 +1,124 @@
+import type { IPriceConnector, PriceInfo } from './connectors';
+import type { CachingService } from '../caching/caching.service';
+
+const COIN_ID_CACHE_TTL = 24 * 3600; // 24 hours
+const PRICE_CACHE_TTL = 1 * 3600;    // 1 hour
+
+/**
+ * Implements the IPriceConnector interface for fetching price data from the CoinGecko API.
+ * Handles fetching both current and historical token prices.
+ */
+export class CoinGeckoPriceConnector implements IPriceConnector {
+    private static API_BASE_URL = '/api/coingecko/api/v3';
+    private static ASSET_PLATFORM = 'binance-smart-chain';
+    private cachingService: CachingService;
+    private apiKey: string | null;
+
+    constructor(cachingService: CachingService, apiKey: string | null = null) {
+        this.cachingService = cachingService;
+        this.apiKey = apiKey;
+    }
+
+    private async fetchWithApiKey(url: string): Promise<Response> {
+        const headers = new Headers();
+        if (this.apiKey) {
+            headers.append('x_cg_pro_api_key', this.apiKey);
+        }
+        const response = await fetch(url, { headers });
+
+        // 根据API密钥状态调整延迟策略
+        if (this.apiKey) {
+            // 有API密钥：30次/分钟 = 2秒间隔
+            await this.delay(2000);
+        } else {
+            // 免费用户：更保守的延迟，但不要太长
+            await this.delay(1500); // 1.5秒，约40次/分钟
+        }
+
+        return response;
+    }
+
+    private delay(ms: number): Promise<void> {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // This method is for compatibility with the IPriceConnector interface for current prices.
+    // It is not the primary method for this application's needs.
+    async getPrice(symbol: string): Promise<PriceInfo | null> {
+        console.warn(`getPrice for symbol ${symbol} is not robustly implemented in CoinGeckoPriceConnector.`);
+        return null;
+    }
+
+    // This method is for compatibility with the IPriceConnector interface for current prices.
+    async getMultiplePrices(symbols: string[]): Promise<Record<string, PriceInfo | null>> {
+        console.warn(`getMultiplePrices is not robustly implemented in CoinGeckoPriceConnector.`);
+        return {};
+    }
+
+    /**
+     * Fetches the full market chart for a token for a given day (UTC).
+     * @param contractAddress The contract address of the token on BSC.
+     * @param date The specific day for which to fetch the chart.
+     * @returns An array of [timestamp, price] pairs, or null if not found.
+     */
+    async getDailyMarketChart(contractAddress: string, date: Date): Promise<[number, number][] | null> {
+        const dateString = date.toISOString().split('T')[0];
+        const cacheKey = `chart_${contractAddress}_${dateString}`;
+        const coinIdCacheKey = `coinid_${contractAddress}`;
+
+        const cachedChart = this.cachingService.get<[number, number][]>(cacheKey);
+        if (cachedChart) {
+            return cachedChart;
+        }
+
+        try {
+            let coinId = this.cachingService.get<string>(coinIdCacheKey);
+            if (!coinId) {
+                const coinInfoUrl = `${CoinGeckoPriceConnector.API_BASE_URL}/coins/${CoinGeckoPriceConnector.ASSET_PLATFORM}/contract/${contractAddress.toLowerCase()}`;
+                const coinInfoResponse = await this.fetchWithApiKey(coinInfoUrl);
+                if (coinInfoResponse.status === 404) {
+                    this.cachingService.set(coinIdCacheKey, 'not_found', COIN_ID_CACHE_TTL);
+                    return null;
+                }
+                if (!coinInfoResponse.ok) return null;
+
+                const coinInfo = await coinInfoResponse.json();
+                coinId = coinInfo.id;
+                this.cachingService.set(coinIdCacheKey, coinId, COIN_ID_CACHE_TTL);
+            }
+
+            if (coinId === 'not_found') return null;
+
+            // Define the 24-hour range for the given date in UTC
+            const startOfDay = new Date(dateString);
+            startOfDay.setUTCHours(0, 0, 0, 0);
+            const endOfDay = new Date(startOfDay);
+            endOfDay.setUTCHours(23, 59, 59, 999);
+
+            const fromTimestamp = Math.floor(startOfDay.getTime() / 1000);
+            const toTimestamp = Math.floor(endOfDay.getTime() / 1000);
+
+            const chartUrl = `${CoinGeckoPriceConnector.API_BASE_URL}/coins/${coinId}/market_chart/range?vs_currency=usd&from=${fromTimestamp}&to=${toTimestamp}`;
+            const chartResponse = await this.fetchWithApiKey(chartUrl);
+            if (!chartResponse.ok) {
+                this.cachingService.set(cacheKey, null, PRICE_CACHE_TTL);
+                return null;
+            }
+
+            const chartData = await chartResponse.json();
+            const prices = chartData?.prices;
+
+            if (prices && prices.length > 0) {
+                this.cachingService.set(cacheKey, prices, PRICE_CACHE_TTL);
+                return prices;
+            } else {
+                this.cachingService.set(cacheKey, null, PRICE_CACHE_TTL);
+                return null;
+            }
+
+        } catch (error) {
+            console.error(`[CoinGecko] A network or other unexpected error occurred for ${contractAddress}:`, error);
+            return null;
+        }
+    }
+}

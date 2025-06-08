@@ -1,1 +1,244 @@
 @import 'tailwindcss';
+
+/* 响应式基础设置 */
+html {
+  font-size: 16px;
+}
+
+/* 移动设备优化 */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+
+  /* 调整容器内边距 */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* 优化按钮大小 */
+  .mobile-touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* 平板设备优化 */
+@media (min-width: 641px) and (max-width: 1024px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+/* 大屏设备优化 */
+@media (min-width: 1025px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* 超大屏设备优化 */
+@media (min-width: 1440px) {
+  html {
+    font-size: 18px;
+  }
+}
+
+/* 全局响应式工具类 */
+.responsive-text {
+  font-size: clamp(0.875rem, 2.5vw, 1.125rem);
+}
+
+.responsive-heading {
+  font-size: clamp(1.25rem, 4vw, 2rem);
+}
+
+.responsive-padding {
+  padding: clamp(0.5rem, 2vw, 1.5rem);
+}
+
+.responsive-margin {
+  margin: clamp(0.5rem, 2vw, 1.5rem);
+}
+
+/* 网格系统优化 */
+.responsive-grid {
+  display: grid;
+  gap: clamp(0.5rem, 2vw, 1.5rem);
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+}
+
+/* 卡片组件响应式 */
+.responsive-card {
+  padding: clamp(1rem, 3vw, 2rem);
+  border-radius: clamp(0.5rem, 1vw, 1rem);
+}
+
+/* 导航栏响应式优化 */
+@media (max-width: 768px) {
+  .mobile-nav {
+    transform: scale(0.9);
+    transform-origin: center;
+  }
+}
+
+/* 表格响应式 */
+.responsive-table {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
+}
+
+.responsive-table::-webkit-scrollbar {
+  height: 8px;
+}
+
+.responsive-table::-webkit-scrollbar-track {
+  background: #f7fafc;
+  border-radius: 4px;
+}
+
+.responsive-table::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 4px;
+}
+
+.responsive-table::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* ===========================================
+   导航系统优化样式
+   =========================================== */
+
+/* 侧栏收缩动画优化 */
+.sidebar-transition {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 移动端侧栏滑入动画 */
+@media (max-width: 768px) {
+  .sidebar-mobile {
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  /* 移动端触摸优化 */
+  .mobile-touch-item {
+    min-height: 48px;
+    touch-action: manipulation;
+  }
+
+  /* 移动端按钮大小优化 */
+  .mobile-nav-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* 工具提示增强 */
+.tooltip-enhanced {
+  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* 导航菜单项悬停效果 */
+.nav-item-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-item-hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease-in-out;
+}
+
+.nav-item-hover:hover::before {
+  left: 100%;
+}
+
+/* 移动端遮罩层动画 */
+.mobile-overlay {
+  transition: opacity 0.3s ease-in-out;
+  backdrop-filter: blur(2px);
+}
+
+/* 桌面端侧栏阴影 */
+@media (min-width: 769px) {
+  .sidebar-shadow {
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* 响应式断点调整 */
+@media (min-width: 768px) and (max-width: 1024px) {
+  /* 平板端适配 */
+  .sidebar-tablet {
+    width: 240px;
+  }
+
+  .sidebar-tablet.collapsed {
+    width: 64px;
+  }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  .nav-item {
+    border: 1px solid transparent;
+  }
+
+  .nav-item:hover,
+  .nav-item.active {
+    border-color: currentColor;
+  }
+}
+
+/* 减少动画模式支持 */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-transition,
+  .sidebar-mobile,
+  .tooltip-enhanced,
+  .nav-item-hover::before,
+  .mobile-overlay {
+    transition: none;
+  }
+}
+
+/* 深色模式优化（如果需要） */
+@media (prefers-color-scheme: dark) {
+  .tooltip-enhanced {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+  .nav-item-hover::before {
+    display: none;
+  }
+
+  .tooltip-enhanced {
+    display: none;
+  }
+}
+
+/* 打印样式优化 */
+@media print {
+  .sidebar,
+  .mobile-nav-header {
+    display: none !important;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+}

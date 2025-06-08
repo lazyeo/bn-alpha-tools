@@ -94,6 +94,31 @@
           交易量积分规则
         </h3>
 
+        <!-- 限时活动公告 -->
+        <div class="bg-gradient-to-r from-red-50 via-orange-50 to-yellow-50 border-l-4 border-red-500 rounded-lg p-4 mb-4">
+          <div class="flex items-start">
+            <i class="fas fa-fire text-red-500 mr-3 mt-1 animate-pulse"></i>
+            <div class="flex-1">
+              <h4 class="font-medium text-red-800 mb-2 flex items-center">
+                🔥 限时活动：BSC链交易双倍积分
+                <span class="ml-2 bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-bold">限时</span>
+              </h4>
+              <p class="text-sm text-red-700 mb-2">
+                在BSC链进行Alpha代币交易可获得<strong>双倍交易量积分</strong>（积分+1）！
+              </p>
+              <a
+                href="https://www.binance.com/zh-CN/support/announcement/detail/37f90caac9c24988bbd9ce3595a136a2"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center text-sm text-red-600 hover:text-red-800 font-medium underline transition-colors"
+              >
+                <i class="fas fa-external-link-alt mr-1"></i>
+                查看官方公告
+              </a>
+            </div>
+          </div>
+        </div>
+
         <div class="bg-green-50 rounded-lg p-4 mb-4">
           <div class="flex items-start">
             <i class="fas fa-coins text-green-500 mr-3 mt-1"></i>
@@ -103,8 +128,10 @@
                 你在币安交易所和/或币安Web3钱包上购买的Alpha代币：
               </p>
               <div class="space-y-1">
-                <p class="text-sm text-gray-700">• 每购买首$2获得1分</p>
-                <p class="text-sm text-gray-700">• 之后每翻倍增加1分（例如：$4 = 2分，$8 = 3分）</p>
+                <p class="text-sm text-gray-700">• 积分计算公式：floor(log₂(总交易额))</p>
+                <p class="text-sm text-gray-700">• 总交易额 = Alpha代币购买金额 + BSC链bonus</p>
+                <p class="text-sm text-red-600 font-medium">• BSC链交易：额外+等额bonus（限时活动）</p>
+                <p class="text-sm text-gray-500">• 例如：$16 Alpha + $16 BSC bonus = floor(log₂(32)) = 5积分</p>
               </div>
             </div>
           </div>
@@ -175,10 +202,11 @@
               <h4 class="font-medium text-gray-800 mb-2">示例用户A</h4>
               <div class="text-sm text-gray-600 space-y-1">
                 <p>• 持有合格资产：$5,000 → <span class="text-blue-600 font-medium">2积分</span></p>
-                <p>• Alpha代币购买：$16 → <span class="text-green-600 font-medium">4积分</span></p>
+                <p>• Alpha代币购买：$16 (BSC链) → <span class="text-green-600 font-medium">floor(log₂(16+16)) = 5积分</span></p>
+                <p class="text-xs text-orange-600">  含BSC bonus: $16</p>
                 <p class="border-t pt-2 mt-2">
                   <span class="font-medium text-gray-800">总积分：</span>
-                  <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-bold">6积分</span>
+                  <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-bold">7积分</span>
                 </p>
               </div>
             </div>
@@ -187,7 +215,8 @@
               <h4 class="font-medium text-gray-800 mb-2">示例用户B</h4>
               <div class="text-sm text-gray-600 space-y-1">
                 <p>• 持有合格资产：$150,000 → <span class="text-blue-600 font-medium">4积分</span></p>
-                <p>• Alpha代币购买：$128 → <span class="text-green-600 font-medium">7积分</span></p>
+                <p>• Alpha代币购买：$128 (其他链) → <span class="text-green-600 font-medium">floor(log₂(128)) = 7积分</span></p>
+                <p class="text-xs text-gray-500">  无BSC bonus</p>
                 <p class="border-t pt-2 mt-2">
                   <span class="font-medium text-gray-800">总积分：</span>
                   <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-bold">11积分</span>

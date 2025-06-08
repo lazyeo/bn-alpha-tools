@@ -9,16 +9,70 @@
       <!-- 搜索框 -->
       <div class="max-w-lg mx-auto mb-6">
         <div class="bg-white rounded-2xl p-6 shadow-lg">
-          <div class="relative">
-            <input
-              v-model="bscAddress"
-              @keyup.enter="queryTransactions"
-              type="text"
-              placeholder="请输入BSC钱包地址..."
-              class="w-full px-4 py-4 pl-12 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              :class="{ 'border-red-300': errorMessage }"
-            />
-            <i class="fas fa-search absolute left-4 top-5 text-gray-400"></i>
+          <!-- 统一地址输入控件 -->
+          <div class="mb-4">
+            <h3 class="text-sm font-medium text-gray-700 mb-4">输入或选择查询地址</h3>
+
+            <!-- 地址输入/选择组合框 -->
+            <div class="relative">
+              <!-- 文本输入框 -->
+              <input
+                v-model="bscAddress"
+                @keyup.enter="queryTransactions"
+                @input="onAddressInput"
+                @focus="showDropdown = true"
+                @blur="onInputBlur"
+                type="text"
+                placeholder="请输入BSC钱包地址或选择已保存的地址..."
+                class="w-full px-4 py-4 pl-12 pr-16 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                :class="{ 'border-red-300': errorMessage }"
+              />
+
+              <!-- 搜索图标 -->
+              <i class="fas fa-search absolute left-4 top-5 text-gray-400"></i>
+
+              <!-- 下拉箭头 -->
+              <button
+                @click="toggleDropdown"
+                class="absolute right-2 top-2 p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                type="button"
+              >
+                <i :class="showDropdown ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
+              </button>
+
+              <!-- 下拉选项列表 -->
+              <div
+                v-if="showDropdown && filteredAddresses.length > 0"
+                class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-64 overflow-y-auto"
+              >
+                <div
+                  v-for="(address, index) in filteredAddresses"
+                  :key="index"
+                  @click="selectAddress(address)"
+                  class="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                      <div class="font-medium text-gray-800">{{ address.remark || '未命名地址' }}</div>
+                      <div class="text-sm text-gray-500 font-mono">{{ formatAddress(address.address) }}</div>
+                    </div>
+                    <i class="fas fa-check text-blue-500 opacity-0" :class="{ 'opacity-100': bscAddress === address.address }"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 无已保存地址提示 -->
+          <div v-if="savedAddresses.length === 0" class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+            <div class="flex items-center">
+              <i class="fas fa-info-circle text-yellow-500 mr-2"></i>
+              <span class="text-sm text-yellow-700">
+                暂无已保存的地址，请先在
+                <router-link to="/settings" class="font-medium underline">设置</router-link>
+                中添加地址以便快速选择
+              </span>
+            </div>
           </div>
 
           <!-- 错误提示 -->
@@ -28,7 +82,7 @@
 
           <button
             @click="queryTransactions"
-            :disabled="loading"
+            :disabled="loading || !bscAddress"
             class="w-full mt-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50"
           >
             <i v-if="loading" class="fas fa-spinner fa-spin mr-2"></i>
@@ -114,25 +168,35 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+// import { StorageUtils } from '@/utils/storage' // DELETED
+import { useBscStore } from '@/stores/bsc'
 
 const router = useRouter()
+const store = useBscStore()
 
-// 搜索历史记录相关
-const SEARCH_HISTORY_KEY = 'bsc_search_history'
-const MAX_HISTORY_ITEMS = 10
+// The store is now the single source of truth for search history
+const searchHistory = computed(() => store.searchHistory)
 
 const bscAddress = ref('')
 const loading = ref(false)
 const errorMessage = ref('')
 const currentTime = ref('')
-const searchHistory = ref([])
+
+// Address selection logic can remain as-is for now,
+// as it reads from a separate localStorage key not handled by the old StorageUtils.
+const SAVED_ADDRESSES_KEY = 'saved_addresses' // Define key locally
+const savedAddresses = ref([])
+const showDropdown = ref(false)
+const filteredAddresses = ref([])
 
 let timeInterval = null
 
 onMounted(() => {
-  loadSearchHistory()
+  // The store's init action already loads the history
+  // store.loadSearchHistory()
+  loadSavedAddresses()
   updateTime()
   timeInterval = setInterval(updateTime, 1000)
 })
@@ -142,6 +206,64 @@ onUnmounted(() => {
     clearInterval(timeInterval)
   }
 })
+
+// 加载已保存的地址 (Kept as local implementation)
+const loadSavedAddresses = () => {
+  try {
+    const data = localStorage.getItem(SAVED_ADDRESSES_KEY);
+    if(data) {
+        savedAddresses.value = JSON.parse(data);
+    }
+    filteredAddresses.value = savedAddresses.value
+  } catch (error) {
+    console.error('加载已保存地址失败:', error)
+    savedAddresses.value = []
+    filteredAddresses.value = []
+  }
+}
+
+// 格式化地址显示
+const formatAddress = (address) => {
+  if (!address) return ''
+  return `${address.slice(0, 8)}...${address.slice(-6)}`
+}
+
+// 地址输入处理
+const onAddressInput = () => {
+  const inputValue = bscAddress.value.toLowerCase()
+  if (inputValue.trim() === '') {
+    filteredAddresses.value = savedAddresses.value
+  } else {
+    filteredAddresses.value = savedAddresses.value.filter(address =>
+      address.address.toLowerCase().includes(inputValue) ||
+      (address.remark && address.remark.toLowerCase().includes(inputValue))
+    )
+  }
+  showDropdown.value = filteredAddresses.value.length > 0
+}
+
+// 选择地址
+const selectAddress = (address) => {
+  bscAddress.value = address.address
+  showDropdown.value = false
+  errorMessage.value = ''
+}
+
+// 切换下拉框显示
+const toggleDropdown = () => {
+  showDropdown.value = !showDropdown.value
+  if (showDropdown.value) {
+    filteredAddresses.value = savedAddresses.value
+  }
+}
+
+// 输入框失焦处理
+const onInputBlur = () => {
+  // 延迟隐藏下拉框，以便点击选项能够正常工作
+  setTimeout(() => {
+    showDropdown.value = false
+  }, 200)
+}
 
 // 更新时间
 const updateTime = () => {
@@ -156,63 +278,6 @@ const updateTime = () => {
   })
 }
 
-// 加载搜索历史
-const loadSearchHistory = () => {
-  try {
-    const savedHistory = localStorage.getItem(SEARCH_HISTORY_KEY)
-    if (savedHistory) {
-      searchHistory.value = JSON.parse(savedHistory)
-    }
-  } catch (error) {
-    console.error('加载搜索历史失败:', error)
-    searchHistory.value = []
-  }
-}
-
-// 保存搜索历史
-const saveSearchHistory = () => {
-  try {
-    localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(searchHistory.value))
-  } catch (error) {
-    console.error('保存搜索历史失败:', error)
-  }
-}
-
-// 添加地址到搜索历史
-const addToSearchHistory = (address) => {
-  // 如果地址已存在，先移除它
-  const index = searchHistory.value.indexOf(address)
-  if (index !== -1) {
-    searchHistory.value.splice(index, 1)
-  }
-
-  // 添加到历史记录的开头
-  searchHistory.value.unshift(address)
-
-  // 如果超过最大数量，移除最旧的
-  if (searchHistory.value.length > MAX_HISTORY_ITEMS) {
-    searchHistory.value = searchHistory.value.slice(0, MAX_HISTORY_ITEMS)
-  }
-
-  // 保存到本地存储
-  saveSearchHistory()
-}
-
-// 从搜索历史中移除地址
-const removeHistoryAddress = (index) => {
-  searchHistory.value.splice(index, 1)
-  saveSearchHistory()
-}
-
-// 使用历史记录中的地址
-const useHistoryAddress = (address) => {
-  // 直接跳转到结果页面，带上地址参数
-  router.push({
-    name: 'transaction-results',
-    params: { address: address }
-  })
-}
-
 // 格式化地址时间（模拟）
 const formatAddressTime = () => {
   // 这里可以根据实际需求实现，比如从本地存储获取查询时间
@@ -224,32 +289,36 @@ const isValidBscAddress = (address) => {
   return /^0x[0-9a-fA-F]{40}$/.test(address)
 }
 
-// 查询交易数据
 const queryTransactions = async () => {
-  // 重置状态
-  errorMessage.value = ''
-
-  // 验证地址
   if (!bscAddress.value.trim()) {
-    errorMessage.value = '请输入BSC地址'
+    errorMessage.value = '请输入钱包地址'
     return
   }
+  errorMessage.value = ''
+  loading.value = true
 
-  if (!isValidBscAddress(bscAddress.value.trim())) {
-    errorMessage.value = '请输入有效的BSC地址格式'
-    return
+  try {
+    // Add to history via store action
+    store.addToSearchHistory(bscAddress.value.trim())
+
+    // Navigate to the results page
+    await router.push({ name: 'transaction-results', params: { address: bscAddress.value.trim() } })
+  } catch (error) {
+    console.error('查询失败:', error)
+    errorMessage.value = '导航失败，请重试'
+  } finally {
+    loading.value = false
   }
+}
 
-  const address = bscAddress.value.trim()
+const useHistoryAddress = (address) => {
+  bscAddress.value = address
+  queryTransactions()
+}
 
-  // 添加到搜索历史
-  addToSearchHistory(address)
-
-  // 直接跳转到结果页面，带上地址参数
-  router.push({
-    name: 'transaction-results',
-    params: { address: address }
-  })
+const removeHistoryAddress = (index) => {
+  // Remove from history via store action
+  store.removeFromSearchHistory(index)
 }
 </script>
 
@@ -297,3 +366,4 @@ input:focus {
   }
 }
 </style>
+

@@ -13,6 +13,109 @@
 
     <!-- 主要内容 -->
     <div class="px-4 py-4">
+      <!-- API Key 设置区域 -->
+      <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="font-semibold text-gray-800 flex items-center">
+              <i class="fas fa-key text-orange-500 mr-2"></i>
+              BSCScan API 配置
+            </h3>
+            <p class="text-sm text-gray-500 mt-1">
+              配置您的BSCScan API密钥以获得更好的查询体验
+            </p>
+          </div>
+          <button
+            @click="toggleApiKeySection"
+            class="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <i :class="showApiKeySection ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
+          </button>
+        </div>
+
+        <!-- API Key 设置内容 -->
+        <div v-if="showApiKeySection" class="space-y-4">
+          <!-- 当前API Key显示 -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              当前API密钥
+            </label>
+            <div class="flex items-center space-x-2">
+              <input
+                v-model="currentApiKey"
+                type="text"
+                readonly
+                class="flex-1 p-3 border border-gray-200 rounded-lg bg-gray-50 text-sm font-mono"
+                :placeholder="isDefaultApiKey ? '使用默认API密钥' : ''"
+              />
+              <button
+                @click="toggleApiKeyVisibility"
+                class="px-3 py-3 text-gray-500 hover:text-gray-700 border border-gray-200 rounded-lg transition-colors"
+                title="显示/隐藏API密钥"
+              >
+                <i :class="showApiKey ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 新API Key输入 -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              更新API密钥
+            </label>
+            <div class="flex items-center space-x-2">
+              <input
+                v-model="newApiKey"
+                type="text"
+                placeholder="输入新的BSCScan API密钥..."
+                class="flex-1 p-3 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                :class="{ 'border-red-300': apiKeyError }"
+              />
+              <button
+                @click="saveApiKey"
+                :disabled="!newApiKey.trim()"
+                class="px-4 py-3 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-lg font-medium transition-colors"
+              >
+                保存
+              </button>
+            </div>
+            <p v-if="apiKeyError" class="text-red-500 text-xs mt-1">
+              {{ apiKeyError }}
+            </p>
+          </div>
+
+          <!-- API Key 相关说明 -->
+          <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+            <h4 class="text-sm font-medium text-blue-800 mb-2">
+              <i class="fas fa-info-circle mr-1"></i>
+              关于API密钥
+            </h4>
+            <ul class="text-xs text-blue-700 space-y-1">
+              <li>• 免费API密钥：访问 <a href="https://bscscan.com/apis" target="_blank" class="underline">BSCScan API</a> 免费注册获取</li>
+              <li>• 默认密钥：如不设置，将使用内置的公共API密钥</li>
+              <li>• 查询限制：个人API密钥通常有更高的查询频率限制</li>
+              <li>• 数据安全：API密钥仅保存在本地浏览器，不会上传到服务器</li>
+              <li>• 重置密钥：点击"使用默认"按钮可恢复使用内置密钥</li>
+            </ul>
+          </div>
+
+          <!-- 操作按钮 -->
+          <div class="flex items-center justify-between pt-2">
+            <button
+              @click="resetToDefaultApiKey"
+              class="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg transition-colors text-sm"
+            >
+              <i class="fas fa-undo mr-1"></i>
+              使用默认
+            </button>
+            <div class="text-xs text-gray-500">
+              <i class="fas fa-shield-alt mr-1"></i>
+              本地存储，安全可靠
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 添加地址按钮 -->
       <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
         <div class="flex items-center justify-between">
@@ -260,245 +363,332 @@
   </div>
 </template>
 
-<script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+<script>
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useClipboard } from '@vueuse/core'
 
-// 定义组件名
-defineOptions({
-  name: 'AddressManager'
-})
+// Define component name and setup
+export default {
+  name: 'AddressManager',
+  setup() {
+    const router = useRouter()
+    const { copy } = useClipboard()
 
-const router = useRouter()
+    const SAVED_ADDRESSES_KEY = 'saved_addresses';
+    const BSC_API_KEY = 'bsc_api_key';
 
-// 使用VueUse的剪贴板功能
-const { copy } = useClipboard()
+    // State for addresses
+    const addresses = ref([])
+    const editingIndex = ref(null)
+    const addressError = ref('')
+    const remarkError = ref('')
+    const showModal = ref(false)
+    const showApiKeySection = ref(false)
+    const showApiKey = ref(false)
+    const currentApiKey = ref('')
+    const isDefaultApiKey = ref(true)
 
-// 响应式数据
-const addresses = ref([])
-const editingIndex = ref(null)
-const addressError = ref('')
-const remarkError = ref('')
-const showModal = ref(false)
-
-// 表单数据
-const form = reactive({
-  address: '',
-  remark: ''
-})
-
-// 存储键名
-const STORAGE_KEY = 'bsc-addresses'
-
-// 表单验证状态
-const isFormValid = computed(() => {
-  return form.address &&
-         form.remark &&
-         !addressError.value &&
-         !remarkError.value
-})
-
-// 加载本地存储的地址
-const loadAddresses = () => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      addresses.value = JSON.parse(stored)
-    }
-  } catch (error) {
-    console.error('加载地址列表失败:', error)
-    addresses.value = []
-  }
-}
-
-// 保存地址到本地存储
-const saveToStorage = () => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(addresses.value))
-  } catch (error) {
-    console.error('保存地址列表失败:', error)
-  }
-}
-
-// BSC地址验证
-const validateAddress = () => {
-  addressError.value = ''
-
-  if (!form.address) {
-    addressError.value = 'BSC地址不能为空'
-    return
-  }
-
-  // BSC地址格式验证
-  if (!/^0x[a-fA-F0-9]{40}$/.test(form.address)) {
-    addressError.value = 'BSC地址格式不正确，应为0x开头的42位字符'
-    return
-  }
-
-  // 检查重复（编辑时排除当前项）
-  const existingIndex = addresses.value.findIndex(item =>
-    item.address.toLowerCase() === form.address.toLowerCase()
-  )
-
-  if (existingIndex !== -1 && existingIndex !== editingIndex.value) {
-    addressError.value = '该地址已存在'
-    return
-  }
-}
-
-// 备注验证
-const validateRemark = () => {
-  remarkError.value = ''
-
-  if (!form.remark || form.remark.trim() === '') {
-    remarkError.value = '备注不能为空'
-    return
-  }
-
-  if (form.remark.length < 2) {
-    remarkError.value = '备注至少需要2个字符'
-    return
-  }
-}
-
-// 打开添加弹窗
-const openAddModal = () => {
-  editingIndex.value = null
-  form.address = ''
-  form.remark = ''
-  addressError.value = ''
-  remarkError.value = ''
-  showModal.value = true
-}
-
-// 打开编辑弹窗
-const openEditModal = (index) => {
-  const item = addresses.value[index]
-  editingIndex.value = index
-  form.address = item.address
-  form.remark = item.remark
-  addressError.value = ''
-  remarkError.value = ''
-  showModal.value = true
-}
-
-// 关闭弹窗
-const closeModal = () => {
-  showModal.value = false
-  editingIndex.value = null
-  form.address = ''
-  form.remark = ''
-  addressError.value = ''
-  remarkError.value = ''
-}
-
-// 保存地址
-const saveAddress = () => {
-  validateAddress()
-  validateRemark()
-
-  if (addressError.value) {
-    ElMessage.error(addressError.value)
-    return
-  }
-
-  if (remarkError.value) {
-    ElMessage.error(remarkError.value)
-    return
-  }
-
-  const now = new Date().toISOString()
-
-  if (editingIndex.value !== null) {
-    // 编辑模式
-    addresses.value[editingIndex.value] = {
-      ...addresses.value[editingIndex.value],
-      address: form.address,
-      remark: form.remark.trim(),
-      updatedAt: now
-    }
-    ElMessage.success('地址修改成功')
-  } else {
-    // 添加模式
-    addresses.value.unshift({
-      address: form.address,
-      remark: form.remark.trim(),
-      createdAt: now,
-      updatedAt: now
+    // Form data
+    const form = reactive({
+      address: '',
+      remark: ''
     })
-    ElMessage.success('地址添加成功')
+
+    // Form validation status
+    const isFormValid = computed(() => {
+      return form.address &&
+             form.remark &&
+             !addressError.value &&
+             !remarkError.value
+    })
+
+    // Load addresses from local storage
+    const loadAddresses = () => {
+      const data = localStorage.getItem(SAVED_ADDRESSES_KEY);
+      if (data) {
+        addresses.value = JSON.parse(data);
+      }
+    }
+
+    // Save addresses to local storage
+    const saveAddresses = () => {
+      localStorage.setItem(SAVED_ADDRESSES_KEY, JSON.stringify(addresses.value));
+    }
+
+    // BSC address validation
+    const validateAddress = () => {
+      addressError.value = ''
+
+      if (!form.address) {
+        addressError.value = 'BSC地址不能为空'
+        return
+      }
+
+      // BSC address format validation
+      if (!/^0x[a-fA-F0-9]{40}$/.test(form.address)) {
+        addressError.value = 'BSC地址格式不正确，应为0x开头的42位字符'
+        return
+      }
+
+      // Check for duplicates (excluding current item)
+      const existingIndex = addresses.value.findIndex(item =>
+        item.address.toLowerCase() === form.address.toLowerCase()
+      )
+
+      if (existingIndex !== -1 && existingIndex !== editingIndex.value) {
+        addressError.value = '该地址已存在'
+        return
+      }
+    }
+
+    // Remark validation
+    const validateRemark = () => {
+      remarkError.value = ''
+
+      if (!form.remark || form.remark.trim() === '') {
+        remarkError.value = '备注不能为空'
+        return
+      }
+
+      if (form.remark.length < 2) {
+        remarkError.value = '备注至少需要2个字符'
+        return
+      }
+    }
+
+    // Open add modal
+    const openAddModal = () => {
+      editingIndex.value = null
+      form.address = ''
+      form.remark = ''
+      addressError.value = ''
+      remarkError.value = ''
+      showModal.value = true
+    }
+
+    // Open edit modal
+    const openEditModal = (index) => {
+      const item = addresses.value[index]
+      editingIndex.value = index
+      form.address = item.address
+      form.remark = item.remark
+      addressError.value = ''
+      remarkError.value = ''
+      showModal.value = true
+    }
+
+    // Close modal
+    const closeModal = () => {
+      showModal.value = false
+      editingIndex.value = null
+      form.address = ''
+      form.remark = ''
+      addressError.value = ''
+      remarkError.value = ''
+    }
+
+    // Save address
+    const saveAddress = () => {
+      validateAddress()
+      validateRemark()
+
+      if (addressError.value) {
+        ElMessage.error(addressError.value)
+        return
+      }
+
+      if (remarkError.value) {
+        ElMessage.error(remarkError.value)
+        return
+      }
+
+      const now = new Date().toISOString()
+
+      if (editingIndex.value !== null) {
+        // Edit mode
+        addresses.value[editingIndex.value] = {
+          ...addresses.value[editingIndex.value],
+          address: form.address,
+          remark: form.remark.trim(),
+          updatedAt: now
+        }
+        ElMessage.success('地址修改成功')
+      } else {
+        // Add mode
+        addresses.value.unshift({
+          address: form.address,
+          remark: form.remark.trim(),
+          createdAt: now,
+          updatedAt: now
+        })
+        ElMessage.success('地址添加成功')
+      }
+
+      // Save to local storage
+      saveAddresses()
+
+      // Close modal
+      closeModal()
+    }
+
+    // Delete address
+    const deleteAddress = (index) => {
+      if (confirm('确定要删除这个地址吗？')) {
+        addresses.value.splice(index, 1)
+        saveAddresses()
+        ElMessage.success('地址删除成功')
+      }
+    }
+
+    // Copy address
+    const copyAddress = async (address) => {
+      try {
+        await copy(address)
+        ElMessage.success('地址已复制到剪贴板')
+      } catch (error) {
+        console.error('复制失败:', error)
+        ElMessage.error('复制失败，请手动复制')
+      }
+    }
+
+    // Query address
+    const queryAddress = (address) => {
+      router.push({
+        name: 'transaction-results',
+        params: { address: address }
+      })
+    }
+
+    // Format date
+    const formatDate = (dateString) => {
+      if (!dateString) return '未知时间'
+
+      try {
+        const date = new Date(dateString)
+        return date.toLocaleString('zh-CN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      } catch {
+        return '时间格式错误'
+      }
+    }
+
+    // Toggle API Key section
+    const toggleApiKeySection = () => {
+      showApiKeySection.value = !showApiKeySection.value
+    }
+
+    // Toggle API Key visibility
+    const toggleApiKeyVisibility = () => {
+      showApiKey.value = !showApiKey.value
+      if (showApiKey.value) {
+        currentApiKey.value = localStorage.getItem(BSC_API_KEY) || ''
+      } else {
+        currentApiKey.value = ''
+      }
+    }
+
+    const saveApiKey = () => {
+      apiKeyError.value = ''
+
+      if (!newApiKey.value.trim()) {
+        apiKeyError.value = 'API密钥不能为空'
+        return
+      }
+
+      if (newApiKey.value.length < 20) {
+        apiKeyError.value = 'API密钥格式不正确，请检查输入'
+        return
+      }
+
+      try {
+        localStorage.setItem(BSC_API_KEY, newApiKey.value.trim())
+        currentApiKey.value = newApiKey.value.trim()
+        newApiKey.value = ''
+        ElMessage.success('API密钥保存成功')
+      } catch (error) {
+        console.error('保存API密钥失败:', error)
+        apiKeyError.value = '保存失败，请重试'
+      }
+    }
+
+    const resetToDefaultApiKey = () => {
+      localStorage.removeItem(BSC_API_KEY)
+      currentApiKey.value = ''
+      ElMessage.success('已重置为默认API密钥')
+    }
+
+    // Load API key status
+    const loadApiKeyStatus = () => {
+      const savedKey = localStorage.getItem(BSC_API_KEY)
+      const defaultKey = '1I6UUWQHJ4JV99S7H9RQAVFPKZN6W9A9BZ'
+
+      isDefaultApiKey.value = savedKey === defaultKey
+      showApiKey.value = false
+      currentApiKey.value = '••••••••••••••••••••••••••••••••••••••••'
+    }
+
+    // Component mounted
+    onMounted(() => {
+      loadAddresses()
+      loadApiKeyStatus()
+    })
+
+    return {
+      addresses,
+      editingIndex,
+      addressError,
+      remarkError,
+      showModal,
+      showApiKeySection,
+      showApiKey,
+      currentApiKey,
+      isDefaultApiKey,
+      form,
+      isFormValid,
+      openAddModal,
+      openEditModal,
+      closeModal,
+      saveAddress,
+      deleteAddress,
+      copyAddress,
+      queryAddress,
+      formatDate,
+      toggleApiKeySection,
+      toggleApiKeyVisibility,
+      saveApiKey,
+      resetToDefaultApiKey,
+      apiKeyError,
+      newApiKey
+    }
   }
-
-  // 保存到本地存储
-  saveToStorage()
-
-  // 关闭弹窗
-  closeModal()
 }
-
-// 删除地址
-const deleteAddress = (index) => {
-  if (confirm('确定要删除这个地址吗？')) {
-    addresses.value.splice(index, 1)
-    saveToStorage()
-    ElMessage.success('地址删除成功')
-  }
-}
-
-// 复制地址
-const copyAddress = async (address) => {
-  try {
-    await copy(address)
-    ElMessage.success('地址已复制到剪贴板')
-  } catch (error) {
-    console.error('复制失败:', error)
-    ElMessage.error('复制失败，请手动复制')
-  }
-}
-
-// 查询地址
-const queryAddress = (address) => {
-  router.push(`/results/${address}`)
-}
-
-// 格式化日期
-const formatDate = (dateString) => {
-  const date = new Date(dateString)
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
-
-// 组件挂载时加载数据
-onMounted(() => {
-  loadAddresses()
-})
 </script>
 
 <style scoped>
-/* 表单聚焦效果 */
+/* Form focus effect */
 input:focus {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-/* 地址卡片悬停效果 */
+/* Address card hover effect */
 .border-gray-200:hover {
   border-color: #e5e7eb;
   transform: translateY(-1px);
 }
 
-/* 按钮交互效果 */
+/* Button interaction effect */
 button:active {
   transform: scale(0.95);
 }
 
-/* 弹窗动画 */
+/* Modal animation */
 .fixed.inset-0 {
   animation: fadeIn 0.3s ease-out;
 }
@@ -523,18 +713,18 @@ button:active {
   }
 }
 
-/* 复制成功提示动画 */
+/* Copy success prompt animation */
 .transition-all {
   transition: all 0.3s ease;
 }
 
-/* 字体平滑 */
+/* Font smoothing */
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* 滚动条样式 */
+/* Scrollbar style */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -552,17 +742,17 @@ button:active {
   background: #a8a8a8;
 }
 
-/* 弹窗阴影效果 */
+/* Modal shadow effect */
 .shadow-2xl {
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
-/* 禁用状态按钮样式 */
+/* Disabled state button style */
 .cursor-not-allowed {
   cursor: not-allowed;
 }
 
-/* 错误状态样式 */
+/* Error state style */
 .border-red-300:focus {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }

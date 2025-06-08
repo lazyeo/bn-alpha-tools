@@ -1,11 +1,11 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- 头部 -->
-    <div class="bg-gradient-to-br from-blue-500 via-purple-600 to-blue-700 px-4 py-6 text-white">
+    <div class="bg-gradient-to-br from-blue-500 via-purple-600 to-blue-700 px-4 py-6 text-white shadow-lg sticky top-0 z-10">
       <div class="mb-4">
         <h1 class="text-2xl font-bold mb-2">{{ currentViewTitle }}</h1>
-        <p v-if="bscStore.currentAddress" class="text-blue-100 text-sm break-all">
-          {{ bscStore.currentAddress }}
+        <p v-if="currentAddress" class="text-blue-100 text-sm break-all">
+          {{ currentAddress }}
         </p>
       </div>
 
@@ -18,7 +18,7 @@
             :class="[
               'flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center justify-center',
               currentView === 'list'
-                ? 'bg-white/20 text-white'
+                ? 'bg-white/20 text-white shadow-inner'
                 : 'text-white/70 hover:text-white hover:bg-white/10'
             ]"
           >
@@ -30,54 +30,69 @@
             :class="[
               'flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center justify-center',
               currentView === 'statistics'
-                ? 'bg-white/20 text-white'
+                ? 'bg-white/20 text-white shadow-inner'
                 : 'text-white/70 hover:text-white hover:bg-white/10'
             ]"
           >
             <i class="fas fa-chart-bar mr-2"></i>
-            15日统计
+            统计
           </button>
         </div>
 
         <!-- 刷新按钮 -->
-        <button
-          @click="refreshData"
-          :disabled="loading"
-          class="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-all duration-300 disabled:opacity-50 flex items-center whitespace-nowrap"
-        >
-          <i :class="[loading ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt', 'mr-2']"></i>
-          <span class="hidden sm:inline">{{ loading ? '刷新中' : '刷新' }}</span>
-          <span class="sm:hidden">{{ loading ? '...' : '' }}</span>
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            @click="refreshData"
+            :disabled="loading"
+            class="bg-white/20 backdrop-blur-sm text-white px-3 py-2 rounded-lg hover:bg-white/30 transition-all duration-300 disabled:opacity-50 flex items-center whitespace-nowrap text-sm"
+          >
+            <i :class="[loading ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt', 'mr-1']"></i>
+            <span class="hidden sm:inline">{{ loading ? '刷新中' : '刷新' }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 数据状态指示器 -->
+      <div class="mb-4 text-center">
+          <div class="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1 text-xs text-blue-100">
+              <span v-if="hasHistoricalPrices" class="flex items-center">
+                  <span class="w-2 h-2 bg-green-400 rounded-full mr-1"></span>
+                  历史价格已缓存
+              </span>
+              <span v-else class="flex items-center">
+                  <span class="w-2 h-2 bg-yellow-400 rounded-full mr-1"></span>
+                  需要获取历史价格
+              </span>
+              <span class="text-blue-200">|</span>
+              <span>{{ transactionData.length }}天数据</span>
+          </div>
       </div>
 
       <!-- 统计卡片 -->
-      <div class="grid grid-cols-2 gap-3 mb-4" v-if="currentView === 'list'">
-        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
-          <div class="text-2xl font-bold">{{ bscStore.statistics.totalTransactions }}</div>
-          <div class="text-xs text-blue-100">总交易笔数</div>
-        </div>
-        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
-          <div class="text-2xl font-bold">{{ formatNumber(bscStore.statistics.totalVolume) }}</div>
-          <div class="text-xs text-blue-100">总交易量</div>
-        </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+          <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
+              <div class="text-2xl font-bold">{{ statistics.totalTransactions }}</div>
+              <div class="text-xs text-blue-100">总交易笔数</div>
+          </div>
+          <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
+              <div class="text-lg font-bold">
+                ${{ formatNumber(statistics.totalAlphaInflow) }}
+                <div v-if="statistics.totalBscBonus && statistics.totalBscBonus > 0" class="text-sm text-orange-300">
+                  +${{ formatNumber(statistics.totalBscBonus) }} bonus
+                </div>
+              </div>
+              <div class="text-xs text-blue-100">Alpha代币总流入</div>
+          </div>
+          <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
+              <div class="text-2xl font-bold">{{ formatPoints(statistics.totalPoints) }}</div>
+              <div class="text-xs text-blue-100">累计Alpha积分</div>
+          </div>
+          <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
+              <div class="text-lg font-bold">${{ formatNumber(statistics.averageDailyVolume) }}</div>
+              <div class="text-xs text-blue-100">日均交易额</div>
+          </div>
       </div>
 
-      <!-- 统计视图的顶部卡片 -->
-      <div class="grid grid-cols-3 gap-3 mb-4" v-if="currentView === 'statistics'">
-        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
-          <div class="text-xl font-bold">{{ statistics15Days.totalTransactions }}</div>
-          <div class="text-xs text-blue-100">15日交易数</div>
-        </div>
-        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
-          <div class="text-xl font-bold">{{ formatNumber(statistics15Days.totalVolume) }}</div>
-          <div class="text-xs text-blue-100">15日交易量</div>
-        </div>
-        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
-          <div class="text-xl font-bold">{{ formatNumber(statistics15Days.totalProfit) }}</div>
-          <div class="text-xs text-blue-100">15日盈亏</div>
-        </div>
-      </div>
     </div>
 
     <!-- 错误提示 -->
@@ -87,817 +102,275 @@
       </div>
     </div>
 
-    <!-- 数值显示弹窗 -->
-    <div v-if="showTooltip" class="fixed inset-0 pointer-events-none z-50">
-      <div
-        class="absolute bg-gray-800/90 backdrop-blur-sm text-white px-3 py-2 rounded-lg shadow-xl text-sm pointer-events-none border border-gray-600/50 max-w-xs"
-        :style="tooltipStyle"
-      >
-        <div class="font-semibold text-white">{{ tooltipData.date }}</div>
-        <div class="text-gray-200">{{ tooltipData.label }}：{{ tooltipData.value }}</div>
-        <!-- 小箭头指示器 -->
-        <div
-          v-if="!isMobile"
-          class="absolute w-2 h-2 bg-gray-800 rotate-45 border-l border-t border-gray-600/50"
-          :style="arrowStyle"
-        ></div>
-      </div>
+    <!-- Loading Spinner -->
+    <div v-if="loading && transactionData.length === 0" class="flex justify-center items-center h-64">
+        <i class="fas fa-spinner fa-spin text-4xl text-blue-500"></i>
     </div>
 
-    <!-- 统计视图 -->
-    <div v-if="currentView === 'statistics' && transactionData.length > 0" class="px-4 py-6" @click="hideTooltip">
-      <!-- 15日交易量柱状图 -->
-      <div class="bg-white rounded-xl p-4 mb-6 shadow-sm">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-          <i class="fas fa-chart-bar text-blue-500 mr-2"></i>
-          15日交易量统计
-        </h3>
-        <div class="h-64 w-full overflow-hidden" @click.stop>
-          <svg class="w-full h-full" viewBox="0 0 450 220" v-if="chartData.volume.length > 0">
-            <!-- 背景网格线 -->
-            <defs>
-              <pattern id="grid" width="40" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 20" fill="none" stroke="#f3f4f6" stroke-width="1"/>
-              </pattern>
-            </defs>
-            <rect x="60" y="10" width="380" height="180" fill="url(#grid)" />
-
-            <!-- Y轴标签 -->
-            <g v-for="(tick, index) in yAxisTicks.volume" :key="'y-' + index">
-              <text :x="55" :y="200 - (index * 36)" text-anchor="end" class="text-xs fill-gray-500">
-                {{ formatNumber(tick) }}
-              </text>
-            </g>
-
-            <!-- 柱状图 -->
-            <g v-for="(item, index) in chartData.volume" :key="'bar-' + index">
-              <rect
-                :x="70 + index * 24"
-                :y="200 - (item.value / maxValues.volume * 160)"
-                width="20"
-                :height="item.value / maxValues.volume * 160"
-                :fill="`hsl(${220 + index * 8}, 60%, 55%)`"
-                class="hover:opacity-80 transition-opacity cursor-pointer"
-                @click="showBarTooltip($event, item, '交易量', formatNumber(item.value))"
-                @mouseenter="!isMobile && showBarTooltip($event, item, '交易量', formatNumber(item.value))"
-                @mouseleave="!isMobile && hideTooltip()"
-                @touchstart="showBarTooltip($event, item, '交易量', formatNumber(item.value))"
-              />
-              <!-- X轴标签 -->
-              <text
-                :x="80 + index * 24"
-                y="215"
-                text-anchor="middle"
-                class="text-xs fill-gray-500"
-              >
-                {{ item.date.slice(-2) }}
-              </text>
-            </g>
-          </svg>
-          <div v-else class="h-full flex items-center justify-center text-gray-500">
-            暂无数据
+    <!-- Transaction List View -->
+    <div v-if="currentView === 'list' && transactionData.length > 0" class="px-2 sm:px-4 py-4">
+      <div v-for="day in transactionData" :key="day.date" class="mb-6 bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="bg-gray-50 p-3 border-b border-gray-200 flex justify-between items-center cursor-pointer" @click="toggleDayExpansion(day.date)">
+          <div class="flex items-center">
+            <h3 class="text-lg font-semibold text-gray-800 mr-3">{{ day.date }}</h3>
+            <span class="text-sm text-gray-500">({{ day.transactions.length }} 笔交易)</span>
+            <i :class="[expandedDays.has(day.date) ? 'fas fa-chevron-up' : 'fas fa-chevron-down', 'ml-2 text-gray-400 transition-transform']"></i>
           </div>
+          <button
+            @click.stop="calculateDailyStatisticsForDay(day)"
+            :disabled="loading"
+            class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-sm shadow-md hover:shadow-lg"
+          >
+            <i :class="[loading && dayBeingProcessed === day.date ? 'fas fa-spinner fa-spin' : 'fas fa-calculator', 'mr-2']"></i>
+            <span>{{ day.statistics ? '重新统计' : '统计交易' }}</span>
+          </button>
         </div>
-      </div>
 
-      <!-- 15日盈亏柱状图 -->
-      <div class="bg-white rounded-xl p-4 mb-6 shadow-sm">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-          <i class="fas fa-chart-bar text-green-500 mr-2"></i>
-          15日盈亏统计
-        </h3>
-        <div class="h-64 w-full overflow-hidden" @click.stop>
-          <svg class="w-full h-full" viewBox="0 0 450 220" v-if="chartData.profit.length > 0">
-            <!-- 背景网格线 -->
-            <rect x="60" y="10" width="380" height="180" fill="url(#grid)" />
-
-            <!-- 零轴线 -->
-            <line x1="60" y1="110" x2="440" y2="110" stroke="#e5e7eb" stroke-width="2"/>
-
-            <!-- Y轴标签 -->
-            <g v-for="(tick, index) in yAxisTicks.profit" :key="'profit-y-' + index">
-              <text :x="55" :y="200 - (index * 36)" text-anchor="end" class="text-xs fill-gray-500">
-                {{ formatNumber(tick) }}
-              </text>
-            </g>
-
-            <!-- 柱状图 -->
-            <g v-for="(item, index) in chartData.profit" :key="'profit-bar-' + index">
-              <rect
-                :x="70 + index * 24"
-                :y="item.value >= 0 ? (110 - Math.abs(item.value) / maxAbsValues.profit * 80) : 110"
-                width="20"
-                :height="Math.abs(item.value) / maxAbsValues.profit * 80"
-                :fill="item.value >= 0 ? '#10b981' : '#ef4444'"
-                class="hover:opacity-80 transition-opacity cursor-pointer"
-                @click="showBarTooltip($event, item, '盈亏', formatNumber(item.value))"
-                @mouseenter="!isMobile && showBarTooltip($event, item, '盈亏', formatNumber(item.value))"
-                @mouseleave="!isMobile && hideTooltip()"
-                @touchstart="showBarTooltip($event, item, '盈亏', formatNumber(item.value))"
-              />
-              <!-- X轴标签 -->
-              <text
-                :x="80 + index * 24"
-                y="215"
-                text-anchor="middle"
-                class="text-xs fill-gray-500"
-              >
-                {{ item.date.slice(-2) }}
-              </text>
-            </g>
-          </svg>
-          <div v-else class="h-full flex items-center justify-center text-gray-500">
-            暂无数据
-          </div>
-        </div>
-      </div>
-
-      <!-- 15日积分柱状图 -->
-      <div class="bg-white rounded-xl p-4 mb-6 shadow-sm">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-          <i class="fas fa-chart-bar text-purple-500 mr-2"></i>
-          15日积分统计
-        </h3>
-        <div class="h-64 w-full overflow-hidden" @click.stop>
-          <svg class="w-full h-full" viewBox="0 0 450 220" v-if="chartData.points.length > 0">
-            <!-- 背景网格线 -->
-            <rect x="60" y="10" width="380" height="180" fill="url(#grid)" />
-
-            <!-- Y轴标签 -->
-            <g v-for="(tick, index) in yAxisTicks.points" :key="'points-y-' + index">
-              <text :x="55" :y="200 - (index * 36)" text-anchor="end" class="text-xs fill-gray-500">
-                {{ Math.round(tick) }}
-              </text>
-            </g>
-
-            <!-- 柱状图 -->
-            <g v-for="(item, index) in chartData.points" :key="'points-bar-' + index">
-              <rect
-                :x="70 + index * 24"
-                :y="200 - (item.value / maxValues.points * 160)"
-                width="20"
-                :height="item.value / maxValues.points * 160"
-                :fill="`hsl(${270 + index * 5}, 60%, 55%)`"
-                class="hover:opacity-80 transition-opacity cursor-pointer"
-                @click="showBarTooltip($event, item, '积分', item.value.toString())"
-                @mouseenter="!isMobile && showBarTooltip($event, item, '积分', item.value.toString())"
-                @mouseleave="!isMobile && hideTooltip()"
-                @touchstart="showBarTooltip($event, item, '积分', item.value.toString())"
-              />
-              <!-- X轴标签 -->
-              <text
-                :x="80 + index * 24"
-                y="215"
-                text-anchor="middle"
-                class="text-xs fill-gray-500"
-              >
-                {{ item.date.slice(-2) }}
-              </text>
-            </g>
-          </svg>
-          <div v-else class="h-full flex items-center justify-center text-gray-500">
-            暂无数据
-          </div>
-        </div>
-      </div>
-
-      <!-- 详细数据表格 -->
-      <div class="bg-white rounded-xl p-4 shadow-sm">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-          <i class="fas fa-table text-gray-500 mr-2"></i>
-          详细数据
-        </h3>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="border-b border-gray-200">
-                <th class="text-left py-2">日期</th>
-                <th class="text-right py-2">交易量</th>
-                <th class="text-right py-2">盈亏</th>
-                <th class="text-right py-2">积分</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in chartData.volume" :key="item.date" class="border-b border-gray-100">
-                <td class="py-2">{{ item.date }}</td>
-                <td class="text-right py-2">{{ formatNumber(item.value) }}</td>
-                <td class="text-right py-2" :class="getProfitByDate(item.date) >= 0 ? 'text-green-600' : 'text-red-600'">
-                  {{ formatNumber(getProfitByDate(item.date)) }}
-                </td>
-                <td class="text-right py-2 text-blue-600">{{ getPointsByDate(item.date) }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- 交易数据列表 -->
-    <div v-if="currentView === 'list' && transactionData.length > 0" class="px-4 py-4 pb-8">
-      <!-- 排序和筛选 -->
-      <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="font-semibold text-gray-800">排序方式</h3>
-          <div class="flex space-x-2">
-            <button
-              @click="sortBy = 'date'; sortOrder = sortOrder === 'desc' ? 'asc' : 'desc'"
-              class="px-3 py-1 text-sm border rounded-lg"
-              :class="sortBy === 'date' ? 'bg-blue-500 text-white' : 'text-gray-600'"
-            >
-              按日期 {{ sortBy === 'date' && sortOrder === 'desc' ? '↓' : '↑' }}
-            </button>
-            <button
-              @click="sortBy = 'volume'; sortOrder = sortOrder === 'desc' ? 'asc' : 'desc'"
-              class="px-3 py-1 text-sm border rounded-lg"
-              :class="sortBy === 'volume' ? 'bg-blue-500 text-white' : 'text-gray-600'"
-            >
-              按交易量 {{ sortBy === 'volume' && sortOrder === 'desc' ? '↓' : '↑' }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 交易列表 -->
-      <div class="space-y-3">
-        <div
-          v-for="(item, index) in sortedTransactionData"
-          :key="index"
-          class="bg-white rounded-lg shadow-sm"
-        >
-          <!-- 主要信息 -->
-          <div class="p-4">
-            <div class="flex items-center justify-between mb-2">
-              <div class="font-semibold text-gray-800">{{ item.date }}</div>
-              <button
-                @click="toggleExpanded(index)"
-                class="text-blue-500 hover:text-blue-600"
-              >
-                <i :class="expandedRows.has(index) ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
-              </button>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span class="text-gray-500">交易笔数:</span>
-                <span class="font-medium ml-1">{{ item?.transactions?.length || 0 }}</span>
-              </div>
-              <div>
-                <span class="text-gray-500">交易量:</span>
-                <span class="font-medium ml-1">{{ formatNumber(item?.tokenStats?.['BSC-USD']?.outflow) }}</span>
-              </div>
-              <div>
-                <span class="text-gray-500">盈亏:</span>
-                <span class="font-medium ml-1" :class="calculateLoss(item?.tokenStats) >= 0 ? 'text-green-600' : 'text-red-600'">
-                  {{ formatNumber(calculateLoss(item?.tokenStats)) }}
-                </span>
-              </div>
-              <div>
-                <span class="text-gray-500">积分:</span>
-                <span class="font-medium ml-1 text-blue-600">{{ calculatePoints(item?.tokenStats) }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- 展开的详细信息 -->
-          <div v-if="expandedRows.has(index)" class="border-t border-gray-100">
-            <div class="p-4">
-              <h4 class="font-medium text-gray-800 mb-3">交易详情</h4>
-
-              <!-- 交易列表 -->
-              <div class="space-y-2 max-h-64 overflow-y-auto">
-                <div
-                  v-for="tx in item.transactions"
-                  :key="tx.hash"
-                  class="bg-gray-50 rounded-lg p-3 text-sm"
-                >
-                  <div class="flex items-center justify-between mb-2">
-                    <div class="font-mono text-xs text-gray-600">
-                      <a
-                        :href="`https://bscscan.com/tx/${tx.hash}`"
-                        target="_blank"
-                        class="text-blue-600 hover:text-blue-800 underline"
-                      >
-                        {{ tx.hash.slice(0, 8) }}...{{ tx.hash.slice(-6) }}
-                      </a>
-                    </div>
-                    <div class="text-xs text-gray-500">
-                      {{ formatTime(tx.timeStamp) }}
-                    </div>
-                  </div>
-
-                  <div class="grid grid-cols-2 gap-2 text-xs">
-                    <div>
-                      <span class="text-gray-500">发送方:</span>
-                      <div class="font-mono">{{ tx.from.slice(0, 6) }}...{{ tx.from.slice(-4) }}</div>
-                    </div>
-                    <div>
-                      <span class="text-gray-500">接收方:</span>
-                      <div class="font-mono">{{ tx.to.slice(0, 6) }}...{{ tx.to.slice(-4) }}</div>
-                    </div>
-                  </div>
-
-                  <!-- 代币流向 -->
-                  <div class="mt-2">
-                    <div v-for="(tokenData, tokenSymbol) in tx.tokens" :key="tokenSymbol" class="text-xs">
-                      <div v-if="tokenData.inflow > 0 || tokenData.outflow > 0">
-                        <span class="font-medium">{{ tokenSymbol }}:</span>
-                        <span v-if="tokenData.inflow > 0" class="text-green-600 ml-1">
-                          +{{ formatNumber(tokenData.inflow) }}
-                        </span>
-                        <span v-if="tokenData.outflow > 0" class="text-red-600 ml-1">
-                          -{{ formatNumber(tokenData.outflow) }}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- 状态 -->
-                  <div class="mt-2">
-                    <span
-                      :class="{
-                        'text-green-600 bg-green-100': tx.status === '成功',
-                        'text-red-600 bg-red-100': tx.status === '失败'
-                      }"
-                      class="px-2 py-1 rounded-full text-xs font-medium"
-                    >
-                      {{ tx.status }}
+        <!-- Daily Statistics Summary -->
+        <div v-if="day.statistics" class="p-3 bg-blue-50 border-b border-gray-200">
+            <!-- Main Stats Row -->
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+                <div class="text-center">
+                    <span class="font-semibold text-gray-700">Alpha Inflow: </span>
+                    <span class="text-green-600 font-bold">
+                      ${{ formatNumber(day.statistics.alphaInflowUsd) }}
+                      <span v-if="day.statistics.bscBonusUsd && day.statistics.bscBonusUsd > 0" class="text-orange-600 ml-1">
+                        (bonus+${{ formatNumber(day.statistics.bscBonusUsd) }})
+                      </span>
                     </span>
+                </div>
+                <div class="text-center">
+                    <span class="font-semibold text-gray-700">Alpha Points: </span>
+                    <span class="text-purple-600 font-bold">{{ formatPoints(day.statistics.points) }}</span>
+                </div>
+            </div>
+
+                                                <!-- Extended Stats Row -->
+            <div v-if="day.statistics.gasStats || day.statistics.flowStats" class="space-y-2">
+                <!-- Simplified stats: Gas and Total Net only -->
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div v-if="day.statistics.gasStats" class="text-center bg-white/50 rounded p-2">
+                        <div class="font-medium text-red-600">
+                            {{ formatGas(day.statistics.gasStats.totalGasBnb) }} BNB
+                            <div class="text-xs text-gray-500">≈${{ formatNumber(day.statistics.gasStats.totalGasBnb * 600) }}</div>
+                        </div>
+                        <div class="text-gray-600">Gas消耗</div>
+                    </div>
+
+                    <!-- Total net result -->
+                    <div v-if="day.statistics.flowStats && day.statistics.flowStats.totalNetUsd !== undefined" class="text-center">
+                        <div class="bg-gray-100 rounded-lg p-2 border-2" :class="day.statistics.flowStats.totalNetUsd >= 0 ? 'border-green-300' : 'border-red-300'">
+                            <div class="font-bold text-base" :class="day.statistics.flowStats.totalNetUsd >= 0 ? 'text-green-700' : 'text-red-700'">
+                                {{ day.statistics.flowStats.totalNetUsd >= 0 ? '+' : '-' }}${{ formatNumber(Math.abs(day.statistics.flowStats.totalNetUsd)) }}
+                            </div>
+                            <div class="text-xs text-gray-600">综合损益</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--
+                TODO: Individual net amounts (commented out for now, may be optimized later)
+                <div class="grid grid-cols-3 gap-2 text-xs">
+                    <div v-if="day.statistics.flowStats" class="text-center bg-white/50 rounded p-2">
+                        <div class="font-medium" :class="day.statistics.flowStats.netAlphaUsd >= 0 ? 'text-green-600' : 'text-red-600'">
+                            {{ day.statistics.flowStats.netAlphaUsd >= 0 ? '+' : '-' }}${{ formatNumber(Math.abs(day.statistics.flowStats.netAlphaUsd)) }}
+                        </div>
+                        <div class="text-gray-600">Alpha净额</div>
+                    </div>
+
+                    <div v-if="day.statistics.flowStats" class="text-center bg-white/50 rounded p-2">
+                        <div class="font-medium" :class="day.statistics.flowStats.netStablecoinUsd >= 0 ? 'text-green-600' : 'text-red-600'">
+                            {{ day.statistics.flowStats.netStablecoinUsd >= 0 ? '+' : '-' }}${{ formatNumber(Math.abs(day.statistics.flowStats.netStablecoinUsd)) }}
+                        </div>
+                        <div class="text-gray-600">稳定币净额</div>
+                    </div>
+
+                    <div v-if="day.statistics.flowStats" class="text-center bg-white/50 rounded p-2">
+                        <div class="font-medium" :class="day.statistics.flowStats.netBnbUsd >= 0 ? 'text-green-600' : 'text-red-600'">
+                            {{ day.statistics.flowStats.netBnbUsd >= 0 ? '+' : '-' }}${{ formatNumber(Math.abs(day.statistics.flowStats.netBnbUsd)) }}
+                        </div>
+                        <div class="text-gray-600">BNB净额</div>
+                    </div>
+                </div>
+                -->
+            </div>
+
+            <!-- 计算方法说明 -->
+            <div class="mt-2 text-xs text-gray-500 bg-gray-50 rounded p-2">
+                <details>
+                    <summary class="cursor-pointer font-medium">📊 统计计算说明</summary>
+                    <div class="mt-2 space-y-1 text-xs">
+                        <p><strong>Alpha Inflow:</strong> 当日所有Alpha代币流入的USD价值总和</p>
+                        <p><strong>BSC Bonus:</strong> BSC链Alpha代币流入额外计算一次（双倍奖励）</p>
+                        <p><strong>积分计算:</strong> floor(log₂(Alpha Inflow + BSC Bonus))</p>
+                        <p><strong>Gas消耗:</strong> 当日所有交易的BNB gas费用总和（按BNB≈$600计算USD）</p>
+                        <p><strong>综合损益:</strong> 所有代币净流入流出差额 - Gas费用，绿色(+)盈利，红色(-)亏损</p>
+                        <p><strong>总交易量:</strong> 只统计流入避免重复计算（交换中的流出通常对应其他代币流入）</p>
+                        <p><strong>💾 缓存优化:</strong> 历史价格数据已缓存，无需重复获取</p>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- 可收缩的交易列表 -->
+        <div v-show="expandedDays.has(day.date)" class="transition-all duration-300">
+          <ul class="divide-y divide-gray-200">
+            <li v-for="tx in day.transactions" :key="tx.hash" class="p-3 hover:bg-gray-50 transition-colors duration-200">
+              <div class="flex justify-between items-center text-xs mb-2">
+                  <a :href="`https://bscscan.com/tx/${tx.hash}`" target="_blank" class="font-mono text-blue-600 hover:underline">
+                      {{ tx.hash.slice(0, 10) }}...{{ tx.hash.slice(-8) }}
+                  </a>
+                  <span class="text-gray-500">{{ new Date(tx.timeStamp * 1000).toLocaleTimeString() }}</span>
+              </div>
+              <div v-if="tx.flows && tx.flows.length > 0" class="mt-2 pl-4 border-l-4 border-gray-200">
+                <div v-for="(flow, index) in tx.flows" :key="index" class="text-sm py-1 flex justify-between items-center">
+                  <div>
+                      <span :class="flow.isInflow ? 'text-green-600' : 'text-red-600'">
+                      {{ flow.isInflow ? '↓ In' : '↑ Out' }}
+                      </span>
+                      <strong class="mx-1">{{ formatNumber(flow.amount) }}</strong>
+                      <span class="text-gray-800 font-semibold">{{ flow.token.symbol }}</span>
+                  </div>
+                  <div class="text-right">
+                      <span v-if="flow.historicalPrice" class="text-gray-600 font-mono">
+                      (@ ${{ formatPrice(flow.historicalPrice) }})
+                      <span class="font-bold text-black ml-2">
+                          ${{ formatNumber(flow.amount * flow.historicalPrice) }}
+                      </span>
+                      </span>
+                      <span v-else class="text-gray-400 font-mono">
+                      (No price data)
+                      </span>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </li>
+          </ul>
         </div>
-      </div>
-
-      <!-- 加载更多 -->
-      <div v-if="hasMore" class="text-center py-6">
-        <button
-          @click="loadMore"
-          class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-        >
-          加载更多
-        </button>
       </div>
     </div>
 
-    <!-- 无数据提示 -->
-    <div v-else-if="!bscStore.loading && transactionData.length === 0" class="px-4 py-12 text-center">
-      <i v-if="currentView === 'list'" class="fas fa-search text-4xl text-gray-300 mb-4"></i>
-      <i v-else-if="currentView === 'statistics'" class="fas fa-chart-bar text-4xl text-gray-300 mb-4"></i>
+    <!-- Empty State -->
+    <div v-if="!loading && transactionData.length === 0 && !errorMessage" class="text-center py-16">
+        <p class="text-gray-500">没有找到交易记录。</p>
+    </div>
 
-      <p v-if="currentView === 'list'" class="text-gray-500">暂无交易数据</p>
-      <p v-else-if="currentView === 'statistics'" class="text-gray-500">暂无统计数据</p>
-
-      <p v-if="currentView === 'statistics'" class="text-gray-400 text-sm mt-2">请先搜索BSC地址获取交易数据</p>
-
-      <router-link to="/" class="text-blue-500 hover:text-blue-600 mt-2 inline-block">
-        返回搜索页面
-      </router-link>
+    <!-- Statistics View (Placeholder) -->
+    <div v-if="currentView === 'statistics'" class="p-4">
+        <div class="bg-white p-6 rounded-xl shadow-md text-center">
+            <h3 class="text-lg font-semibold">统计视图正在建设中</h3>
+            <p class="text-gray-600 mt-2">详细的图表和数据分析即将推出。</p>
+        </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useBscStore } from '@/stores/bsc'
-import { ApiUtils } from '@/utils/api'
-import { TransactionUtils } from '@/utils/transaction'
+import { storeToRefs } from 'pinia'
 
-const router = useRouter()
 const route = useRoute()
 const bscStore = useBscStore()
 
-const errorMessage = ref('')
-const loading = ref(false)
-const sortBy = ref('date')
-const sortOrder = ref('desc')
-const expandedRows = ref(new Set())
-const displayCount = ref(10)
-const currentView = ref('list')
+// Use storeToRefs to keep reactivity on state and getters
+const {
+  searchResults: transactionData,
+  statistics,
+  loading,
+  error: errorMessage,
+  currentAddress
+} = storeToRefs(bscStore)
 
-// 统计相关响应式数据
-const showTooltip = ref(false)
-const tooltipPosition = ref({ x: 0, y: 0 })
-const tooltipData = ref({ date: '', label: '', value: '' })
+// Check if data has historical prices
+const hasHistoricalPrices = computed(() => {
+    return transactionData.value.some(day =>
+        day.transactions?.some(tx =>
+            tx.flows?.some(flow => flow.historicalPrice !== null && flow.historicalPrice !== undefined)
+        )
+    );
+});
 
-// 移动端检测
-const isMobile = ref(false)
-
-// 检测设备类型
-const checkIfMobile = () => {
-  isMobile.value = window.innerWidth < 768 || 'ontouchstart' in window
-}
-
-// 计算属性
-const transactionData = computed(() => bscStore.searchResults)
-
-const sortedTransactionData = computed(() => {
-  const data = [...transactionData.value].slice(0, displayCount.value)
-
-  return data.sort((a, b) => {
-    let aValue, bValue
-
-    if (sortBy.value === 'date') {
-      aValue = new Date(a.date)
-      bValue = new Date(b.date)
-    } else if (sortBy.value === 'volume') {
-      aValue = a.tokenStats?.['BSC-USD']?.outflow || 0
-      bValue = b.tokenStats?.['BSC-USD']?.outflow || 0
-    } else {
-      return 0
-    }
-
-    if (sortOrder.value === 'desc') {
-      return bValue > aValue ? 1 : -1
-    } else {
-      return aValue > bValue ? 1 : -1
-    }
-  })
-})
-
-const hasMore = computed(() => displayCount.value < transactionData.value.length)
+const currentView = ref('list') // 'list' or 'statistics'
+const dayBeingProcessed = ref(null) // To track which day's stats are being calculated
+const expandedDays = ref(new Set()) // To track expanded days
 
 const currentViewTitle = computed(() => {
-  if (currentView.value === 'list') {
-    return '交易数据'
-  } else if (currentView.value === 'statistics') {
-    return '15日统计'
-  }
-  return ''
+  return currentView.value === 'list' ? '交易记录' : '全局统计'
 })
 
-// 15日统计数据
-const statistics15Days = computed(() => {
-  // 获取最近15天的数据，从远到近排序
-  const last15Days = transactionData.value.slice(0, 15).reverse()
-
-  let totalTransactions = 0
-  let totalVolume = 0
-  let totalProfit = 0
-
-  last15Days.forEach(item => {
-    totalTransactions += item?.transactions?.length || 0
-    totalVolume += item.tokenStats?.['BSC-USD']?.outflow || 0
-    totalProfit += calculateLoss(item.tokenStats)
-  })
-
-  return {
-    totalTransactions,
-    totalVolume,
-    totalProfit
-  }
-})
-
-// 统计图表数据
-const chartData = computed(() => {
-  const volume = []
-  const profit = []
-  const points = []
-
-  // 获取最近15天的数据，从远到近排序
-  const dataToUse = transactionData.value.slice(0, 15).reverse()
-
-  dataToUse.forEach(item => {
-    const volumeValue = item.tokenStats?.['BSC-USD']?.outflow || 0
-    const profitValue = calculateLoss(item.tokenStats)
-    const pointsValue = calculatePoints(item.tokenStats)
-
-    volume.push({
-      date: item.date,
-      value: volumeValue
-    })
-
-    profit.push({
-      date: item.date,
-      value: profitValue
-    })
-
-    points.push({
-      date: item.date,
-      value: pointsValue
-    })
-  })
-
-  return { volume, profit, points }
-})
-
-// 图表最大值
-const maxValues = computed(() => {
-  const maxVolume = Math.max(...chartData.value.volume.map(item => item.value), 1)
-  const maxPoints = Math.max(...chartData.value.points.map(item => item.value), 1)
-
-  return {
-    volume: maxVolume,
-    points: maxPoints
-  }
-})
-
-const maxAbsValues = computed(() => {
-  const maxAbsProfit = Math.max(
-    ...chartData.value.profit.map(item => Math.abs(item.value)),
-    1
-  )
-
-  return {
-    profit: maxAbsProfit
-  }
-})
-
-// Y轴刻度
-const yAxisTicks = computed(() => {
-  const volumeTicks = []
-  const profitTicks = []
-  const pointsTicks = []
-
-  // 交易量Y轴刻度
-  for (let i = 0; i <= 5; i++) {
-    volumeTicks.push((maxValues.value.volume / 5) * i)
-  }
-
-  // 盈亏Y轴刻度（包含正负值）
-  const maxAbsProfit = maxAbsValues.value.profit
-  for (let i = 0; i <= 5; i++) {
-    profitTicks.push((maxAbsProfit / 2.5) * i - maxAbsProfit)
-  }
-
-  // 积分Y轴刻度
-  for (let i = 0; i <= 5; i++) {
-    pointsTicks.push((maxValues.value.points / 5) * i)
-  }
-
-  return {
-    volume: volumeTicks,
-    profit: profitTicks,
-    points: pointsTicks
-  }
-})
-
-// 查询交易数据
-const queryTransactionData = async (address) => {
-  loading.value = true
-  errorMessage.value = ''
-
-  try {
-    // 获取交易数据
-    const filteredTransactions = await ApiUtils.fetchAddressData(address)
-
-    if (filteredTransactions.length === 0) {
-      errorMessage.value = '未找到与目标合约的交易记录'
-      loading.value = false
-      return
-    }
-
-    // 处理交易数据
-    const sortedDays = TransactionUtils.groupTransactionsByDay(filteredTransactions)
-    const processedData = sortedDays.map((item) => item['1'])
-
-    // 更新store中的数据
-    bscStore.setSearchResults(processedData)
-    bscStore.setCurrentAddress(address)
-
-  } catch (error) {
-    console.error('查询失败:', error)
-    errorMessage.value = '查询失败，请稍后重试'
-  } finally {
-    loading.value = false
-  }
+// Function to format numbers for better readability
+const formatNumber = (num) => {
+  if (num === null || num === undefined) return '0.00'
+  return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
-onMounted(async () => {
-  checkIfMobile()
-  window.addEventListener('resize', checkIfMobile)
+const formatPrice = (num) => {
+    if (num === null || num === undefined) return 'N/A';
+    if (num < 0.01) {
+        return num.toPrecision(4);
+    }
+    return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+};
 
-  // 从URL参数获取地址
-  const addressFromParams = route.params.address
+const formatPoints = (num) => {
+    if (num === null || num === undefined) return '0';
+    return Math.floor(num).toString();
+};
 
-  if (addressFromParams) {
-    // 如果有地址参数，直接查询
-    await queryTransactionData(addressFromParams)
-  } else if (!bscStore.searchResults.length && bscStore.currentAddress) {
-    // 如果没有地址参数但有store中的地址，尝试生成模拟数据
+const formatGas = (num) => {
+    if (num === null || num === undefined) return '0.000000';
+    if (num < 0.000001) {
+        return num.toExponential(2);
+    }
+    return num.toLocaleString(undefined, { minimumFractionDigits: 6, maximumFractionDigits: 6 });
+};
+
+// Wrapper for the store action to track which day is being processed
+const calculateDailyStatisticsForDay = async (day) => {
+    dayBeingProcessed.value = day.date;
     try {
-      const mockData = bscStore.generateMockData(bscStore.currentAddress)
-      bscStore.setSearchResults(mockData)
-    } catch (error) {
-      console.error('生成模拟数据失败:', error)
-      errorMessage.value = '数据加载失败'
+        await bscStore.calculateDailyStatistics(day);
+    } finally {
+        dayBeingProcessed.value = null;
     }
-  } else if (!bscStore.searchResults.length && !bscStore.currentAddress) {
-    // 如果既没有数据也没有地址，跳转到首页
-    router.push('/')
+}
+
+// Refresh data function
+const refreshData = () => {
+  if (currentAddress.value) {
+    bscStore.fetchAndProcessTransactions(currentAddress.value, true)
+  }
+}
+
+// Fetch initial data on component mount or when route changes
+onMounted(() => {
+  const address = route.params.address
+  if (address && address !== currentAddress.value) {
+    bscStore.fetchAndProcessTransactions(address)
   }
 })
 
-onUnmounted(() => {
-  window.removeEventListener('resize', checkIfMobile)
-})
+watch(() => route.params.address, (newAddress) => {
+    if (newAddress && newAddress !== currentAddress.value) {
+        bscStore.fetchAndProcessTransactions(newAddress);
+    }
+});
 
-// 方法
-const toggleExpanded = (index) => {
-  if (expandedRows.value.has(index)) {
-    expandedRows.value.delete(index)
+// Function to toggle day expansion
+const toggleDayExpansion = (date) => {
+  if (expandedDays.value.has(date)) {
+    expandedDays.value.delete(date);
   } else {
-    expandedRows.value.add(index)
+    expandedDays.value.add(date);
   }
-}
-
-const loadMore = () => {
-  displayCount.value += 10
-}
-
-const formatNumber = (value) => {
-  if (value === undefined || value === null) return '0.00'
-  return parseFloat(value).toFixed(2)
-}
-
-const formatTime = (timestamp) => {
-  const date = new Date(parseInt(timestamp) * 1000)
-  return date.toLocaleString('zh-CN', {
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
-
-const calculateLoss = (tokenStats) => {
-  const outflow = tokenStats?.['BSC-USD']?.outflow || 0
-  const inflow = tokenStats?.['BSC-USD']?.inflow || 0
-  return inflow - outflow
-}
-
-const calculatePoints = (tokenStats) => {
-  const outflow = tokenStats?.['BSC-USD']?.outflow || 0
-  // 如果亏损为0或负数，返回0积分
-  if (outflow <= 0) return 0
-
-  // 将亏损转换为正数并向下取整
-  const absoluteLoss = Math.floor(Math.abs(outflow * 2))
-
-  // 计算2的幂次方
-  const power = Math.floor(Math.log2(absoluteLoss))
-
-  // 返回2的幂次方作为积分
-  return power
-}
-
-// 刷新数据
-const refreshData = async () => {
-  const currentAddress = route.params.address || bscStore.currentAddress
-  if (currentAddress) {
-    await queryTransactionData(currentAddress)
-  }
-}
-
-const getProfitByDate = (date) => {
-  const item = transactionData.value.find(i => i.date === date)
-  return item ? calculateLoss(item.tokenStats) : 0
-}
-
-const getPointsByDate = (date) => {
-  const item = transactionData.value.find(i => i.date === date)
-  return item ? calculatePoints(item.tokenStats) : 0
-}
-
-const showBarTooltip = (event, item, label, value) => {
-  // 阻止默认行为
-  event.preventDefault()
-  event.stopPropagation()
-
-  // 获取鼠标或触摸位置
-  const clientX = event.clientX || (event.touches && event.touches[0]?.clientX) || 0
-  const clientY = event.clientY || (event.touches && event.touches[0]?.clientY) || 0
-
-  tooltipPosition.value = { x: clientX, y: clientY }
-  tooltipData.value = { date: item.date, label, value }
-  showTooltip.value = true
-
-  // 移动端点击显示3秒后自动隐藏
-  if (isMobile.value && (event.type === 'click' || event.type === 'touchstart')) {
-    setTimeout(() => {
-      showTooltip.value = false
-    }, 3000)
-  }
-}
-
-// 智能tooltip定位计算属性
-const tooltipStyle = computed(() => {
-  const { x, y } = tooltipPosition.value
-  const windowWidth = window.innerWidth
-  const windowHeight = window.innerHeight
-  const tooltipWidth = 200 // 估算tooltip宽度
-  const tooltipHeight = 60 // 估算tooltip高度
-  const padding = 10 // 边距
-
-  let left = x
-  let top = y
-
-  if (isMobile.value) {
-    // 移动端：居中显示，避免被手指遮挡
-    left = Math.max(padding, Math.min(windowWidth - tooltipWidth - padding, x - tooltipWidth / 2))
-    top = Math.max(padding, y - tooltipHeight - 20) // 显示在点击位置上方
-
-    // 如果上方空间不够，显示在下方
-    if (top < padding) {
-      top = y + 20
-    }
-  } else {
-    // PC端：跟随鼠标，智能避免超出屏幕
-    left = x + 15 // 鼠标右侧
-    top = y - 10  // 鼠标稍微上方
-
-    // 右边界检测
-    if (left + tooltipWidth > windowWidth - padding) {
-      left = x - tooltipWidth - 15 // 显示在鼠标左侧
-    }
-
-    // 下边界检测
-    if (top + tooltipHeight > windowHeight - padding) {
-      top = y - tooltipHeight - 15 // 显示在鼠标上方
-    }
-
-    // 上边界检测
-    if (top < padding) {
-      top = padding
-    }
-
-    // 左边界检测
-    if (left < padding) {
-      left = padding
-    }
-  }
-
-  return {
-    left: `${left}px`,
-    top: `${top}px`,
-    transform: isMobile.value ? 'none' : 'translateY(-50%)'
-  }
-})
-
-// 箭头位置计算属性
-const arrowStyle = computed(() => {
-  const { x } = tooltipPosition.value
-  const tooltipLeft = parseInt(tooltipStyle.value.left)
-  const arrowLeft = Math.max(8, Math.min(180, x - tooltipLeft - 4)) // 箭头相对tooltip的位置
-
-  return {
-    left: `${arrowLeft}px`,
-    bottom: '-4px'
-  }
-})
-
-const hideTooltip = () => {
-  showTooltip.value = false
 }
 </script>
 
 <style scoped>
-/* 渐变背景动画 */
-.bg-gradient-to-br {
-  background-size: 200% 200%;
-  animation: gradientShift 6s ease infinite;
-}
-
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* 展开动画 */
-.border-t {
-  animation: slideDown 0.3s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 滚动条样式 */
-.overflow-y-auto::-webkit-scrollbar {
-  width: 4px;
-}
-
-.overflow-y-auto::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 2px;
-}
-
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 2px;
-}
-
-.overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+/* Scoped styles for any specific adjustments */
+.shadow-inner {
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
 }
 </style>

@@ -4,8 +4,8 @@ import TransactionResults from '@/views/TransactionResults.vue'
 import Settings from '@/views/Settings.vue'
 import Help from '@/views/Help.vue'
 import AlphaPointsRules from '@/views/AlphaPointsRules.vue'
-import Contact from '@/views/Contact.vue'
-import Donation from '@/views/Donation.vue'
+// import Contact from '@/views/Contact.vue'
+// import Donation from '@/views/Donation.vue'
 import NotFound from '@/views/NotFound.vue'
 import AddressManager from '@/views/AddressManager.vue'
 import AirdropPreview from '@/views/AirdropPreview.vue'
@@ -57,18 +57,18 @@ const routes = [
     component: AlphaPointsRules,
     meta: { title: '币安Alpha积分规则' }
   },
-  {
-    path: '/contact',
-    name: 'contact',
-    component: Contact,
-    meta: { title: '联系我们' }
-  },
-  {
-    path: '/donation',
-    name: 'donation',
-    component: Donation,
-    meta: { title: '打赏猪脚饭' }
-  },
+  // {
+  //   path: '/contact',
+  //   name: 'contact',
+  //   component: Contact,
+  //   meta: { title: '联系我们' }
+  // },
+  // {
+  //   path: '/donation',
+  //   name: 'donation',
+  //   component: Donation,
+  //   meta: { title: '打赏猪脚饭' }
+  // },
   {
     path: '/address-manager',
     name: 'address-manager',
