@@ -10,5 +10,9 @@
 # CoinGecko Pro API proxy
 /api/coingecko-pro/* https://pro-api.coingecko.com/:splat 200
 
-# Fallback for SPA routing
+# Static assets should be served directly (don't redirect these)
+/assets/* /assets/:splat 200
+/favicon.ico /favicon.ico 200
+
+# SPA routing fallback - all other routes should serve index.html
 /* /index.html 200 

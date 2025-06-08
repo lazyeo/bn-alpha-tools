@@ -10,7 +10,7 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [vue(), vueJsx(), vueDevTools(), tailwindcss()],
   // 🚀 生产环境配置
-  base: './', // 确保部署到子目录时路径正确
+  base: '/', // 使用绝对路径确保在Cloudflare Pages上路径正确
   build: {
     outDir: 'dist',
     // 优化构建大小
