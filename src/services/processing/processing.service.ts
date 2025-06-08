@@ -39,12 +39,12 @@ export class DataProcessingService {
 
   /**
    * Processes raw transaction lists from a blockchain data source and standardizes them.
-   * Only includes transactions that involve Alpha tokens, but keeps ALL tokens in those transactions.
+   * Only includes successful transactions that involve Alpha tokens, but keeps ALL tokens in those transactions.
    * @param userAddress The address of the user wallet.
    * @param normalTxList Raw list of normal transactions.
    * @param internalTxList Raw list of internal transactions.
    * @param tokenTxList Raw list of ERC-20/BEP-20 token transactions.
-   * @returns A sorted array of standardized transactions containing only Alpha-related transactions with all their tokens.
+   * @returns A sorted array of standardized transactions containing only successful Alpha-related transactions with all their tokens.
    */
   public standardize(
     userAddress: string,
@@ -55,19 +55,26 @@ export class DataProcessingService {
     const txMap = new Map<string, StandardTransaction>();
     const lowerUserAddress = userAddress.toLowerCase();
 
-    console.log(`[DataProcessor] Starting standardization with Alpha token filtering`);
+    console.log(`[DataProcessor] Starting standardization with Alpha token filtering and failed transaction removal`);
     console.log(`[DataProcessor] Input: ${normalTxList.length} normal, ${internalTxList.length} internal, ${tokenTxList.length} token transactions`);
 
-    // Step 1: Group token transactions by hash to identify which transactions involve Alpha tokens
+    // Step 1: Filter out failed transactions and group token transactions by hash
+    const successfulTokenTxList = tokenTxList.filter(tx => {
+      // Filter out failed token transactions
+      return tx.isError === '0' || tx.isError === 0 || !tx.isError;
+    });
+
+    console.log(`[DataProcessor] Filtered out ${tokenTxList.length - successfulTokenTxList.length} failed token transactions`);
+
     const txTokenMap = new Map<string, any[]>();
-    tokenTxList.forEach(tx => {
+    successfulTokenTxList.forEach(tx => {
       if (!txTokenMap.has(tx.hash)) {
         txTokenMap.set(tx.hash, []);
       }
       txTokenMap.get(tx.hash)!.push(tx);
     });
 
-    // Step 2: Identify transaction hashes that involve Alpha tokens
+    // Step 2: Identify transaction hashes that involve Alpha tokens (from successful transactions only)
     const alphaRelatedHashes = new Set<string>();
     txTokenMap.forEach((tokenTxs, hash) => {
       const hasAlpha = tokenTxs.some(tx => {
@@ -80,10 +87,17 @@ export class DataProcessingService {
       }
     });
 
-    console.log(`[DataProcessor] Found ${alphaRelatedHashes.size} transactions involving Alpha tokens from ${txTokenMap.size} total token transactions`);
+    console.log(`[DataProcessor] Found ${alphaRelatedHashes.size} successful transactions involving Alpha tokens from ${txTokenMap.size} total successful token transactions`);
 
-    // Step 3: Process normal transactions (only those related to Alpha token transactions)
+    // Step 3: Process normal transactions (only successful ones related to Alpha token transactions)
+    let failedNormalTxCount = 0;
     normalTxList.forEach((tx) => {
+      // Filter out failed transactions
+      if (tx.isError !== '0' && tx.isError !== 0 && tx.isError) {
+        failedNormalTxCount++;
+        return; // Skip failed normal transaction
+      }
+
       // Only include normal transactions that are part of Alpha token transactions
       if (!alphaRelatedHashes.has(tx.hash)) {
         return; // Skip this normal transaction
@@ -92,7 +106,7 @@ export class DataProcessingService {
       const bnbValue = new BigNumber(tx.value);
       const nativeFlows = { inflow: 0, outflow: 0 };
 
-      if (bnbValue.gt(0) && tx.isError === '0') {
+      if (bnbValue.gt(0)) {
         if (tx.to.toLowerCase() === lowerUserAddress) {
           nativeFlows.inflow = bnbValue.div(1e18).toNumber();
         } else if (tx.from.toLowerCase() === lowerUserAddress) {
@@ -109,11 +123,13 @@ export class DataProcessingService {
         blockNumber: parseInt(tx.blockNumber),
         flows: [],
         nativeFlows,
-        isError: tx.isError !== '0',
+        isError: false, // We already filtered out failed transactions
       });
     });
 
-    // Step 4: Add internal transactions (only for Alpha-related transaction hashes)
+    console.log(`[DataProcessor] Filtered out ${failedNormalTxCount} failed normal transactions`);
+
+    // Step 4: Add internal transactions (only successful ones for Alpha-related transaction hashes)
     internalTxList.forEach((tx) => {
       if (tx.isError !== '0' || !alphaRelatedHashes.has(tx.hash)) return;
 
@@ -129,8 +145,8 @@ export class DataProcessingService {
       }
     });
 
-    // Step 5: Add ALL token transactions for Alpha-related transaction hashes
-    tokenTxList.forEach((tx) => {
+    // Step 5: Add ALL successful token transactions for Alpha-related transaction hashes
+    successfulTokenTxList.forEach((tx) => {
       // Only process token transactions that are part of Alpha-related transactions
       if (!alphaRelatedHashes.has(tx.hash)) {
         return; // Skip this token transaction
@@ -147,7 +163,7 @@ export class DataProcessingService {
           gasFee: 0, // Gas fee will be added if there's a corresponding normal transaction
           blockNumber: parseInt(tx.blockNumber),
           flows: [],
-          isError: false,
+          isError: false, // We already filtered out failed transactions
         });
         existingTx = txMap.get(tx.hash)!;
       }
@@ -185,9 +201,13 @@ export class DataProcessingService {
       });
     });
 
-    console.log(`[DataProcessor] Final result: ${finalTransactions.length} Alpha-related transactions`);
+    const totalInputTx = normalTxList.length + tokenTxList.length;
+    const totalFilteredTx = (tokenTxList.length - successfulTokenTxList.length) + failedNormalTxCount;
+
+    console.log(`[DataProcessor] Final result: ${finalTransactions.length} successful Alpha-related transactions`);
     console.log(`[DataProcessor] Token composition: ${alphaTokenCount} Alpha tokens + ${totalTokenCount - alphaTokenCount} other tokens = ${totalTokenCount} total tokens`);
-    console.log(`[DataProcessor] Filtering efficiency: ${((1 - finalTransactions.length / (normalTxList.length + tokenTxList.length)) * 100).toFixed(1)}% of transactions filtered out`);
+    console.log(`[DataProcessor] Filtering summary: ${totalFilteredTx} failed transactions + ${totalInputTx - totalFilteredTx - finalTransactions.length} non-Alpha transactions filtered out`);
+    console.log(`[DataProcessor] Overall filtering efficiency: ${((1 - finalTransactions.length / totalInputTx) * 100).toFixed(1)}% of transactions filtered out`);
 
     return finalTransactions;
   }
