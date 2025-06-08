@@ -7,7 +7,7 @@ const API_BASE_URL = '/api/cmc';
  * Connector for CoinMarketCap API.
  */
 export class CmcConnector {
-  /**
+    /**
    * Finds the ID of a specific category by its name.
    * In production (when CORS prevents direct API access), uses static config as fallback.
    * @param apiKey The CoinMarketCap API key.
@@ -15,6 +15,17 @@ export class CmcConnector {
    * @returns The category ID, or null if not found.
    */
   public async findCategoryId(apiKey: string, categoryName: string): Promise<string | null> {
+    // Check user preference for data source
+    const dataSource = localStorage.getItem('alpha_data_source') || 'api';
+
+    if (dataSource === 'static') {
+      console.log('[CMC] User selected static data source, using static config');
+      if (categoryName === 'Binance Alpha') {
+        return 'static_binance_alpha';
+      }
+      throw new Error(`No static fallback available for category: ${categoryName}`);
+    }
+
     if (!apiKey) throw new Error('CoinMarketCap API key is required.');
 
     try {
@@ -37,7 +48,7 @@ export class CmcConnector {
     }
   }
 
-  /**
+    /**
    * Fetches all tokens belonging to a specific category ID.
    * In production (when CORS prevents direct API access), uses static config as fallback.
    * @param apiKey The CoinMarketCap API key.
@@ -45,6 +56,19 @@ export class CmcConnector {
    * @returns The list of coins in that category.
    */
   public async getTokensByCategoryId(apiKey: string, categoryId: string): Promise<any[]> {
+    // Check for static fallback first
+    if (categoryId === 'static_binance_alpha') {
+      console.log('[CMC] Using static config for Binance Alpha tokens');
+      return this.convertStaticConfigToApiFormat(alphaTokensConfig);
+    }
+
+    // Check user preference for data source
+    const dataSource = localStorage.getItem('alpha_data_source') || 'api';
+
+    if (dataSource === 'static') {
+      throw new Error(`Static data source selected but unexpected category ID: ${categoryId}`);
+    }
+
     if (!apiKey) throw new Error('CoinMarketCap API key is required.');
 
     try {
@@ -58,7 +82,7 @@ export class CmcConnector {
       console.warn(`[CMC] API request failed, falling back to static config:`, error.response?.data || error.message);
 
       // Fallback to static config for Binance Alpha tokens
-      if (categoryId === 'static_binance_alpha') {
+      if (categoryId.includes('alpha') || categoryId.includes('binance')) {
         console.log('[CMC] Using static config fallback for Binance Alpha tokens');
         return this.convertStaticConfigToApiFormat(alphaTokensConfig);
       }

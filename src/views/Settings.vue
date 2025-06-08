@@ -78,6 +78,45 @@
         <!-- CoinMarketCap API密钥 -->
         <div class="mb-8">
           <h3 class="text-lg font-semibold text-gray-700 mb-4">CoinMarketCap API密钥</h3>
+
+          <!-- 数据源选择 -->
+          <div class="bg-gray-50 p-4 rounded-lg mb-4">
+            <h4 class="text-sm font-semibold text-gray-700 mb-3">Alpha代币数据源</h4>
+            <div class="space-y-2">
+              <label class="flex items-center">
+                <input
+                  type="radio"
+                  name="dataSource"
+                  value="api"
+                  v-model="dataSource"
+                  @change="onDataSourceChange"
+                  class="mr-2 text-blue-600 focus:ring-blue-500"
+                />
+                <span class="text-sm">
+                  <strong>实时API数据</strong> - 从CoinMarketCap获取最新的Alpha代币列表
+                  <span v-if="!cmcApiKey" class="text-red-500 ml-1">(需要API密钥)</span>
+                </span>
+              </label>
+              <label class="flex items-center">
+                <input
+                  type="radio"
+                  name="dataSource"
+                  value="static"
+                  v-model="dataSource"
+                  @change="onDataSourceChange"
+                  class="mr-2 text-blue-600 focus:ring-blue-500"
+                />
+                <span class="text-sm">
+                  <strong>静态配置数据</strong> - 使用内置的精选Alpha代币列表 (25个代币)
+                </span>
+              </label>
+            </div>
+            <div class="mt-3 text-xs text-gray-600">
+              <i class="fas fa-info-circle mr-1"></i>
+              {{ dataSourceDescription }}
+            </div>
+          </div>
+
           <div class="space-y-4">
             <div class="flex items-center space-x-4">
               <div class="flex-1">
@@ -85,24 +124,27 @@
                   v-model="cmcApiKey"
                   :type="showCmcApiKey ? 'text' : 'password'"
                   placeholder="请输入CoinMarketCap API密钥"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  :disabled="dataSource === 'static'"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500"
                 />
               </div>
               <button
                 @click="showCmcApiKey = !showCmcApiKey"
-                class="px-4 py-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+                :disabled="dataSource === 'static'"
+                class="px-4 py-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <i :class="showCmcApiKey ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
               </button>
               <button
                 @click="saveCmcApiKey"
-                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                :disabled="dataSource === 'static'"
+                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 保存
               </button>
             </div>
             <div class="text-sm text-gray-500 space-y-1">
-              <p>• 当前状态: {{ cmcApiKey ? '已设置' : '未设置' }}</p>
+              <p>• 当前状态: {{ getApiKeyStatus() }}</p>
               <p>• 获取地址: <a href="https://pro.coinmarketcap.com/account" target="_blank" class="text-blue-600 hover:underline">https://pro.coinmarketcap.com/account</a></p>
               <p>• 用于获取Binance Alpha代币列表</p>
             </div>
@@ -482,6 +524,10 @@ export default defineComponent({
       { key: 'cache', name: '缓存管理', icon: 'fas fa-database' },
     ];
 
+    // Data Source Selection
+    const dataSource = ref('api'); // 'api' or 'static'
+    const DATA_SOURCE_KEY = 'alpha_data_source';
+
     // --- Composables ---
     const { addresses, newAddress, addAddress, editAddress, deleteAddress, copyAddress, isValidAddress } = useWalletManagement();
     const {
@@ -597,10 +643,48 @@ export default defineComponent({
       refreshCacheStats();
     };
 
+    // Data Source Management
+    const loadDataSource = () => {
+      const saved = localStorage.getItem(DATA_SOURCE_KEY);
+      if (saved) {
+        dataSource.value = saved;
+      } else {
+        // Default to static if no CMC API key, otherwise api
+        dataSource.value = cmcApiKey.value ? 'api' : 'static';
+      }
+    };
+
+    const saveDataSource = () => {
+      localStorage.setItem(DATA_SOURCE_KEY, dataSource.value);
+    };
+
+    const onDataSourceChange = () => {
+      saveDataSource();
+      ElMessage.info(`已切换到${dataSource.value === 'api' ? '实时API' : '静态配置'}数据源`);
+
+      // Clear alpha tokens cache when switching data source
+      bscStore.clearAlphaTokensCache();
+    };
+
+    const getApiKeyStatus = () => {
+      if (dataSource.value === 'static') {
+        return '使用静态配置';
+      }
+      return cmcApiKey.value ? '已设置' : '未设置';
+    };
+
+    const dataSourceDescription = computed(() => {
+      if (dataSource.value === 'api') {
+        return '实时获取最新的Binance Alpha代币列表，需要CoinMarketCap API密钥。在生产环境中，如果API请求失败，会自动回退到静态配置。';
+      } else {
+        return '使用内置的精选Alpha代币列表，包含25个跨链代币。无需API密钥，适合快速体验和稳定使用。';
+      }
+    });
 
     // --- Lifecycle Hooks ---
     onMounted(() => {
       refreshCacheStats();
+      loadDataSource();
     });
 
     // Return all reactive properties and methods needed by the template
@@ -647,6 +731,11 @@ export default defineComponent({
       toggleChain,
       getChainIcon,
       formatPrice,
+      // Data Source
+      dataSource,
+      onDataSourceChange,
+      getApiKeyStatus,
+      dataSourceDescription,
     };
   }
 });

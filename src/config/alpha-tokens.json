@@ -1,6 +1,9 @@
 {
   "category_name": "Binance Alpha (Static Fallback Data)",
-  "total_tokens": 15,
+  "total_tokens": 25,
+  "last_updated": "2025-06-08",
+  "data_source": "Static JSON Fallback - Curated Alpha Tokens",
+  "note": "This is a curated list of popular Alpha tokens across different chains",
   "tokens_by_chain": {
     "BNB Smart Chain (BEP20)": [
       {
@@ -23,42 +26,157 @@
         "symbol": "MOVE",
         "slug": "movement",
         "contract_address": "0xA0b86a33E6441e936E73Bc8e74D23CecD55c5E7"
+      },
+      {
+        "id": 1004,
+        "name": "Pepe",
+        "symbol": "PEPE",
+        "slug": "pepe",
+        "contract_address": "0x25d887Ce7a35172C62FeBFD67a1856F20FaEbB00"
+      },
+      {
+        "id": 1005,
+        "name": "Shiba Inu",
+        "symbol": "SHIB",
+        "slug": "shiba-inu",
+        "contract_address": "0x2859e4544C4bB03966803b044A93563Bd2D0DD4D"
+      },
+      {
+        "id": 1006,
+        "name": "Floki",
+        "symbol": "FLOKI",
+        "slug": "floki",
+        "contract_address": "0xfb5B838b6cfEEdC2873aB27866079AC55363D37E"
+      },
+      {
+        "id": 1007,
+        "name": "Baby Doge Coin",
+        "symbol": "BABYDOGE",
+        "slug": "baby-doge-coin",
+        "contract_address": "0xc748673057861a797275CD8A068AbB95A902e8de"
+      },
+      {
+        "id": 1008,
+        "name": "SafeMoon",
+        "symbol": "SAFEMOON",
+        "slug": "safemoon",
+        "contract_address": "0x42981d0bfbAf196529376EE702F2a9Eb9092fcB5"
       }
     ],
     "Ethereum": [
       {
-        "id": 1006,
+        "id": 2001,
         "name": "ETHFI",
         "symbol": "ETHFI",
         "slug": "ethfi",
         "contract_address": "0xFe0c30065B384F05761f15d0CC899D4F9F9Cc0eB"
       },
       {
-        "id": 1007,
+        "id": 2002,
         "name": "Renzo",
         "symbol": "REZ",
         "slug": "renzo",
         "contract_address": "0x3B50805453023a91a8bf641e279401a0b23FA6F9"
+      },
+      {
+        "id": 2003,
+        "name": "Arbitrum",
+        "symbol": "ARB",
+        "slug": "arbitrum",
+        "contract_address": "0xB50721BCf8d664c30412Cfbc6cf7a15145234ad1"
+      },
+      {
+        "id": 2004,
+        "name": "Optimism",
+        "symbol": "OP",
+        "slug": "optimism",
+        "contract_address": "0x4200000000000000000000000000000000000042"
+      },
+      {
+        "id": 2005,
+        "name": "Uniswap",
+        "symbol": "UNI",
+        "slug": "uniswap",
+        "contract_address": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984"
+      },
+      {
+        "id": 2006,
+        "name": "Chainlink",
+        "symbol": "LINK",
+        "slug": "chainlink",
+        "contract_address": "0x514910771AF9Ca656af840dff83E8264EcF986CA"
       }
     ],
     "Solana": [
       {
-        "id": 1008,
-        "name": "JUP",
+        "id": 3001,
+        "name": "Jupiter",
         "symbol": "JUP",
         "slug": "jupiter",
         "contract_address": "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN"
+      },
+      {
+        "id": 3002,
+        "name": "Raydium",
+        "symbol": "RAY",
+        "slug": "raydium",
+        "contract_address": "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R"
+      },
+      {
+        "id": 3003,
+        "name": "Orca",
+        "symbol": "ORCA",
+        "slug": "orca",
+        "contract_address": "orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE"
+      }
+    ],
+    "Polygon": [
+      {
+        "id": 4001,
+        "name": "Polygon",
+        "symbol": "MATIC",
+        "slug": "polygon",
+        "contract_address": "0x0000000000000000000000000000000000001010"
+      },
+      {
+        "id": 4002,
+        "name": "QuickSwap",
+        "symbol": "QUICK",
+        "slug": "quickswap",
+        "contract_address": "0xB5C064F955D8e7F38fE0460C556a72987494eE17"
+      }
+    ],
+    "Avalanche": [
+      {
+        "id": 5001,
+        "name": "Avalanche",
+        "symbol": "AVAX",
+        "slug": "avalanche",
+        "contract_address": "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7"
+      },
+      {
+        "id": 5002,
+        "name": "Trader Joe",
+        "symbol": "JOE",
+        "slug": "trader-joe",
+        "contract_address": "0x6e84a6216eA6dACC71eE8E6b0a5B7322EEbC0fDd"
       }
     ],
     "Native Coins": [
       {
-        "id": 1009,
+        "id": 6001,
         "name": "Sui",
         "symbol": "SUI",
         "slug": "sui",
         "contract_address": "N/A"
+      },
+      {
+        "id": 6002,
+        "name": "Aptos",
+        "symbol": "APT",
+        "slug": "aptos",
+        "contract_address": "N/A"
       }
     ]
-  },
-  "data_source": "Static JSON Fallback"
+  }
 } 
