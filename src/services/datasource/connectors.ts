@@ -50,10 +50,21 @@ export class BscScanConnector implements IBlockchainConnector {
         return [];
       } else {
         console.error(`Error fetching ${action} from BSCScan for address ${address}:`, data.message);
-        throw new Error(`BSCScan API error: ${data.message}`);
+        // Check for rate limiting or API key issues
+        if (data.message && (data.message.includes('rate limit') || data.message.includes('API rate'))) {
+          throw new Error(`BSCScan API rate limited: ${data.message}. Consider configuring your own API key for higher limits.`);
+        } else if (data.message && (data.message.includes('Invalid API Key') || data.message.includes('API key'))) {
+          throw new Error(`BSCScan API key invalid: ${data.message}. Please check your API key configuration.`);
+        } else {
+          throw new Error(`BSCScan API error: ${data.message}`);
+        }
       }
     } catch (error) {
       console.error(`Network or parsing error fetching ${action} from BSCScan:`, error);
+      // Enhance network error messages
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error(`Network error accessing BSCScan API. Please check your connection and API configuration.`);
+      }
       throw error;
     }
   }

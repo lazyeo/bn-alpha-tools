@@ -6,7 +6,6 @@
 
 **🔗 [立即体验](https://bn-alpha-tools.pages.dev/)**
 
-> 支持所有现代浏览器，完美适配桌面端和移动端
 
 ## ✨ 核心特性
 
@@ -15,7 +14,6 @@
 - **完整保留**：当交易包含Alpha代币时，该交易中的所有代币（包括非Alpha代币）都会被展示和计算
 - **积分计算**：基于交易量和 BSC 链奖励的智能积分算法
 - **价格追踪**：实时历史价格数据获取和批量优化缓存
-- **统计分析**：多维度交易数据统计和趋势分析
 
 ### 🏗️ 服务化架构
 - **模块化设计**：完全服务化的架构，高内聚低耦合
@@ -98,7 +96,7 @@ src/
 
 ```bash
 # 克隆项目
-git clone https://github.com/your-repo/bn-alpha-tools.git
+git clone https://github.com/lazyeo/bn-alpha-tools.git
 
 # 安装依赖
 npm install
@@ -206,10 +204,3 @@ npm run build
 4. 推送分支：`git push origin feature/新功能`
 5. 创建 Pull Request
 
-## 📄 许可证
-
-MIT License - 详见 [LICENSE](LICENSE) 文件
-
----
-
-**🔗 [在线体验](https://bn-alpha-tools.pages.dev/) | 💡 [功能建议](https://github.com/your-repo/bn-alpha-tools/issues) | 📧 [联系我们](mailto:your-email@example.com)** 

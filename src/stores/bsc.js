@@ -222,6 +222,51 @@ const findPriceInChart = (chart, timestamp) => {
   return closest[1]; // Return the price
 };
 
+// Helper function to generate API key configuration guidance
+const generateApiKeyGuidance = (missingApis = [], errorMessage = '') => {
+  let guidance = '';
+
+  // Check for specific error patterns
+  const isRateLimited = errorMessage.toLowerCase().includes('rate limit') ||
+                       errorMessage.toLowerCase().includes('too many requests') ||
+                       errorMessage.toLowerCase().includes('429');
+
+  const isApiError = errorMessage.toLowerCase().includes('api') ||
+                    errorMessage.toLowerCase().includes('unauthorized') ||
+                    errorMessage.toLowerCase().includes('403') ||
+                    errorMessage.toLowerCase().includes('401');
+
+  if (isRateLimited || isApiError || missingApis.length > 0) {
+    guidance = '⚠️ API服务受限，建议配置个人API密钥以获得更稳定的服务：\n\n';
+
+    // Add specific guidance for each missing API
+    if (missingApis.includes('bsc') || !missingApis.length) {
+      guidance += '📊 BSCScan API密钥 (必需) - 获取交易数据\n';
+      guidance += '• 申请地址：https://bscscan.com/apidashboard\n';
+      guidance += '• 免费额度：5次/秒，100,000次/天\n\n';
+    }
+
+    if (missingApis.includes('cmc') || !missingApis.length) {
+      guidance += '🏷️ CoinMarketCap API密钥 (必需) - 获取Alpha代币列表\n';
+      guidance += '• 申请地址：https://coinmarketcap.com/api/\n';
+      guidance += '• 免费额度：10,000次/月\n\n';
+    }
+
+    if (missingApis.includes('coingecko') || !missingApis.length) {
+      guidance += '💰 CoinGecko API密钥 (可选) - 历史价格数据\n';
+      guidance += '• 申请地址：https://www.coingecko.com/en/api\n';
+      guidance += '• Demo密钥：30次/分钟，10,000次/月\n';
+      guidance += '• Pro密钥：500次/分钟，1,000,000次/月\n\n';
+    }
+
+    guidance += '🔧 配置方法：点击右上角设置按钮 → API密钥配置';
+  } else {
+    guidance = errorMessage;
+  }
+
+  return guidance;
+};
+
 export const useBscStore = defineStore('bsc', {
   state: () => ({
     // 搜索相关
@@ -424,7 +469,11 @@ export const useBscStore = defineStore('bsc', {
 
       } catch (error) {
         console.error('Error fetching Alpha Tokens:', error);
-        this.setError(error.message || 'Failed to fetch Alpha Tokens.');
+        const missingApis = [];
+        if (!this.apiKeys.cmc) missingApis.push('cmc');
+
+        const guidance = generateApiKeyGuidance(missingApis, error.message || 'Failed to fetch Alpha Tokens.');
+        this.setError(guidance);
         this.alphaTokens = null;
         this.alphaTokensLastUpdated = null;
         alphaTokensCache.remove(ALPHA_TOKENS_CACHE_KEY);
@@ -537,7 +586,8 @@ export const useBscStore = defineStore('bsc', {
 
       try {
         if (!this.apiKeys.bsc) {
-            this.setError('BSCScan API key is not set.');
+            const guidance = generateApiKeyGuidance(['bsc'], 'BSCScan API密钥未配置');
+            this.setError(guidance);
             this.setLoading(false);
             return;
         }
@@ -610,7 +660,12 @@ export const useBscStore = defineStore('bsc', {
 
       } catch (error) {
         console.error('Error fetching or processing transactions:', error);
-        this.setError('Failed to fetch transaction data. Please check the address and API keys.');
+        const missingApis = [];
+        if (!this.apiKeys.bsc) missingApis.push('bsc');
+        if (!this.apiKeys.cmc) missingApis.push('cmc');
+
+        const guidance = generateApiKeyGuidance(missingApis, error.message || '获取交易数据失败');
+        this.setError(guidance);
       } finally {
         this.setLoading(false);
       }
@@ -701,7 +756,11 @@ export const useBscStore = defineStore('bsc', {
 
       } catch (error) {
         console.error('Error during statistics calculation:', error);
-        this.setError('Failed to calculate statistics.');
+        const missingApis = [];
+        if (!this.apiKeys.coingecko) missingApis.push('coingecko');
+
+        const guidance = generateApiKeyGuidance(missingApis, error.message || '统计计算失败，可能是价格数据获取受限');
+        this.setError(guidance);
       } finally {
         this.setLoading(false);
       }
@@ -908,7 +967,11 @@ export const useBscStore = defineStore('bsc', {
             console.log(`✅ [SUCCESS] Daily statistics calculation complete for ${dayData.date}.`);
         } catch (error) {
             console.error('Error during daily statistics calculation:', error);
-            this.setError('Failed to calculate daily statistics.');
+            const missingApis = [];
+            if (!this.apiKeys.coingecko) missingApis.push('coingecko');
+
+            const guidance = generateApiKeyGuidance(missingApis, error.message || '日统计计算失败，可能是价格数据获取受限');
+            this.setError(guidance);
         } finally {
             this.setLoading(false);
         }
