@@ -33,6 +33,12 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/cmc/, '')
       },
+      // 代理CoinGecko Pro API (必须在普通CoinGecko之前)
+      '/api/coingecko-pro': {
+        target: 'https://pro-api.coingecko.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/coingecko-pro/, '')
+      },
       // 代理CoinGecko API
       '/api/coingecko': {
         target: 'https://api.coingecko.com',

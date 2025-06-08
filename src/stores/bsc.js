@@ -10,6 +10,7 @@ import alphaTokensConfig from '@/config/alpha-tokens.json'
 // import { TransactionUtils } from '@/utils/transaction' // No longer needed
 import { CachingService } from '@/services/caching/caching.service'
 import { CoinGeckoPriceConnector } from '@/services/datasource/coingecko'
+import { AlphaTokenService } from '@/services/datasource/alpha-token.service'
 
 const settingsCache = new CachingService('localStorage')
 const alphaTokensCache = new CachingService('localStorage'); // Cache for alpha tokens
@@ -235,7 +236,7 @@ export const useBscStore = defineStore('bsc', {
       coingecko: '',
     },
 
-    // Alpha Tokens
+        // Alpha Tokens
     alphaTokens: null, // Will hold the rich token data from CMC, as a Map by contract address
     alphaTokensLastUpdated: null, // Timestamp of last fetch
 
@@ -301,6 +302,8 @@ export const useBscStore = defineStore('bsc', {
   actions: {
     // --- ALPHA TOKEN MANAGEMENT ACTIONS ---
 
+
+
     async fetchAlphaTokens(force = false) {
       this.setLoading(true);
       this.clearError();
@@ -310,64 +313,113 @@ export const useBscStore = defineStore('bsc', {
         return;
       }
 
-      if (!this.apiKeys.cmc) {
-        this.setError('CoinMarketCap API key is not set.');
-        this.setLoading(false);
-        return;
-      }
+            try {
+        // 使用固定的CoinMarketCap category ID直接获取Alpha Token数据
+        console.log('[ALPHA] Fetching Alpha tokens using fixed CMC category ID: 6762acaeb5d1b043d3342f44');
 
-      try {
         const cmcConnector = new CmcConnector();
-        const categoryName = "Binance Alpha";
+        const fixedCategoryId = '6762acaeb5d1b043d3342f44';
 
-        console.log(`[ALPHA] Finding category ID for "${categoryName}"...`);
-        const categoryId = await cmcConnector.findCategoryId(this.apiKeys.cmc, categoryName);
+        // 如果有CMC API密钥，直接使用固定ID获取数据
+        if (this.apiKeys.cmc) {
+          console.log(`[ALPHA] Using CMC API with fixed category ID: ${fixedCategoryId}`);
+          const rawTokens = await cmcConnector.getTokensByCategoryId(this.apiKeys.cmc, fixedCategoryId);
 
-        if (!categoryId) {
-          throw new Error(`Could not find the category "${categoryName}". Please check the name on CoinMarketCap.`);
+          // Process into a Map for efficient lookups
+          const tokenMap = new Map();
+          rawTokens.forEach(token => {
+            let platform = token.platform;
+
+            // CMC can return an array of platforms. We need to select one.
+            // Prioritize BSC, otherwise take the first one.
+            if (Array.isArray(platform)) {
+              platform = platform.find(p => p.name === 'BNB Smart Chain (BEP20)') || platform[0];
+            }
+
+            const contractAddress = platform?.token_address;
+
+            if (contractAddress) {
+              // Standardize to lowercase for consistent lookups
+              const finalContractAddress = contractAddress.toLowerCase();
+              tokenMap.set(finalContractAddress, {
+                id: token.id,
+                name: token.name,
+                symbol: token.symbol,
+                cmc_rank: token.cmc_rank,
+                platform: platform,
+                quote: token.quote.USD,
+                isFixedIdToken: true, // 标记这是固定ID获取的代币
+                fixedCategoryId: fixedCategoryId
+              });
+            }
+          });
+
+          this.alphaTokens = tokenMap;
+          this.alphaTokensLastUpdated = new Date().toISOString();
+
+          // Cache the new data
+          alphaTokensCache.set(ALPHA_TOKENS_CACHE_KEY, {
+            alphaTokens: Array.from(this.alphaTokens.entries()),
+            alphaTokensLastUpdated: this.alphaTokensLastUpdated,
+            usedFixedId: true,
+            fixedCategoryId: fixedCategoryId
+          });
+
+          console.log(`[ALPHA] Successfully fetched ${this.alphaTokens.size} Alpha tokens using fixed CMC category ID.`);
+
+        } else {
+          // 如果没有CMC API密钥，回退到查找category方式
+          console.log('[ALPHA] No CMC API key provided, falling back to category search...');
+
+          const categoryName = "Binance Alpha";
+          console.log(`[ALPHA] Finding category ID for "${categoryName}"...`);
+          const categoryId = await cmcConnector.findCategoryId('', categoryName); // 尝试不用API密钥
+
+          if (!categoryId) {
+            throw new Error(`无法找到类别 "${categoryName}"，且未配置CoinMarketCap API密钥。请配置API密钥或检查网络连接。`);
+          }
+
+          console.log(`[ALPHA] Fetching tokens for category ID ${categoryId}...`);
+          const rawTokens = await cmcConnector.getTokensByCategoryId('', categoryId);
+
+          // Process into a Map for efficient lookups
+          const tokenMap = new Map();
+          rawTokens.forEach(token => {
+            let platform = token.platform;
+
+            // CMC can return an array of platforms. We need to select one.
+            // Prioritize BSC, otherwise take the first one.
+            if (Array.isArray(platform)) {
+              platform = platform.find(p => p.name === 'BNB Smart Chain (BEP20)') || platform[0];
+            }
+
+            const contractAddress = platform?.token_address;
+
+            if (contractAddress) {
+              // Standardize to lowercase for consistent lookups
+              const finalContractAddress = contractAddress.toLowerCase();
+              tokenMap.set(finalContractAddress, {
+                id: token.id,
+                name: token.name,
+                symbol: token.symbol,
+                cmc_rank: token.cmc_rank,
+                platform: platform,
+                quote: token.quote.USD,
+              });
+            }
+          });
+
+          this.alphaTokens = tokenMap;
+          this.alphaTokensLastUpdated = new Date().toISOString();
+
+          // Cache the new data
+          alphaTokensCache.set(ALPHA_TOKENS_CACHE_KEY, {
+            alphaTokens: Array.from(this.alphaTokens.entries()),
+            alphaTokensLastUpdated: this.alphaTokensLastUpdated,
+          });
+
+          console.log(`[ALPHA] Successfully fetched and processed ${this.alphaTokens.size} Alpha tokens from CMC category search.`);
         }
-
-        console.log(`[ALPHA] Fetching tokens for category ID ${categoryId}...`);
-        const rawTokens = await cmcConnector.getTokensByCategoryId(this.apiKeys.cmc, categoryId);
-
-        // Process into a Map for efficient lookups
-        const tokenMap = new Map();
-        rawTokens.forEach(token => {
-          let platform = token.platform;
-
-          // CMC can return an array of platforms. We need to select one.
-          // Prioritize BSC, otherwise take the first one.
-          if (Array.isArray(platform)) {
-            platform = platform.find(p => p.name === 'BNB Smart Chain (BEP20)') || platform[0];
-          }
-
-          const contractAddress = platform?.token_address;
-
-          if (contractAddress) {
-            // Standardize to lowercase for consistent lookups
-            const finalContractAddress = contractAddress.toLowerCase();
-            tokenMap.set(finalContractAddress, {
-              id: token.id,
-              name: token.name,
-              symbol: token.symbol,
-              cmc_rank: token.cmc_rank,
-              platform: platform, // Now guaranteed to be an object or null
-              quote: token.quote.USD,
-            });
-          }
-        });
-
-        this.alphaTokens = tokenMap;
-        this.alphaTokensLastUpdated = new Date().toISOString();
-
-        // Cache the new data
-        // Note: Caching a Map directly might lose its type. We convert to array for storage.
-        alphaTokensCache.set(ALPHA_TOKENS_CACHE_KEY, {
-          alphaTokens: Array.from(this.alphaTokens.entries()),
-          alphaTokensLastUpdated: this.alphaTokensLastUpdated,
-        });
-
-        console.log(`[ALPHA] Successfully fetched and processed ${this.alphaTokens.size} Alpha tokens.`);
 
       } catch (error) {
         console.error('Error fetching Alpha Tokens:', error);
@@ -393,6 +445,12 @@ export const useBscStore = defineStore('bsc', {
           // Restore from array to Map
           this.alphaTokens = new Map(cachedData.alphaTokens);
           this.alphaTokensLastUpdated = cachedData.alphaTokensLastUpdated;
+
+          // 检查是否使用了固定ID
+          if (cachedData.usedFixedId) {
+            console.log(`[ALPHA] Cache contains data from fixed CMC category ID: ${cachedData.fixedCategoryId}`);
+          }
+
           console.log(`[ALPHA] Loaded ${this.alphaTokens.size} Alpha tokens from cache.`);
           return true;
         } catch (e) {
@@ -568,7 +626,7 @@ export const useBscStore = defineStore('bsc', {
         const allDailyGroups = this.searchResults;
         if (!allDailyGroups || allDailyGroups.length === 0) return;
 
-        const priceConnector = new CoinGeckoPriceConnector(priceCache);
+        const priceConnector = new CoinGeckoPriceConnector(priceCache, this.apiKeys.coingecko);
         const allTxs = allDailyGroups.flatMap(day => day.transactions);
 
         // --- Step 1: Batch fetch historical prices ---
@@ -699,16 +757,29 @@ export const useBscStore = defineStore('bsc', {
                     continue;
                 }
 
+                // 验证日期是否太新（CoinGecko历史数据通常有24小时延迟）
+                const targetDateObj = new Date(dayData.date);
+                const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+                if (targetDateObj > oneDayAgo) {
+                    console.warn(`[DAILY_STATS] Date ${dayData.date} is too recent for reliable historical data, may use fallback`);
+                    // 不跳过，让API处理，它会自动回退到昨天的数据
+                }
+
                 // 如果缓存中没有，则获取15天范围的数据
                 console.log(`[DAILY_STATS] Fetching 15-day price chart for ${tokenAddress}`);
-                const chart = await priceConnector.getDailyMarketChart(tokenAddress, targetDate);
-                priceCharts.set(tokenAddress.toLowerCase(), chart);
-                apiCallCount++;
+                try {
+                    const chart = await priceConnector.getDailyMarketChart(tokenAddress, targetDateObj);
+                    priceCharts.set(tokenAddress.toLowerCase(), chart);
+                    apiCallCount++;
 
-                // 每3次API调用后暂停，避免频率限制
-                if (apiCallCount % 3 === 0) {
-                    console.log(`[DAILY_STATS] Pausing after ${apiCallCount} API calls to respect rate limits...`);
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    // 每3次API调用后暂停，避免频率限制
+                    if (apiCallCount % 3 === 0) {
+                        console.log(`[DAILY_STATS] Pausing after ${apiCallCount} API calls to respect rate limits...`);
+                        await new Promise(resolve => setTimeout(resolve, 2000)); // 增加暂停时间
+                    }
+                } catch (error) {
+                    console.error(`[DAILY_STATS] Error fetching price chart for ${tokenAddress}:`, error);
+                    priceCharts.set(tokenAddress.toLowerCase(), null);
                 }
             }
 

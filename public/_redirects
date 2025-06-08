@@ -1,6 +1,14 @@
-# SPA路由重定向 - 所有路由都指向index.html
-/*    /index.html   200
+# Cloudflare Pages Redirects Configuration
+# API Proxies for production deployment
 
-# API代理配置（如果支持）
-/api/bscscan/*  https://api.bscscan.com/api/:splat  200
-/api/coingecko/*  https://api.coingecko.com/api/:splat  200 
+# CoinMarketCap API proxy
+/api/cmc/* https://pro-api.coinmarketcap.com/:splat 200
+
+# CoinGecko API proxy  
+/api/coingecko/* https://api.coingecko.com/:splat 200
+
+# CoinGecko Pro API proxy
+/api/coingecko-pro/* https://pro-api.coingecko.com/:splat 200
+
+# Fallback for SPA routing
+/* /index.html 200 
