@@ -1,4 +1,27 @@
 # Cloudflare Pages Headers Configuration
+
+# Static assets with correct MIME types
+/assets/*.css
+  Content-Type: text/css
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.js
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.woff2
+  Content-Type: font/woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.woff
+  Content-Type: font/woff
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.ttf
+  Content-Type: font/ttf
+  Cache-Control: public, max-age=31536000, immutable
+
+# Security headers for all pages
 /*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
@@ -9,5 +32,5 @@
 /api/*
   Access-Control-Allow-Origin: *
   Access-Control-Allow-Methods: GET, POST, OPTIONS
-  Access-Control-Allow-Headers: Content-Type, Authorization, X-CMC_PRO_API_KEY
+  Access-Control-Allow-Headers: Content-Type, Authorization, X-CMC_PRO_API_KEY, x-cg-demo-api-key, x-cg-pro-api-key
   Access-Control-Max-Age: 86400 
