@@ -6,11 +6,21 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tailwindcss from '@tailwindcss/vite'
 
+// 智能检测部署平台
+const getBasePath = () => {
+  // GitHub Pages 部署
+  if (process.env.GITHUB_PAGES === 'true') {
+    return '/bn-alpha-tools/'
+  }
+  // Cloudflare Pages 或本地开发
+  return '/'
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue(), vueJsx(), vueDevTools(), tailwindcss()],
   // 🚀 生产环境配置
-  base: '/', // 使用绝对路径确保在Cloudflare Pages上路径正确
+  base: getBasePath(), // 智能检测部署平台
   build: {
     outDir: 'dist',
     // 优化构建大小
