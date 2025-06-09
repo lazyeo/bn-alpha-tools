@@ -13,6 +13,9 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 
+// 引入国际化
+import i18n from './locales/index.js'
+
 // 引入Store
 import { useBscStore } from './stores/bsc'
 
@@ -25,6 +28,7 @@ const pinia = createPinia()
 app.use(pinia)
 app.use(router)
 app.use(ElementPlus)
+app.use(i18n)
 app.component('font-awesome-icon', FontAwesomeIcon)
 
 // 初始化 store

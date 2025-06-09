@@ -23,7 +23,7 @@
             ]"
           >
             <i class="fas fa-list mr-2"></i>
-            列表
+            {{ $t('transactionResults.listView') }}
           </button>
           <button
             @click="currentView = 'statistics'"
@@ -35,7 +35,7 @@
             ]"
           >
             <i class="fas fa-chart-bar mr-2"></i>
-            统计
+            {{ $t('transactionResults.statisticsView') }}
           </button>
         </div>
 
@@ -47,7 +47,7 @@
             class="bg-white/20 backdrop-blur-sm text-white px-3 py-2 rounded-lg hover:bg-white/30 transition-all duration-300 disabled:opacity-50 flex items-center whitespace-nowrap text-sm"
           >
             <i :class="[loading ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt', 'mr-1']"></i>
-            <span class="hidden sm:inline">{{ loading ? '刷新中' : '刷新' }}</span>
+            <span class="hidden sm:inline">{{ loading ? $t('transactionResults.refreshing') : $t('transactionResults.refresh') }}</span>
           </button>
         </div>
       </div>
@@ -57,14 +57,14 @@
           <div class="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1 text-xs text-blue-100">
               <span v-if="hasHistoricalPrices" class="flex items-center">
                   <span class="w-2 h-2 bg-green-400 rounded-full mr-1"></span>
-                  历史价格已缓存
+                  {{ $t('transactionResults.historicalPricesCached') }}
               </span>
               <span v-else class="flex items-center">
                   <span class="w-2 h-2 bg-yellow-400 rounded-full mr-1"></span>
-                  需要获取历史价格
+                  {{ $t('transactionResults.needHistoricalPrices') }}
               </span>
               <span class="text-blue-200">|</span>
-              <span>{{ transactionData.length }}天数据</span>
+              <span>{{ transactionData.length }}{{ $t('transactionResults.daysData') }}</span>
           </div>
       </div>
 
@@ -72,7 +72,7 @@
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
           <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
               <div class="text-2xl font-bold">{{ statistics.totalTransactions }}</div>
-              <div class="text-xs text-blue-100">总交易笔数</div>
+              <div class="text-xs text-blue-100">{{ $t('transactionResults.totalTransactions') }}</div>
           </div>
           <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
               <div class="text-lg font-bold">
@@ -81,15 +81,15 @@
                   +${{ formatNumber(statistics.totalBscBonus) }} bonus
                 </div>
               </div>
-              <div class="text-xs text-blue-100">Alpha代币总流入</div>
+              <div class="text-xs text-blue-100">{{ $t('transactionResults.totalAlphaInflow') }}</div>
           </div>
           <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
               <div class="text-2xl font-bold">{{ formatPoints(statistics.totalPoints) }}</div>
-              <div class="text-xs text-blue-100">累计Alpha积分</div>
+              <div class="text-xs text-blue-100">{{ $t('transactionResults.cumulativeAlphaPoints') }}</div>
           </div>
           <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
               <div class="text-lg font-bold">${{ formatNumber(statistics.averageDailyVolume) }}</div>
-              <div class="text-xs text-blue-100">日均交易额</div>
+              <div class="text-xs text-blue-100">{{ $t('transactionResults.averageDailyVolume') }}</div>
           </div>
       </div>
 
@@ -113,7 +113,7 @@
         <div class="bg-gray-50 p-3 border-b border-gray-200 flex justify-between items-center cursor-pointer" @click="toggleDayExpansion(day.date)">
           <div class="flex items-center">
             <h3 class="text-lg font-semibold text-gray-800 mr-3">{{ day.date }}</h3>
-            <span class="text-sm text-gray-500">({{ day.transactions.length }} 笔交易)</span>
+            <span class="text-sm text-gray-500">({{ day.transactions.length }} {{ $t('transactionResults.transactions') }})</span>
             <i :class="[expandedDays.has(day.date) ? 'fas fa-chevron-up' : 'fas fa-chevron-down', 'ml-2 text-gray-400 transition-transform']"></i>
           </div>
           <button
@@ -122,7 +122,7 @@
             class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-sm shadow-md hover:shadow-lg"
           >
             <i :class="[loading && dayBeingProcessed === day.date ? 'fas fa-spinner fa-spin' : 'fas fa-calculator', 'mr-2']"></i>
-            <span>{{ day.statistics ? '重新统计' : '统计交易' }}</span>
+            <span>{{ day.statistics ? $t('transactionResults.recalculate') : $t('transactionResults.calculateTransactions') }}</span>
           </button>
         </div>
 
@@ -131,7 +131,7 @@
             <!-- Main Stats Row -->
             <div class="grid grid-cols-2 gap-2 text-sm mb-3">
                 <div class="text-center">
-                    <span class="font-semibold text-gray-700">Alpha Inflow: </span>
+                    <span class="font-semibold text-gray-700">{{ $t('transactionResults.alphaInflow') }}: </span>
                     <span class="text-green-600 font-bold">
                       ${{ formatNumber(day.statistics.alphaInflowUsd) }}
                       <span v-if="day.statistics.bscBonusUsd && day.statistics.bscBonusUsd > 0" class="text-orange-600 ml-1">
@@ -140,7 +140,7 @@
                     </span>
                 </div>
                 <div class="text-center">
-                    <span class="font-semibold text-gray-700">Alpha Points: </span>
+                    <span class="font-semibold text-gray-700">{{ $t('transactionResults.alphaPoints') }}: </span>
                     <span class="text-purple-600 font-bold">{{ formatPoints(day.statistics.points) }}</span>
                 </div>
             </div>
@@ -154,7 +154,7 @@
                             {{ formatGas(day.statistics.gasStats.totalGasBnb) }} BNB
                             <div class="text-xs text-gray-500">≈${{ formatNumber(day.statistics.gasStats.totalGasBnb * 600) }}</div>
                         </div>
-                        <div class="text-gray-600">Gas消耗</div>
+                        <div class="text-gray-600">{{ $t('transactionResults.gasConsumed') }}</div>
                     </div>
 
                     <!-- Total net result -->
@@ -163,7 +163,7 @@
                             <div class="font-bold text-base" :class="day.statistics.flowStats.totalNetUsd >= 0 ? 'text-green-700' : 'text-red-700'">
                                 {{ day.statistics.flowStats.totalNetUsd >= 0 ? '+' : '-' }}${{ formatNumber(Math.abs(day.statistics.flowStats.totalNetUsd)) }}
                             </div>
-                            <div class="text-xs text-gray-600">综合损益</div>
+                            <div class="text-xs text-gray-600">{{ $t('transactionResults.comprehensivePnL') }}</div>
                         </div>
                     </div>
                 </div>
@@ -198,15 +198,15 @@
             <!-- 计算方法说明 -->
             <div class="mt-2 text-xs text-gray-500 bg-gray-50 rounded p-2">
                 <details>
-                    <summary class="cursor-pointer font-medium">📊 统计计算说明</summary>
+                    <summary class="cursor-pointer font-medium">📊 {{ $t('transactionResults.calculationDescription') }}</summary>
                     <div class="mt-2 space-y-1 text-xs">
-                        <p><strong>Alpha Inflow:</strong> 当日所有Alpha代币流入的USD价值总和</p>
-                        <p><strong>BSC Bonus:</strong> BSC链Alpha代币流入额外计算一次（双倍奖励）</p>
-                        <p><strong>积分计算:</strong> floor(log₂(Alpha Inflow + BSC Bonus))</p>
-                        <p><strong>Gas消耗:</strong> 当日所有交易的BNB gas费用总和（按BNB≈$600计算USD）</p>
-                        <p><strong>综合损益:</strong> 所有代币净流入流出差额 - Gas费用，绿色(+)盈利，红色(-)亏损</p>
-                        <p><strong>总交易量:</strong> 只统计流入避免重复计算（交换中的流出通常对应其他代币流入）</p>
-                        <p><strong>💾 缓存优化:</strong> 历史价格数据已缓存，无需重复获取</p>
+                        <p>{{ $t('transactionResults.calculationDetails.alphaInflow') }}</p>
+                        <p>{{ $t('transactionResults.calculationDetails.bscBonus') }}</p>
+                        <p>{{ $t('transactionResults.calculationDetails.pointsCalculation') }}</p>
+                        <p>{{ $t('transactionResults.calculationDetails.gasConsumed') }}</p>
+                        <p>{{ $t('transactionResults.calculationDetails.comprehensivePnL') }}</p>
+                        <p>{{ $t('transactionResults.calculationDetails.totalVolume') }}</p>
+                        <p>{{ $t('transactionResults.calculationDetails.cacheOptimization') }}</p>
                     </div>
                 </details>
             </div>
@@ -226,7 +226,7 @@
                 <div v-for="(flow, index) in tx.flows" :key="index" class="text-sm py-1 flex justify-between items-center">
                   <div>
                       <span :class="flow.isInflow ? 'text-green-600' : 'text-red-600'">
-                      {{ flow.isInflow ? '↓ In' : '↑ Out' }}
+                      {{ flow.isInflow ? $t('transactionResults.inflow') : $t('transactionResults.outflow') }}
                       </span>
                       <strong class="mx-1">{{ formatNumber(flow.amount) }}</strong>
                       <span class="text-gray-800 font-semibold">{{ flow.token.symbol }}</span>
@@ -239,7 +239,7 @@
                       </span>
                       </span>
                       <span v-else class="text-gray-400 font-mono">
-                      (No price data)
+                      ({{ $t('transactionResults.noPriceData') }})
                       </span>
                   </div>
                 </div>
@@ -252,14 +252,14 @@
 
     <!-- Empty State -->
     <div v-if="!loading && transactionData.length === 0 && !errorMessage" class="text-center py-16">
-        <p class="text-gray-500">没有找到交易记录。</p>
+        <p class="text-gray-500">{{ $t('transactionResults.noTransactionRecords') }}</p>
     </div>
 
     <!-- Statistics View (Placeholder) -->
     <div v-if="currentView === 'statistics'" class="p-4">
         <div class="bg-white p-6 rounded-xl shadow-md text-center">
-            <h3 class="text-lg font-semibold">统计视图正在建设中</h3>
-            <p class="text-gray-600 mt-2">详细的图表和数据分析即将推出。</p>
+            <h3 class="text-lg font-semibold">{{ $t('transactionResults.statisticsViewInDevelopment') }}</h3>
+            <p class="text-gray-600 mt-2">{{ $t('transactionResults.chartsAndAnalysisComingSoon') }}</p>
         </div>
     </div>
   </div>
@@ -268,10 +268,12 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useBscStore } from '@/stores/bsc'
 import { storeToRefs } from 'pinia'
 
 const route = useRoute()
+const { t } = useI18n()
 const bscStore = useBscStore()
 
 // Use storeToRefs to keep reactivity on state and getters
@@ -297,7 +299,7 @@ const dayBeingProcessed = ref(null) // To track which day's stats are being calc
 const expandedDays = ref(new Set()) // To track expanded days
 
 const currentViewTitle = computed(() => {
-  return currentView.value === 'list' ? '交易记录' : '全局统计'
+  return currentView.value === 'list' ? t('transactionResults.transactionRecords') : t('transactionResults.globalStatistics')
 })
 
 // Function to format numbers for better readability

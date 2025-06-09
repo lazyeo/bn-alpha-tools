@@ -8,9 +8,9 @@
 
       <!-- 错误信息 -->
       <h1 class="text-6xl font-bold text-gray-800 mb-4">404</h1>
-      <h2 class="text-2xl font-semibold text-gray-600 mb-4">页面未找到</h2>
+      <h2 class="text-2xl font-semibold text-gray-600 mb-4">{{ $t('notFound.title') }}</h2>
       <p class="text-gray-500 mb-8 max-w-md mx-auto">
-        抱歉，您访问的页面不存在。可能是地址输入错误或页面已被移除。
+        {{ $t('notFound.description') }}
       </p>
 
       <!-- 操作按钮 -->
@@ -20,7 +20,7 @@
           class="inline-flex items-center px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all"
         >
           <i class="fas fa-home mr-2"></i>
-          回到首页
+          {{ $t('notFound.backToHome') }}
         </router-link>
 
         <div class="text-center">
@@ -29,7 +29,7 @@
             class="text-gray-500 hover:text-blue-500 transition-colors"
           >
             <i class="fas fa-arrow-left mr-1"></i>
-            返回上一页
+            {{ $t('common.back') }}
           </button>
         </div>
       </div>

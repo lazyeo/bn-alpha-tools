@@ -4,8 +4,8 @@
     <div class="max-w-6xl mx-auto">
       <!-- 页面标题 -->
       <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-800 mb-2">系统设置</h1>
-        <p class="text-gray-600">管理API密钥、钱包地址和Alpha代币列表</p>
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">{{ $t('settings.systemSettings') }}</h1>
+        <p class="text-gray-600">{{ $t('settings.description') }}</p>
       </div>
 
       <!-- 设置选项卡 -->
@@ -32,19 +32,19 @@
       <div v-show="activeTab === 'api'" class="bg-white rounded-xl shadow-lg p-6 mb-6">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">
           <i class="fas fa-key text-blue-600 mr-2"></i>
-          API密钥管理
+          {{ $t('settings.apiKeys.title') }}
         </h2>
 
         <!-- BSCScan API密钥 -->
         <div class="mb-8">
-          <h3 class="text-lg font-semibold text-gray-700 mb-4">BSCScan API密钥</h3>
+          <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ $t('settings.apiKeys.bscscan.title') }}</h3>
           <div class="space-y-4">
             <div class="flex items-center space-x-4">
               <div class="flex-1">
                 <input
                   v-model="bscApiKey"
                   :type="showBscApiKey ? 'text' : 'password'"
-                  placeholder="请输入BSCScan API密钥"
+                  :placeholder="$t('settings.apiKeys.bscscan.placeholder')"
                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -58,35 +58,35 @@
                 @click="saveBscApiKey"
                 class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                保存
+                {{ $t('settings.apiKeys.bscscan.save') }}
               </button>
               <button
                 @click="resetBscApiKey"
                 class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
               >
-                重置默认
+                {{ $t('settings.apiKeys.bscscan.resetToDefault') }}
               </button>
             </div>
             <div class="text-sm text-gray-500 space-y-1">
-              <p>• 当前使用: {{ currentBscApiKey || '默认密钥' }}</p>
-                              <p>• 获取地址: <a href="https://bscscan.com/apidashboard" target="_blank" class="text-blue-600 hover:underline">https://bscscan.com/apidashboard</a></p>
-              <p>• 免费用户每秒5次请求，每天100,000次请求</p>
+              <p>• {{ $t('settings.apiKeys.bscscan.currentUsing') }}: {{ currentBscApiKey || $t('settings.apiKeys.bscscan.defaultKey') }}</p>
+              <p>• {{ $t('settings.apiKeys.bscscan.getFromUrl') }}: <a href="https://bscscan.com/apidashboard" target="_blank" class="text-blue-600 hover:underline">https://bscscan.com/apidashboard</a></p>
+              <p>• {{ $t('settings.apiKeys.bscscan.rateLimit') }}</p>
             </div>
           </div>
         </div>
 
         <!-- CoinMarketCap API密钥 -->
         <div class="mb-8">
-          <h3 class="text-lg font-semibold text-gray-700 mb-4">CoinMarketCap API密钥</h3>
+          <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ $t('settings.apiKeys.coinmarketcap.title') }}</h3>
 
           <!-- 数据源说明 -->
           <div class="bg-blue-50 p-4 rounded-lg mb-4">
             <div class="flex items-center mb-2">
               <i class="fas fa-info-circle text-blue-600 mr-2"></i>
-              <h4 class="text-sm font-semibold text-blue-800">Alpha代币数据源</h4>
+              <h4 class="text-sm font-semibold text-blue-800">{{ $t('settings.apiKeys.coinmarketcap.dataSourceTitle') }}</h4>
             </div>
             <p class="text-sm text-blue-700">
-              使用CoinMarketCap API实时获取Binance Alpha代币列表。需要有效的API密钥才能正常工作。
+              {{ $t('settings.apiKeys.coinmarketcap.dataSourceDesc') }}
             </p>
           </div>
 
@@ -96,7 +96,7 @@
                 <input
                   v-model="cmcApiKey"
                   :type="showCmcApiKey ? 'text' : 'password'"
-                  placeholder="请输入CoinMarketCap API密钥"
+                  :placeholder="$t('settings.apiKeys.coinmarketcap.placeholder')"
                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -110,27 +110,27 @@
                 @click="saveCmcApiKey"
                 class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                保存
+                {{ $t('settings.apiKeys.common.save') }}
               </button>
             </div>
             <div class="text-sm text-gray-500 space-y-1">
-              <p>• 当前状态: {{ getApiKeyStatus() }}</p>
-              <p>• 获取地址: <a href="https://pro.coinmarketcap.com/account" target="_blank" class="text-blue-600 hover:underline">https://pro.coinmarketcap.com/account</a></p>
-              <p>• 用于获取Binance Alpha代币列表</p>
+              <p>• {{ $t('settings.apiKeys.coinmarketcap.currentStatus') }}: {{ getApiKeyStatus() }}</p>
+              <p>• {{ $t('settings.apiKeys.bscscan.getFromUrl') }}: <a href="https://pro.coinmarketcap.com/account" target="_blank" class="text-blue-600 hover:underline">https://pro.coinmarketcap.com/account</a></p>
+              <p>• {{ $t('settings.apiKeys.coinmarketcap.usage') }}</p>
             </div>
           </div>
         </div>
 
         <!-- CoinGecko API密钥 -->
         <div>
-          <h3 class="text-lg font-semibold text-gray-700 mb-4">CoinGecko API密钥 (可选)</h3>
+          <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ $t('settings.apiKeys.coingecko.title') }}</h3>
           <div class="space-y-4">
             <div class="flex items-center space-x-4">
               <div class="flex-1">
                 <input
                   v-model="coingeckoApiKey"
                   :type="showCoingeckoApiKey ? 'text' : 'password'"
-                  placeholder="请输入CoinGecko API密钥 (可选，用于提高请求限制)"
+                  :placeholder="$t('settings.apiKeys.coingecko.placeholder')"
                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -144,15 +144,15 @@
                 @click="saveCoingeckoApiKey"
                 class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                保存
+                {{ $t('settings.apiKeys.common.save') }}
               </button>
             </div>
             <div class="text-sm text-gray-500 space-y-1">
-              <p>• 当前状态: {{ getCoingeckoApiKeyStatus() }}</p>
-              <p>• 获取地址: <a href="https://www.coingecko.com/en/api/pricing" target="_blank" class="text-blue-600 hover:underline">https://www.coingecko.com/en/api/pricing</a></p>
-              <p>• 用于获取历史价格数据，可选配置</p>
+              <p>• {{ $t('settings.apiKeys.coinmarketcap.currentStatus') }}: {{ getCoingeckoApiKeyStatus() }}</p>
+              <p>• {{ $t('settings.apiKeys.bscscan.getFromUrl') }}: <a href="https://www.coingecko.com/en/api/pricing" target="_blank" class="text-blue-600 hover:underline">https://www.coingecko.com/en/api/pricing</a></p>
+              <p>• {{ $t('settings.apiKeys.coingecko.usage') }}</p>
               <p v-if="coingeckoApiKey" class="text-blue-600">
-                • 密钥类型: {{ getCoingeckoKeyType() }}
+                • {{ $t('settings.apiKeys.coingecko.keyType') }}: {{ getCoingeckoKeyType() }}
               </p>
             </div>
           </div>
@@ -163,24 +163,24 @@
       <div v-show="activeTab === 'wallets'" class="bg-white rounded-xl shadow-lg p-6 mb-6">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">
           <i class="fas fa-wallet text-green-600 mr-2"></i>
-          钱包地址管理
+          {{ $t('settings.wallets.title') }}
         </h2>
 
         <!-- 添加新地址 -->
         <div class="bg-gray-50 p-6 rounded-lg mb-6">
-          <h3 class="text-lg font-semibold text-gray-700 mb-4">添加新地址</h3>
+          <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ $t('settings.wallets.addNew') }}</h3>
           <div class="space-y-4">
             <div>
               <input
                 v-model="newAddress.address"
-                placeholder="BSC钱包地址 (0x...)"
+                :placeholder="$t('settings.wallets.addressPlaceholder')"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             <div>
               <input
                 v-model="newAddress.remark"
-                placeholder="备注 (可选)"
+                :placeholder="$t('settings.wallets.remarkPlaceholder')"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -189,14 +189,14 @@
               :disabled="!newAddress.address || !isValidAddress(newAddress.address)"
               class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
-              添加地址
+              {{ $t('settings.wallets.addButton') }}
             </button>
           </div>
         </div>
 
         <!-- 地址列表 -->
         <div v-if="addresses.length > 0">
-          <h3 class="text-lg font-semibold text-gray-700 mb-4">已保存的地址 ({{ addresses.length }}个)</h3>
+          <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ $t('settings.wallets.savedAddresses') }} ({{ addresses.length }}{{ $t('common.count') }})</h3>
           <div class="space-y-3">
             <div
               v-for="(address, index) in addresses"
@@ -211,21 +211,21 @@
                 <button
                   @click="copyAddress(address.address)"
                   class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                  title="复制地址"
+                  :title="$t('common.copy')"
                 >
                   <i class="fas fa-copy"></i>
                 </button>
                 <button
-                  @click="editAddress(index)"
+                  @click="editAddressModal(index)"
                   class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                  title="编辑"
+                  :title="$t('settings.wallets.actions.edit')"
                 >
                   <i class="fas fa-edit"></i>
                 </button>
                 <button
                   @click="deleteAddress(index)"
                   class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  title="删除"
+                  :title="$t('settings.wallets.actions.delete')"
                 >
                   <i class="fas fa-trash"></i>
                 </button>
@@ -235,7 +235,7 @@
         </div>
         <div v-else class="text-center py-8 text-gray-500">
           <i class="fas fa-wallet text-4xl mb-4"></i>
-          <p>还没有保存任何钱包地址</p>
+          <p>{{ $t('common.noData') }}</p>
         </div>
       </div>
 
@@ -244,36 +244,36 @@
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-2xl font-bold text-gray-800">
             <i class="fas fa-database text-teal-600 mr-2"></i>
-            缓存管理
+            {{ $t('common.cache') }}{{ $t('common.management') }}
           </h2>
           <button
             @click="refreshCacheStats"
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <i class="fas fa-sync-alt mr-2"></i>
-            刷新统计
+            {{ $t('common.refreshStatistics') }}
           </button>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <!-- 总览 -->
           <div class="bg-gray-50 rounded-lg p-6 text-center">
-            <h3 class="text-lg font-semibold text-gray-700">总览</h3>
+            <h3 class="text-lg font-semibold text-gray-700">{{ $t('common.overview') }}</h3>
             <p class="text-3xl font-bold text-teal-600 mt-2">{{ cacheStats.total?.count || 0 }}</p>
-            <p class="text-sm text-gray-500">总缓存条目</p>
+            <p class="text-sm text-gray-500">{{ $t('common.totalCacheEntries') }}</p>
             <p class="text-2xl font-bold text-teal-600 mt-4">{{ cacheStats.total?.size || '0.00' }} KB</p>
-            <p class="text-sm text-gray-500">总占用空间 (约)</p>
+            <p class="text-sm text-gray-500">{{ $t('common.totalSize') }} ({{ $t('common.approximately') }})</p>
           </div>
 
           <!-- 各类缓存详情 -->
           <div v-for="cache in cacheDetails" :key="cache.key" class="bg-white border border-gray-200 rounded-lg p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ cache.name }}</h3>
             <div class="flex justify-between items-center mb-2">
-              <span class="text-gray-600">缓存条目:</span>
+              <span class="text-gray-600">{{ $t('common.cacheEntries') }}:</span>
               <span class="font-mono font-semibold text-gray-800">{{ cacheStats[cache.key]?.count || 0 }}</span>
             </div>
             <div class="flex justify-between items-center mb-6">
-              <span class="text-gray-600">占用空间:</span>
+              <span class="text-gray-600">{{ $t('common.size') }}:</span>
               <span class="font-mono font-semibold text-gray-800">{{ cacheStats[cache.key]?.size || '0.00' }} KB</span>
             </div>
             <button
@@ -281,23 +281,23 @@
               class="w-full px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
             >
               <i class="fas fa-trash mr-2"></i>
-              清空{{ cache.name }}
+              {{ $t('common.clear') }}{{ cache.name }}
             </button>
           </div>
         </div>
       </div>
 
-            <!-- Alpha代币管理 -->
+      <!-- Alpha代币管理 -->
       <div v-show="activeTab === 'alpha'" class="bg-white rounded-xl shadow-lg p-6">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-2xl font-bold text-gray-800">
             <i class="fas fa-rocket text-yellow-600 mr-2"></i>
-            Alpha代币管理
+            {{ $t('settings.tokens.title') }}
           </h2>
           <div class="flex items-center space-x-4">
              <div class="text-sm text-gray-500">
               <span v-if="alphaTokenList.length > 0">
-                共 {{ alphaTokenList.length }} 个代币
+                {{ $t('common.total') }} {{ alphaTokenList.length }} {{ $t('common.tokens') }}
               </span>
             </div>
             <button
@@ -306,7 +306,7 @@
               class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
               <i :class="loading ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'" class="mr-2"></i>
-              {{ loading ? '刷新中...' : '手动刷新' }}
+              {{ loading ? $t('common.refreshing') : $t('common.manualRefresh') }}
             </button>
           </div>
         </div>
@@ -315,13 +315,13 @@
         <div class="bg-blue-50 p-4 rounded-lg mb-6">
           <div class="flex items-center justify-between">
             <div class="text-sm text-blue-800">
-              <p>最后更新: {{ alphaTokensLastUpdated }}</p>
+              <p>{{ $t('settings.tokens.lastUpdate') }}: {{ alphaTokensLastUpdated }}</p>
             </div>
             <button
               @click="clearAlphaTokensCache"
               class="px-3 py-1 text-sm bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors"
             >
-              清除缓存
+              {{ $t('common.clearCache') }}
             </button>
           </div>
         </div>
@@ -340,7 +340,7 @@
               <h3 class="text-lg font-semibold text-gray-800">
                 <i :class="getChainIcon(chainName)" class="mr-2"></i>
                 {{ chainName }}
-                <span class="text-sm font-normal text-gray-500 ml-2">({{ tokens.length }}个代币)</span>
+                <span class="text-sm font-normal text-gray-500 ml-2">({{ tokens.length }}{{ $t('common.tokens') }})</span>
               </h3>
               <i
                 :class="expandedChains.includes(chainName) ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"
@@ -362,23 +362,23 @@
                         <div class="text-sm text-gray-500">{{ token.symbol }}</div>
                       </div>
                       <div v-if="token.cmc_rank" class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                        排名 #{{ token.cmc_rank }}
+                        {{ $t('common.rank') }} #{{ token.cmc_rank }}
                       </div>
                     </div>
                     <div class="mt-2 space-y-1">
                       <div class="text-sm text-gray-600">
-                        <span class="font-medium">合约地址:</span>
+                        <span class="font-medium">{{ $t('common.contractAddress') }}:</span>
                         <code class="ml-2 bg-gray-100 px-2 py-1 rounded text-xs">{{ token.contractAddress }}</code>
                         <button
                           @click="copyAddress(token.contractAddress)"
                           class="ml-2 text-blue-600 hover:text-blue-800 transition-colors"
-                          title="复制合约地址"
+                          :title="$t('common.copyContractAddress')"
                         >
                           <i class="fas fa-copy text-xs"></i>
                         </button>
                       </div>
                       <div v-if="token.quote.price" class="text-sm text-gray-600">
-                        <span class="font-medium">当前价格:</span>
+                        <span class="font-medium">{{ $t('common.currentPrice') }}:</span>
                         <span class="ml-2">${{ formatPrice(token.quote.price) }}</span>
                         <span
                           v-if="token.quote.percent_change_24h"
@@ -399,15 +399,15 @@
         <!-- 空状态 -->
         <div v-else-if="!loading" class="text-center py-12 text-gray-500">
           <i class="fas fa-rocket text-6xl mb-4"></i>
-          <h3 class="text-xl font-semibold mb-2">没有Alpha代币数据</h3>
-          <p v-if="!cmcApiKey" class="mb-4">请先配置CoinMarketCap API密钥，然后点击刷新获取最新数据</p>
-          <p v-else class="mb-4">点击"手动刷新"按钮获取最新的 Alpha 代币列表。</p>
+          <h3 class="text-xl font-semibold mb-2">{{ $t('settings.tokens.noTokens') }}</h3>
+          <p v-if="!cmcApiKey" class="mb-4">{{ $t('common.configureCmcApiFirst') }}</p>
+          <p v-else class="mb-4">{{ $t('settings.tokens.refreshHint') }}</p>
           <button
             v-if="!cmcApiKey"
             @click="activeTab = 'api'"
             class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            配置API密钥
+            {{ $t('common.configureApiKey') }}
           </button>
         </div>
 
@@ -416,8 +416,8 @@
           <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
             <i class="fas fa-spinner fa-spin text-2xl text-blue-600"></i>
           </div>
-          <h3 class="text-xl font-semibold text-gray-800 mb-2">正在获取Alpha代币数据...</h3>
-          <p class="text-gray-600">这可能需要几秒钟时间</p>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ $t('common.fetchingAlphaTokens') }}</h3>
+          <p class="text-gray-600">{{ $t('common.pleaseWait') }}</p>
         </div>
       </div>
     </div>
@@ -425,10 +425,10 @@
     <!-- 编辑地址模态框 -->
     <div v-if="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white p-6 rounded-xl max-w-md w-full mx-4">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">编辑地址</h3>
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ $t('settings.wallets.actions.edit') }}</h3>
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">钱包地址</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('settings.wallets.addressPlaceholder') }}</label>
             <input
               v-model="editingAddress.address"
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -436,10 +436,10 @@
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('settings.wallets.remarkPlaceholder') }}</label>
             <input
               v-model="editingAddress.remark"
-              placeholder="输入备注"
+              :placeholder="$t('addressManager.remark')"
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -449,13 +449,13 @@
             @click="showEditModal = false"
             class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
-            取消
+            {{ $t('common.cancel') }}
           </button>
           <button
             @click="saveEditedAddress"
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            保存
+            {{ $t('common.save') }}
           </button>
         </div>
       </div>
@@ -477,6 +477,7 @@
 
 <script>
 import { defineComponent, ref, computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useBscStore } from '@/stores/bsc';
 import { useWalletManagement } from '@/composables/useWalletManagement';
 import { useApiKeys } from '@/composables/useApiKeys';
@@ -487,15 +488,16 @@ export default defineComponent({
   // eslint-disable-next-line vue/multi-word-component-names
   name: 'Settings',
   setup() {
+    const { t } = useI18n();
     const bscStore = useBscStore();
     const activeTab = ref('api');
 
-    const tabs = [
-      { key: 'api', name: 'API密钥管理', icon: 'fas fa-key' },
-      { key: 'wallets', name: '钱包地址管理', icon: 'fas fa-wallet' },
-      { key: 'alpha', name: 'Alpha代币管理', icon: 'fas fa-rocket' },
-      { key: 'cache', name: '缓存管理', icon: 'fas fa-database' },
-    ];
+    const tabs = computed(() => [
+      { key: 'api', name: t('settings.tabs.api'), icon: 'fas fa-key' },
+      { key: 'wallets', name: t('settings.tabs.wallets'), icon: 'fas fa-wallet' },
+      { key: 'alpha', name: t('settings.tabs.tokens'), icon: 'fas fa-rocket' },
+      { key: 'cache', name: t('common.cache'), icon: 'fas fa-database' },
+    ]);
 
     // Data Source Selection
     // CoinMarketCap API only - no data source switching
@@ -508,6 +510,14 @@ export default defineComponent({
       coingeckoApiKey, showCoingeckoApiKey, saveCoingeckoApiKey
     } = useApiKeys();
     const { cacheStats, refreshCacheStats, clearCacheType, clearAllCaches } = useCacheManagement();
+
+    // --- Modal State ---
+    const showEditModal = ref(false);
+    const editingAddress = ref({ address: '', remark: '' });
+    const editingIndex = ref(-1);
+    const showMessage = ref(false);
+    const message = ref('');
+    const messageType = ref('success');
 
     // --- Computed Properties ---
     const currentBscApiKey = computed(() => bscStore.apiKeys.bsc);
@@ -590,13 +600,13 @@ export default defineComponent({
 
 
     // --- Cache Details Configuration ---
-    const cacheDetails = [
-      { key: 'alphaTokens', name: 'Alpha代币缓存' },
-      { key: 'transactions', name: '交易记录缓存' },
-      { key: 'statistics', name: '统计数据缓存' },
-      { key: 'prices', name: '价格数据缓存' },
-      { key: 'coinIds', name: '代币ID缓存' },
-    ];
+    const cacheDetails = computed(() => [
+      { key: 'alphaTokens', name: t('common.alphaTokensCache') },
+      { key: 'transactions', name: t('common.transactionsCache') },
+      { key: 'statistics', name: t('common.statisticsCache') },
+      { key: 'prices', name: t('common.pricesCache') },
+      { key: 'coinIds', name: t('common.coinIdsCache') },
+    ]);
 
     // --- Methods ---
     const refreshAlphaTokens = async () => {
@@ -619,20 +629,41 @@ export default defineComponent({
       refreshCacheStats();
     };
 
+    // --- Address Modal Methods ---
+    const editAddressModal = (index) => {
+      editingIndex.value = index;
+      editingAddress.value = { ...addresses.value[index] };
+      showEditModal.value = true;
+    };
+
+    const saveEditedAddress = () => {
+      if (editingIndex.value >= 0) {
+        addresses.value[editingIndex.value] = { ...editingAddress.value };
+        localStorage.setItem('wallet-addresses', JSON.stringify(addresses.value));
+        showMessage.value = true;
+        message.value = t('common.success');
+        messageType.value = 'success';
+        setTimeout(() => {
+          showMessage.value = false;
+        }, 3000);
+      }
+      showEditModal.value = false;
+    };
+
 
 
     // CoinMarketCap API Status
     const getApiKeyStatus = () => {
-      return cmcApiKey.value ? '已设置' : '未设置';
+      return cmcApiKey.value ? t('settings.apiKeys.common.status.configured') : t('settings.apiKeys.common.status.notConfigured');
     };
 
     // CoinGecko API Key helpers
     const getCoingeckoApiKeyStatus = () => {
       if (!coingeckoApiKey.value) {
-        return '未设置（使用免费接口）';
+        return t('common.notConfiguredUsingFree');
       }
       const keyType = getCoingeckoKeyType();
-      return `已设置 (${keyType})`;
+      return `${t('settings.apiKeys.common.status.configured')} (${keyType})`;
     };
 
     const getCoingeckoKeyType = () => {
@@ -641,7 +672,7 @@ export default defineComponent({
       const isDemoKey = coingeckoApiKey.value.toLowerCase().includes('demo') ||
                        (coingeckoApiKey.value.startsWith('CG-') && coingeckoApiKey.value.length < 50);
 
-      return isDemoKey ? 'Demo 密钥' : 'Pro 密钥';
+      return isDemoKey ? t('settings.apiKeys.common.status.demo') : t('settings.apiKeys.common.status.pro');
     };
 
     // --- Lifecycle Hooks ---
@@ -673,6 +704,14 @@ export default defineComponent({
       deleteAddress,
       copyAddress,
       isValidAddress,
+      // Modal State
+      showEditModal,
+      editingAddress,
+      editAddressModal,
+      saveEditedAddress,
+      showMessage,
+      message,
+      messageType,
       // Cache Management
       cacheStats,
       cacheDetails,

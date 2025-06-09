@@ -3,7 +3,7 @@
     <!-- 头部 -->
     <div class="bg-gradient-to-br from-blue-500 via-purple-600 to-blue-700 px-4 py-6 text-white">
       <div class="text-center mb-8">
-        <p class="text-blue-100">并不是很专业的币安智能链交易数据分析工具</p>
+        <p class="text-blue-100">{{ $t('app.description') }}</p>
       </div>
 
       <!-- 搜索框 -->
@@ -11,7 +11,7 @@
         <div class="bg-white rounded-2xl p-6 shadow-lg">
           <!-- 统一地址输入控件 -->
           <div class="mb-4">
-            <h3 class="text-sm font-medium text-gray-700 mb-4">输入或选择查询地址</h3>
+            <h3 class="text-sm font-medium text-gray-700 mb-4">{{ $t('home.inputOrSelectAddress') }}</h3>
 
             <!-- 地址输入/选择组合框 -->
             <div class="relative">
@@ -23,7 +23,7 @@
                 @focus="showDropdown = true"
                 @blur="onInputBlur"
                 type="text"
-                placeholder="请输入BSC钱包地址或选择已保存的地址..."
+                :placeholder="$t('home.searchPlaceholder')"
                 class="w-full px-4 py-4 pl-12 pr-16 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 :class="{ 'border-red-300': errorMessage }"
               />
@@ -53,7 +53,7 @@
                 >
                   <div class="flex items-center justify-between">
                     <div class="flex-1">
-                      <div class="font-medium text-gray-800">{{ address.remark || '未命名地址' }}</div>
+                      <div class="font-medium text-gray-800">{{ address.remark || $t('home.unnamedAddress') }}</div>
                       <div class="text-sm text-gray-500 font-mono">{{ formatAddress(address.address) }}</div>
                     </div>
                     <i class="fas fa-check text-blue-500 opacity-0" :class="{ 'opacity-100': bscAddress === address.address }"></i>
@@ -68,9 +68,8 @@
             <div class="flex items-center">
               <i class="fas fa-info-circle text-yellow-500 mr-2"></i>
               <span class="text-sm text-yellow-700">
-                暂无已保存的地址，请先在
-                <router-link to="/settings" class="font-medium underline">设置</router-link>
-                中添加地址以便快速选择
+                {{ $t('home.noSavedAddresses') }}
+                <router-link to="/settings" class="font-medium underline">{{ $t('home.viewInSettings') }}</router-link>
               </span>
             </div>
           </div>
@@ -87,7 +86,7 @@
           >
             <i v-if="loading" class="fas fa-spinner fa-spin mr-2"></i>
             <i v-else class="fas fa-search-plus mr-2"></i>
-            {{ loading ? '查询中...' : '开始查询' }}
+            {{ loading ? $t('home.querying') : $t('home.startQuery') }}
           </button>
         </div>
       </div>
@@ -99,7 +98,7 @@
       <div v-if="searchHistory.length > 0" class="mb-6">
         <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
           <i class="fas fa-history text-blue-500 mr-2"></i>
-          搜索记录
+          {{ $t('home.searchHistory') }}
         </h3>
         <div class="space-y-2">
           <div
@@ -130,28 +129,28 @@
       <div class="mb-6">
         <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
           <i class="fas fa-info-circle text-green-500 mr-2"></i>
-          功能特色
+          {{ $t('home.features.title') }}
         </h3>
         <div class="grid grid-cols-2 gap-3">
           <div class="bg-white rounded-lg p-4 shadow-sm text-center">
             <i class="fas fa-chart-line text-blue-500 text-2xl mb-2"></i>
-            <div class="font-medium text-gray-800">交易分析</div>
-            <div class="text-sm text-gray-500">详细的交易数据统计</div>
+            <div class="font-medium text-gray-800">{{ $t('home.features.transactionAnalysis.title') }}</div>
+            <div class="text-sm text-gray-500">{{ $t('home.features.transactionAnalysis.description') }}</div>
           </div>
           <div class="bg-white rounded-lg p-4 shadow-sm text-center">
             <i class="fas fa-coins text-green-500 text-2xl mb-2"></i>
-            <div class="font-medium text-gray-800">代币流向</div>
-            <div class="text-sm text-gray-500">多维度资金流向分析</div>
+            <div class="font-medium text-gray-800">{{ $t('home.features.tokenFlow.title') }}</div>
+            <div class="text-sm text-gray-500">{{ $t('home.features.tokenFlow.description') }}</div>
           </div>
           <div class="bg-white rounded-lg p-4 shadow-sm text-center">
             <i class="fas fa-clock text-purple-500 text-2xl mb-2"></i>
-            <div class="font-medium text-gray-800">时间分布</div>
-            <div class="text-sm text-gray-500">交易时间分布图表</div>
+            <div class="font-medium text-gray-800">{{ $t('home.features.timeDistribution.title') }}</div>
+            <div class="text-sm text-gray-500">{{ $t('home.features.timeDistribution.description') }}</div>
           </div>
           <div class="bg-white rounded-lg p-4 shadow-sm text-center">
             <i class="fas fa-trophy text-orange-500 text-2xl mb-2"></i>
-            <div class="font-medium text-gray-800">积分计算</div>
-            <div class="text-sm text-gray-500">智能积分评价系统</div>
+            <div class="font-medium text-gray-800">{{ $t('home.features.pointsCalculation.title') }}</div>
+            <div class="text-sm text-gray-500">{{ $t('home.features.pointsCalculation.description') }}</div>
           </div>
         </div>
       </div>
@@ -160,7 +159,7 @@
       <div class="text-center">
         <div class="bg-white rounded-lg p-4 shadow-sm">
           <div class="text-2xl font-bold text-gray-800">{{ currentTime }}</div>
-          <div class="text-sm text-gray-500">当前时间</div>
+          <div class="text-sm text-gray-500">{{ $t('home.currentTime') }}</div>
         </div>
       </div>
     </div>
