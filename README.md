@@ -4,7 +4,11 @@
 
 ## 🌐 在线演示
 
-**🔗 [立即体验](https://bn-alpha-tools.pages.dev/)**
+**🔗 [Cloudflare Pages - 主站](https://bn-alpha-tools.pages.dev/)**
+
+**🔗 [GitHub Pages - 镜像站](https://lazyeo.github.io/bn-alpha-tools/)**
+
+> **⚠️ 重要提示**：由于所有数据都是纯本地存储，两个演示站点的数据不互通，需要分别配置API密钥和设置。建议选择其中一个站点作为主要使用环境。
 
 
 ## ✨ 核心特性
@@ -88,12 +92,20 @@ src/
 
 ## 🚀 快速开始
 
-### 环境要求
+### 🌐 在线使用
+直接访问在线演示站点，无需安装：
+- **主站**：https://bn-alpha-tools.pages.dev/
+- **镜像站**：https://lazyeo.github.io/bn-alpha-tools/
+
+配置API密钥后即可开始使用。
+
+### 💻 本地开发
+
+**环境要求**
 - Node.js 18+
 - npm 或 pnpm
 
-### 本地开发
-
+**安装运行**
 ```bash
 # 克隆项目
 git clone https://github.com/lazyeo/bn-alpha-tools.git
@@ -154,6 +166,12 @@ npm run build
 3. **CoinGecko API Key** (可选)：历史价格数据
    - 申请地址：https://www.coingecko.com/en/api
    - 提升查询限制，支持Demo和Pro密钥
+
+### 📋 数据存储说明
+- **本地存储**：所有API密钥、搜索历史、分析结果均保存在浏览器本地存储中
+- **数据隔离**：不同域名下的数据完全隔离，两个演示站点的配置和数据不互通
+- **隐私保护**：数据不会上传到服务器，完全在客户端处理
+- **迁移提示**：如需切换使用站点，请重新配置API密钥和导入设置
 
 ## 📊 最新更新特性
 

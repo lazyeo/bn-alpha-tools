@@ -30,10 +30,7 @@
         </div>
       </div>
 
-      <!-- 悬浮提示 -->
-      <div class="tooltip">
-        {{ currentLocale.name }}
-      </div>
+
     </div>
   </div>
 </template>
@@ -72,11 +69,7 @@ const toggleLanguage = () => {
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
-.language-toggle:hover .tooltip {
-  opacity: 1;
-  transform: translateY(-8px);
-  visibility: visible;
-}
+
 
 .toggle-track {
   position: relative;
@@ -164,35 +157,7 @@ const toggleLanguage = () => {
   margin-right: 2px;
 }
 
-.tooltip {
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%) translateY(-4px);
-  background: rgba(17, 24, 39, 0.95);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 500;
-  white-space: nowrap;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  z-index: 50;
-}
 
-.tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 4px solid transparent;
-  border-top-color: rgba(17, 24, 39, 0.95);
-}
 
 /* 悬浮效果 */
 .language-toggle:hover .toggle-track {

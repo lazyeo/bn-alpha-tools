@@ -12,22 +12,44 @@
         ] : [
           // 桌面端样式
           'relative',
-          sidebarCollapsed ? 'w-16' : 'w-72'
+          sidebarCollapsed ? 'w-16 min-w-16' : 'w-72 min-w-72'
         ]
       ]"
     >
       <!-- 侧栏头部 -->
-      <div class="px-6 py-8 bg-gradient-to-r from-blue-600 to-purple-600 relative overflow-hidden">
+      <div
+        :class="[
+          'bg-gradient-to-r from-blue-600 to-purple-600 relative overflow-hidden',
+          sidebarCollapsed && !isMobile ? 'px-2 py-6' : 'px-6 py-8'
+        ]"
+      >
         <div class="absolute inset-0 bg-black opacity-10"></div>
-        <div class="relative flex items-center justify-between">
+        <div
+          :class="[
+            'relative flex items-center',
+            sidebarCollapsed && !isMobile ? 'justify-center' : 'justify-between'
+          ]"
+        >
           <h1
             :class="[
               'font-bold flex items-center transition-all duration-300 text-white',
-              (isMobile || !sidebarCollapsed) ? 'text-2xl' : 'text-lg'
+              sidebarCollapsed && !isMobile ? 'text-lg justify-center' : 'text-2xl'
             ]"
           >
-            <span class="inline-block w-10 h-10 bg-white text-blue-600 rounded-xl mr-3 flex items-center justify-center flex-shrink-0 shadow-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <span
+              :class="[
+                'inline-block bg-white text-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg',
+                sidebarCollapsed && !isMobile ? 'w-8 h-8' : 'w-10 h-10 mr-3'
+              ]"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                :class="[sidebarCollapsed && !isMobile ? 'h-5 w-5' : 'h-6 w-6']"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
                 <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4-8-4V7l8 4 8-4z" />
               </svg>
             </span>
@@ -51,26 +73,39 @@
       </div>
 
       <!-- 导航菜单 -->
-      <nav class="flex-1 px-6 py-6 space-y-3 overflow-y-auto">
+      <nav
+        :class="[
+          'flex-1 py-6 space-y-3',
+          sidebarCollapsed && !isMobile ? 'px-2 overflow-visible' : 'px-6 overflow-y-auto'
+        ]"
+      >
         <router-link
           v-for="item in menuItems"
           :key="item.name"
           :to="item.path"
           @click="handleMenuClick"
           :class="[
-            'flex items-center px-4 py-4 rounded-xl transition-all duration-300 group relative backdrop-blur-sm',
+            'flex items-center rounded-xl transition-all duration-300 group relative backdrop-blur-sm',
+            sidebarCollapsed && !isMobile ? 'px-3 py-3 justify-center' : 'px-4 py-4',
             isActiveRoute(item.path)
-              ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg transform scale-105'
-              : 'text-gray-300 hover:bg-white hover:bg-opacity-10 hover:text-white hover:transform hover:scale-105 hover:shadow-md'
+              ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
+              : 'text-gray-300 hover:bg-white hover:bg-opacity-10 hover:text-white hover:shadow-md'
           ]"
         >
-          <i :class="['text-center flex-shrink-0 text-lg', item.icon, (isMobile || !sidebarCollapsed) ? 'w-8' : 'w-6']"></i>
+          <!-- 图标容器 -->
+          <div
+            :class="[
+              'flex items-center justify-center flex-shrink-0',
+              sidebarCollapsed && !isMobile ? 'w-6 h-6' : 'w-8 h-8'
+            ]"
+          >
+            <i :class="['text-lg', item.icon]"></i>
+          </div>
+
+          <!-- 文字标签 -->
           <span
             v-show="isMobile || !sidebarCollapsed"
-            :class="[
-              'ml-4 transition-all duration-300 font-medium',
-              (isMobile || !sidebarCollapsed) ? 'text-base' : 'text-sm'
-            ]"
+            class="ml-4 transition-all duration-300 font-medium text-base"
           >
             {{ item.name }}
           </span>
@@ -81,10 +116,16 @@
             class="ml-auto w-2 h-2 bg-white rounded-full animate-pulse"
           ></div>
 
+          <!-- 收缩状态下的活跃指示器 -->
+          <div
+            v-if="isActiveRoute(item.path) && !isMobile && sidebarCollapsed"
+            class="absolute right-1 top-1/2 transform -translate-y-1/2 w-0.5 h-6 bg-white rounded-full"
+          ></div>
+
           <!-- 收缩状态下的工具提示 -->
           <div
             v-if="!isMobile && sidebarCollapsed"
-            class="absolute left-full ml-4 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-50 shadow-xl border border-gray-700"
+            class="absolute left-full ml-6 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-50 shadow-xl border border-gray-700"
           >
             {{ item.name }}
             <div class="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-900 rotate-45 border-l border-b border-gray-700"></div>
@@ -94,19 +135,46 @@
 
 
 
-      <!-- 桌面端侧栏底部区域 -->
-      <div v-if="!isMobile" class="px-6 py-6 border-t border-gray-700 border-opacity-50 space-y-4">
-        <!-- 语言切换器 -->
-        <div v-show="!sidebarCollapsed" class="flex justify-center">
-          <LanguageSwitcher />
+            <!-- 桌面端侧栏底部区域 -->
+            <div
+        v-if="!isMobile"
+        :class="[
+          'border-t border-gray-700 border-opacity-50',
+          sidebarCollapsed ? 'px-0 py-4 space-y-3' : 'px-6 py-6 space-y-4'
+        ]"
+        style="overflow: visible;"
+      >
+                                <!-- 语言切换器 - 统一位置 -->
+        <div
+          class="flex justify-center"
+          style="min-height: 40px; overflow: visible;"
+        >
+          <div
+            :class="[
+              'language-switcher-container transition-all duration-300',
+              sidebarCollapsed ? 'scale-75' : ''
+            ]"
+          >
+            <LanguageSwitcher />
+          </div>
         </div>
 
         <!-- 收缩按钮 -->
         <button
           @click="toggleSidebar"
-          class="w-full flex items-center justify-center px-4 py-3 text-gray-300 hover:text-white hover:bg-white hover:bg-opacity-10 rounded-xl transition-all duration-300 group backdrop-blur-sm"
+          :class="[
+            'w-full flex items-center transition-all duration-300 group backdrop-blur-sm text-gray-300 hover:text-gray-800 hover:bg-gray-200 rounded-xl',
+            sidebarCollapsed ? 'justify-center px-2 py-3' : 'justify-center px-4 py-3'
+          ]"
         >
-          <i :class="['fas text-lg transition-transform duration-300 group-hover:scale-110', sidebarCollapsed ? 'fa-chevron-right' : 'fa-chevron-left']"></i>
+          <div
+            :class="[
+              'flex items-center justify-center',
+              sidebarCollapsed ? 'w-6 h-6' : 'w-auto h-auto'
+            ]"
+          >
+            <i :class="['fas text-lg transition-transform duration-300 group-hover:scale-110', sidebarCollapsed ? 'fa-chevron-right' : 'fa-chevron-left']"></i>
+          </div>
           <span v-show="!sidebarCollapsed" class="ml-3 font-medium">{{ $t('nav.collapseSidebar') }}</span>
         </button>
       </div>
@@ -239,15 +307,47 @@ onUnmounted(() => {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 工具提示箭头 */
-.group:hover .absolute::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: -4px;
-  transform: translateY(-50%);
-  border: 4px solid transparent;
-  border-right-color: #374151;
+/* 侧边栏收缩状态优化 */
+.sidebar-collapsed-item {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 防止收缩时内容溢出 */
+.sidebar-nav-collapsed {
+  overflow: visible !important;
+}
+
+.sidebar-nav-collapsed .router-link-active,
+.sidebar-nav-collapsed .router-link-exact-active {
+  position: relative;
+}
+
+/* 工具提示定位优化 */
+.sidebar-tooltip {
+  z-index: 9999;
+  transform: translateX(0);
+}
+
+/* 确保图标居中 */
+.icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+}
+
+/* 语言切换器缩放优化 */
+.language-switcher-container {
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.language-switcher-container.scale-75 {
+  transform: scale(1);
 }
 </style>
 
