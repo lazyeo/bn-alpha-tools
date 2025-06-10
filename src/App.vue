@@ -222,6 +222,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterView, useRoute, RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
+import logoImage from '@/assets/logo.png'
 
 const route = useRoute()
 const { t } = useI18n()
@@ -232,9 +233,9 @@ const sidebarOpen = ref(false)
 const windowWidth = ref(window.innerWidth)
 
 // Logo配置 - 如果您有自定义logo图片，请将路径设置在这里
-// 例如：const logoImagePath = ref('/src/assets/logo.png')
+// 使用import方式引入图片，确保在生产环境中正确打包
 // 如果设置为null或空字符串，将显示默认的SVG图标
-const logoImagePath = ref('/src/assets/logo.png')
+const logoImagePath = ref(logoImage)
 
 // 计算属性
 const isMobile = computed(() => windowWidth.value < 768)
