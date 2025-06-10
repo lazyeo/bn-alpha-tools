@@ -255,12 +255,120 @@
         <p class="text-gray-500">{{ $t('transactionResults.noTransactionRecords') }}</p>
     </div>
 
-    <!-- Statistics View (Placeholder) -->
-    <div v-if="currentView === 'statistics'" class="p-4">
-        <div class="bg-white p-6 rounded-xl shadow-md text-center">
-            <h3 class="text-lg font-semibold">{{ $t('transactionResults.statisticsViewInDevelopment') }}</h3>
-            <p class="text-gray-600 mt-2">{{ $t('transactionResults.chartsAndAnalysisComingSoon') }}</p>
+    <!-- Statistics View (Points Statistics) -->
+    <div v-if="currentView === 'statistics'" class="p-4 space-y-6">
+      <!-- 积分总览卡片 -->
+      <div class="bg-gradient-to-r from-purple-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
+        <h3 class="text-xl font-bold mb-4">{{ $t('transactionResults.pointsOverview') }}</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="text-center">
+            <div class="text-2xl font-bold">{{ pointsStatistics.totalEarned }}</div>
+            <div class="text-sm text-purple-100">{{ $t('transactionResults.totalEarned') }}</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-red-300">-{{ pointsStatistics.totalSpent }}</div>
+            <div class="text-sm text-purple-100">{{ $t('transactionResults.totalSpent') }}</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-yellow-300">{{ pointsStatistics.finalBalance }}</div>
+            <div class="text-sm text-purple-100">{{ $t('transactionResults.currentBalance') }}</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold">{{ pointsStatistics.activeDays }}</div>
+            <div class="text-sm text-purple-100">{{ $t('transactionResults.activeDays') }}</div>
+          </div>
         </div>
+      </div>
+
+      <!-- 全局积分消耗设置 -->
+      <div class="bg-white rounded-xl shadow-md p-6">
+        <h4 class="text-lg font-semibold text-gray-800 mb-4">{{ $t('transactionResults.globalPointsSettings') }}</h4>
+        <div class="flex items-center space-x-4">
+          <div class="flex-1">
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('transactionResults.totalSpentPoints') }}</label>
+            <input
+              type="number"
+              v-model.number="globalSpentPoints"
+              @change="saveGlobalSpentPoints"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              :placeholder="$t('transactionResults.enterSpentPoints')"
+              min="0"
+            >
+            <p class="text-xs text-gray-500 mt-1">{{ $t('transactionResults.spentPointsDescription') }}</p>
+          </div>
+          <button
+            @click="resetAllPointsAdjustments"
+            class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition-colors"
+          >
+            {{ $t('transactionResults.resetAll') }}
+          </button>
+        </div>
+      </div>
+
+      <!-- 每日积分明细 -->
+      <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <h4 class="text-lg font-semibold text-gray-800">{{ $t('transactionResults.dailyPointsDetails') }}</h4>
+          <p class="text-sm text-gray-600">{{ $t('transactionResults.clickToAdjustPoints') }}</p>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('transactionResults.date') }}</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('transactionResults.originalPoints') }}</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('transactionResults.adjustedPoints') }}</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('transactionResults.cumulativePoints') }}</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('transactionResults.actions') }}</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr v-for="(day, index) in dailyPointsData" :key="day.date" :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ day.date }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatPoints(day.originalPoints) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold" :class="day.isAdjusted ? 'text-blue-600' : 'text-gray-500'">
+                  {{ formatPoints(day.adjustedPoints) }}
+                  <span v-if="day.isAdjusted" class="ml-1 text-xs text-blue-500">({{ $t('transactionResults.adjusted') }})</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatPoints(day.cumulativePoints) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <button
+                    @click="adjustDailyPoints(day.date, day.adjustedPoints)"
+                    class="text-indigo-600 hover:text-indigo-900 mr-3"
+                  >
+                    {{ $t('transactionResults.adjust') }}
+                  </button>
+                  <button
+                    v-if="day.isAdjusted"
+                    @click="resetDailyPoints(day.date)"
+                    class="text-red-600 hover:text-red-900"
+                  >
+                    {{ $t('transactionResults.reset') }}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 空状态 -->
+        <div v-if="dailyPointsData.length === 0" class="text-center py-8 text-gray-500">
+          <p>{{ $t('transactionResults.noPointsData') }}</p>
+          <p class="text-sm mt-1">{{ $t('transactionResults.calculateStatsFirst') }}</p>
+        </div>
+      </div>
+
+      <!-- 积分计算说明 -->
+      <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+        <h4 class="text-lg font-semibold text-blue-800 mb-3">{{ $t('transactionResults.pointsCalculationExplanation') }}</h4>
+        <div class="text-sm text-blue-700 space-y-2">
+          <p>• {{ $t('transactionResults.pointsCalculationRule1') }}</p>
+          <p>• {{ $t('transactionResults.pointsCalculationRule2') }}</p>
+          <p>• {{ $t('transactionResults.pointsCalculationRule3') }}</p>
+          <p>• {{ $t('transactionResults.pointsCalculationRule4') }}</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -271,6 +379,8 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useBscStore } from '@/stores/bsc'
 import { storeToRefs } from 'pinia'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { CachingService } from '@/services/caching/caching.service'
 
 const route = useRoute()
 const { t } = useI18n()
@@ -285,6 +395,9 @@ const {
   currentAddress
 } = storeToRefs(bscStore)
 
+// 积分调整相关的缓存服务
+const pointsCache = new CachingService('localStorage')
+
 // Check if data has historical prices
 const hasHistoricalPrices = computed(() => {
     return transactionData.value.some(day =>
@@ -298,8 +411,73 @@ const currentView = ref('list') // 'list' or 'statistics'
 const dayBeingProcessed = ref(null) // To track which day's stats are being calculated
 const expandedDays = ref(new Set()) // To track expanded days
 
+// 积分相关的响应式数据
+const globalSpentPoints = ref(0)
+
 const currentViewTitle = computed(() => {
-  return currentView.value === 'list' ? t('transactionResults.transactionRecords') : t('transactionResults.globalStatistics')
+  return currentView.value === 'list' ? t('transactionResults.transactionRecords') : t('transactionResults.pointsStatistics')
+})
+
+// 获取每日积分调整数据
+const getDailyPointsAdjustments = () => {
+  if (!currentAddress.value) return {}
+  return pointsCache.get(`points_adjustments_${currentAddress.value.toLowerCase()}`) || {}
+}
+
+// 获取全局消耗积分
+const getGlobalSpentPoints = () => {
+  if (!currentAddress.value) return 0
+  return pointsCache.get(`global_spent_points_${currentAddress.value.toLowerCase()}`) || 0
+}
+
+// 每日积分数据计算
+const dailyPointsData = computed(() => {
+  if (!transactionData.value || transactionData.value.length === 0) return []
+
+  const adjustments = getDailyPointsAdjustments()
+  let cumulativePoints = 0
+
+    // 按日期排序（从早到晚）
+  const sortedData = [...transactionData.value]
+    .filter(day => day.statistics && day.statistics.points !== undefined && day.statistics.points !== null)
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+
+  return sortedData.map(day => {
+    const originalPoints = Math.round((day.statistics.points || 0) * 100) / 100
+    const adjustedPoints = adjustments[day.date] !== undefined ? adjustments[day.date] : originalPoints
+    cumulativePoints += adjustedPoints
+
+    return {
+      date: day.date,
+      originalPoints,
+      adjustedPoints: Math.round(adjustedPoints * 100) / 100,
+      cumulativePoints: Math.round(cumulativePoints * 100) / 100,
+      isAdjusted: adjustments[day.date] !== undefined
+    }
+  })
+})
+
+// 积分统计汇总
+const pointsStatistics = computed(() => {
+  const data = dailyPointsData.value
+  if (data.length === 0) {
+    return {
+      totalEarned: 0,
+      totalSpent: globalSpentPoints.value,
+      finalBalance: -globalSpentPoints.value,
+      activeDays: 0
+    }
+  }
+
+  const totalEarned = data.reduce((sum, day) => sum + day.adjustedPoints, 0)
+  const finalBalance = totalEarned - globalSpentPoints.value
+
+  return {
+    totalEarned: Math.round(totalEarned * 100) / 100,
+    totalSpent: globalSpentPoints.value,
+    finalBalance: Math.round(finalBalance * 100) / 100,
+    activeDays: data.length
+  }
 })
 
 // Function to format numbers for better readability
@@ -318,7 +496,7 @@ const formatPrice = (num) => {
 
 const formatPoints = (num) => {
     if (num === null || num === undefined) return '0';
-    return Math.floor(num).toString();
+    return Math.round(num * 100) / 100;
 };
 
 const formatGas = (num) => {
@@ -328,6 +506,95 @@ const formatGas = (num) => {
     }
     return num.toLocaleString(undefined, { minimumFractionDigits: 6, maximumFractionDigits: 6 });
 };
+
+// 积分调整相关方法
+const adjustDailyPoints = async (date, currentPoints) => {
+  try {
+    const { value } = await ElMessageBox.prompt(
+      t('transactionResults.adjustPointsPrompt', { date, currentPoints }),
+      t('transactionResults.adjustDailyPoints'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        inputValue: currentPoints,
+        inputValidator: (val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0,
+        inputErrorMessage: t('transactionResults.invalidPointsInput')
+      }
+    )
+
+    const newPoints = parseFloat(value)
+    const adjustments = getDailyPointsAdjustments()
+    adjustments[date] = newPoints
+
+    pointsCache.set(`points_adjustments_${currentAddress.value.toLowerCase()}`, adjustments)
+    ElMessage.success(t('transactionResults.pointsAdjusted', { date, points: newPoints }))
+
+  } catch {
+    ElMessage.info(t('common.cancelled'))
+  }
+}
+
+const resetDailyPoints = async (date) => {
+  try {
+    await ElMessageBox.confirm(
+      t('transactionResults.resetPointsConfirm', { date }),
+      t('transactionResults.resetPoints'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    )
+
+    const adjustments = getDailyPointsAdjustments()
+    delete adjustments[date]
+
+    pointsCache.set(`points_adjustments_${currentAddress.value.toLowerCase()}`, adjustments)
+    ElMessage.success(t('transactionResults.pointsReset', { date }))
+
+  } catch {
+    ElMessage.info(t('common.cancelled'))
+  }
+}
+
+const saveGlobalSpentPoints = () => {
+  if (!currentAddress.value) return
+
+  pointsCache.set(`global_spent_points_${currentAddress.value.toLowerCase()}`, globalSpentPoints.value)
+  ElMessage.success(t('transactionResults.globalSpentPointsSaved'))
+}
+
+const resetAllPointsAdjustments = async () => {
+  try {
+    await ElMessageBox.confirm(
+      t('transactionResults.resetAllConfirm'),
+      t('transactionResults.resetAllPoints'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    )
+
+    // 清除所有调整
+    pointsCache.remove(`points_adjustments_${currentAddress.value.toLowerCase()}`)
+    pointsCache.remove(`global_spent_points_${currentAddress.value.toLowerCase()}`)
+
+    // 重置本地数据
+    globalSpentPoints.value = 0
+
+    ElMessage.success(t('transactionResults.allPointsReset'))
+
+  } catch {
+    ElMessage.info(t('common.cancelled'))
+  }
+}
+
+// 加载积分设置
+const loadPointsSettings = () => {
+  if (!currentAddress.value) return
+  globalSpentPoints.value = getGlobalSpentPoints()
+}
 
 // Wrapper for the store action to track which day is being processed
 const calculateDailyStatisticsForDay = async (day) => {
@@ -352,6 +619,7 @@ onMounted(() => {
   if (address && address !== currentAddress.value) {
     bscStore.fetchAndProcessTransactions(address)
   }
+  loadPointsSettings()
 })
 
 watch(() => route.params.address, (newAddress) => {
@@ -359,6 +627,11 @@ watch(() => route.params.address, (newAddress) => {
         bscStore.fetchAndProcessTransactions(newAddress);
     }
 });
+
+// 监听当前地址变化，加载对应的积分设置
+watch(currentAddress, () => {
+  loadPointsSettings()
+})
 
 // Function to toggle day expansion
 const toggleDayExpansion = (date) => {
