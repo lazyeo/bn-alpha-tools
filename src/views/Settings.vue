@@ -1,25 +1,25 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4">
-    <div class="max-w-6xl mx-auto">
-      <!-- 页面标题 -->
-      <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-800 mb-2">{{ $t('settings.systemSettings') }}</h1>
-        <p class="text-gray-600">{{ $t('settings.description') }}</p>
+  <div class="min-h-screen bg-gray-50">
+    <!-- 头部 -->
+    <div class="bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 px-4 py-6 text-white shadow-lg sticky top-0 z-10">
+      <div class="text-center mb-4">
+        <h1 class="text-2xl font-bold mb-2">{{ $t('settings.systemSettings') }}</h1>
+        <p class="text-blue-100">{{ $t('settings.description') }}</p>
       </div>
 
       <!-- 设置选项卡 -->
-      <div class="bg-white rounded-xl shadow-lg mb-6">
-        <div class="flex border-b">
+      <div class="bg-white/20 backdrop-blur-sm rounded-xl border border-white/30 mb-4">
+        <div class="flex">
           <button
             v-for="tab in tabs"
             :key="tab.key"
             @click="activeTab = tab.key"
             :class="[
-              'px-6 py-4 text-sm font-medium transition-colors duration-200',
+              'flex-1 px-6 py-4 text-sm font-medium transition-all duration-200 rounded-lg mx-1 my-1 flex items-center justify-center',
               activeTab === tab.key
-                ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                ? 'bg-white/30 text-white shadow-inner'
+                : 'text-blue-100 hover:text-white hover:bg-white/10'
             ]"
           >
             <i :class="tab.icon" class="mr-2"></i>
@@ -27,17 +27,26 @@
           </button>
         </div>
       </div>
+    </div>
 
+    <div class="px-4 py-6">
       <!-- API密钥管理 -->
-      <div v-show="activeTab === 'api'" class="bg-white rounded-xl shadow-lg p-6 mb-6">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">
-          <i class="fas fa-key text-blue-600 mr-2"></i>
+      <div v-show="activeTab === 'api'" class="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+          <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+            <i class="fas fa-key text-white"></i>
+          </div>
           {{ $t('settings.apiKeys.title') }}
         </h2>
 
         <!-- BSCScan API密钥 -->
         <div class="mb-8">
-          <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ $t('settings.apiKeys.bscscan.title') }}</h3>
+          <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+              <i class="fas fa-link text-green-600"></i>
+            </div>
+            {{ $t('settings.apiKeys.bscscan.title') }}
+          </h3>
           <div class="space-y-4">
             <div class="flex items-center space-x-4">
               <div class="flex-1">
@@ -45,7 +54,7 @@
                   v-model="bscApiKey"
                   :type="showBscApiKey ? 'text' : 'password'"
                   :placeholder="$t('settings.apiKeys.bscscan.placeholder')"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
               <button
@@ -56,18 +65,22 @@
               </button>
               <button
                 @click="saveBscApiKey"
-                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg"
               >
                 {{ $t('settings.apiKeys.bscscan.save') }}
               </button>
               <button
                 @click="resetBscApiKey"
-                class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-all shadow-md hover:shadow-lg"
               >
                 {{ $t('settings.apiKeys.bscscan.resetToDefault') }}
               </button>
             </div>
-            <div class="text-sm text-gray-500 space-y-1">
+            <div class="text-sm text-gray-500 space-y-1 bg-blue-50 rounded-lg p-4 border border-blue-200">
+              <div class="flex items-center mb-2">
+                <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                <span class="font-medium text-blue-800">使用说明</span>
+              </div>
               <p>• {{ $t('settings.apiKeys.bscscan.currentUsing') }}: {{ currentBscApiKey || $t('settings.apiKeys.bscscan.defaultKey') }}</p>
               <p>• {{ $t('settings.apiKeys.bscscan.getFromUrl') }}: <a href="https://bscscan.com/apidashboard" target="_blank" class="text-blue-600 hover:underline">https://bscscan.com/apidashboard</a></p>
               <p>• {{ $t('settings.apiKeys.bscscan.rateLimit') }}</p>
@@ -77,12 +90,19 @@
 
         <!-- CoinMarketCap API密钥 -->
         <div class="mb-8">
-          <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ $t('settings.apiKeys.coinmarketcap.title') }}</h3>
+          <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+              <i class="fas fa-chart-bar text-purple-600"></i>
+            </div>
+            {{ $t('settings.apiKeys.coinmarketcap.title') }}
+          </h3>
 
           <!-- 数据源说明 -->
-          <div class="bg-blue-50 p-4 rounded-lg mb-4">
+          <div class="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-xl p-4 mb-4">
             <div class="flex items-center mb-2">
-              <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+              <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                <i class="fas fa-info-circle text-white text-sm"></i>
+              </div>
               <h4 class="text-sm font-semibold text-blue-800">{{ $t('settings.apiKeys.coinmarketcap.dataSourceTitle') }}</h4>
             </div>
             <p class="text-sm text-blue-700">
@@ -97,7 +117,7 @@
                   v-model="cmcApiKey"
                   :type="showCmcApiKey ? 'text' : 'password'"
                   :placeholder="$t('settings.apiKeys.coinmarketcap.placeholder')"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
               <button
@@ -108,14 +128,18 @@
               </button>
               <button
                 @click="saveCmcApiKey"
-                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg"
               >
                 {{ $t('settings.apiKeys.common.save') }}
               </button>
             </div>
-            <div class="text-sm text-gray-500 space-y-1">
+            <div class="text-sm text-gray-500 space-y-1 bg-purple-50 rounded-lg p-4 border border-purple-200">
+              <div class="flex items-center mb-2">
+                <i class="fas fa-info-circle text-purple-600 mr-2"></i>
+                <span class="font-medium text-purple-800">使用说明</span>
+              </div>
               <p>• {{ $t('settings.apiKeys.coinmarketcap.currentStatus') }}: {{ getApiKeyStatus() }}</p>
-              <p>• {{ $t('settings.apiKeys.bscscan.getFromUrl') }}: <a href="https://pro.coinmarketcap.com/account" target="_blank" class="text-blue-600 hover:underline">https://pro.coinmarketcap.com/account</a></p>
+              <p>• {{ $t('settings.apiKeys.bscscan.getFromUrl') }}: <a href="https://pro.coinmarketcap.com/account" target="_blank" class="text-purple-600 hover:underline">https://pro.coinmarketcap.com/account</a></p>
               <p>• {{ $t('settings.apiKeys.coinmarketcap.usage') }}</p>
             </div>
           </div>
@@ -123,7 +147,12 @@
 
         <!-- CoinGecko API密钥 -->
         <div>
-          <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ $t('settings.apiKeys.coingecko.title') }}</h3>
+          <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+              <i class="fas fa-globe text-green-600"></i>
+            </div>
+            {{ $t('settings.apiKeys.coingecko.title') }}
+          </h3>
           <div class="space-y-4">
             <div class="flex items-center space-x-4">
               <div class="flex-1">
@@ -131,7 +160,7 @@
                   v-model="coingeckoApiKey"
                   :type="showCoingeckoApiKey ? 'text' : 'password'"
                   :placeholder="$t('settings.apiKeys.coingecko.placeholder')"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
               <button
@@ -142,16 +171,20 @@
               </button>
               <button
                 @click="saveCoingeckoApiKey"
-                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg"
               >
                 {{ $t('settings.apiKeys.common.save') }}
               </button>
             </div>
-            <div class="text-sm text-gray-500 space-y-1">
+            <div class="text-sm text-gray-500 space-y-1 bg-green-50 rounded-lg p-4 border border-green-200">
+              <div class="flex items-center mb-2">
+                <i class="fas fa-info-circle text-green-600 mr-2"></i>
+                <span class="font-medium text-green-800">使用说明</span>
+              </div>
               <p>• {{ $t('settings.apiKeys.coinmarketcap.currentStatus') }}: {{ getCoingeckoApiKeyStatus() }}</p>
-              <p>• {{ $t('settings.apiKeys.bscscan.getFromUrl') }}: <a href="https://www.coingecko.com/en/api/pricing" target="_blank" class="text-blue-600 hover:underline">https://www.coingecko.com/en/api/pricing</a></p>
+              <p>• {{ $t('settings.apiKeys.bscscan.getFromUrl') }}: <a href="https://www.coingecko.com/en/api/pricing" target="_blank" class="text-green-600 hover:underline">https://www.coingecko.com/en/api/pricing</a></p>
               <p>• {{ $t('settings.apiKeys.coingecko.usage') }}</p>
-              <p v-if="coingeckoApiKey" class="text-blue-600">
+              <p v-if="coingeckoApiKey" class="text-green-600">
                 • {{ $t('settings.apiKeys.coingecko.keyType') }}: {{ getCoingeckoKeyType() }}
               </p>
             </div>
@@ -160,35 +193,43 @@
       </div>
 
       <!-- 钱包管理 -->
-      <div v-show="activeTab === 'wallets'" class="bg-white rounded-xl shadow-lg p-6 mb-6">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">
-          <i class="fas fa-wallet text-green-600 mr-2"></i>
+      <div v-show="activeTab === 'wallets'" class="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+          <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center mr-3">
+            <i class="fas fa-wallet text-white"></i>
+          </div>
           {{ $t('settings.wallets.title') }}
         </h2>
 
         <!-- 添加新地址 -->
-        <div class="bg-gray-50 p-6 rounded-lg mb-6">
-          <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ $t('settings.wallets.addNew') }}</h3>
+        <div class="bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl p-6 mb-6 border border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+              <i class="fas fa-plus text-blue-600"></i>
+            </div>
+            {{ $t('settings.wallets.addNew') }}
+          </h3>
           <div class="space-y-4">
             <div>
               <input
                 v-model="newAddress.address"
                 :placeholder="$t('settings.wallets.addressPlaceholder')"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
             </div>
             <div>
               <input
                 v-model="newAddress.remark"
                 :placeholder="$t('settings.wallets.remarkPlaceholder')"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
             </div>
             <button
               @click="addAddress"
               :disabled="!newAddress.address || !isValidAddress(newAddress.address)"
-              class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              class="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center"
             >
+              <i class="fas fa-plus mr-2"></i>
               {{ $t('settings.wallets.addButton') }}
             </button>
           </div>
@@ -196,59 +237,73 @@
 
         <!-- 地址列表 -->
         <div v-if="addresses.length > 0">
-          <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ $t('settings.wallets.savedAddresses') }} ({{ addresses.length }}{{ $t('common.count') }})</h3>
+          <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+              <i class="fas fa-list text-green-600"></i>
+            </div>
+            {{ $t('settings.wallets.savedAddresses') }}
+            <span class="ml-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">{{ addresses.length }}{{ $t('common.count') }}</span>
+          </h3>
           <div class="space-y-3">
             <div
               v-for="(address, index) in addresses"
               :key="index"
-              class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              class="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100/50 border-2 border-gray-200 rounded-xl hover:shadow-md transition-all duration-200"
             >
               <div class="flex-1">
-                <div class="font-mono text-sm text-gray-800">{{ address.address }}</div>
-                <div v-if="address.remark" class="text-sm text-gray-600 mt-1">{{ address.remark }}</div>
+                <div class="font-mono text-sm text-gray-800 bg-white/60 rounded-lg px-3 py-2">{{ address.address }}</div>
+                <div v-if="address.remark" class="text-sm text-gray-600 mt-2 font-medium">{{ address.remark }}</div>
               </div>
               <div class="flex items-center space-x-2">
                 <button
                   @click="copyAddress(address.address)"
-                  class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  class="px-3 py-2 text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-all duration-200 font-medium"
                   :title="$t('common.copy')"
                 >
-                  <i class="fas fa-copy"></i>
+                  <i class="fas fa-copy mr-1"></i>
+                  {{ $t('common.copy') }}
                 </button>
                 <button
                   @click="editAddressModal(index)"
-                  class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                  class="px-3 py-2 text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100 rounded-lg transition-all duration-200 font-medium"
                   :title="$t('settings.wallets.actions.edit')"
                 >
-                  <i class="fas fa-edit"></i>
+                  <i class="fas fa-edit mr-1"></i>
+                  {{ $t('settings.wallets.actions.edit') }}
                 </button>
                 <button
                   @click="deleteAddress(index)"
-                  class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  class="px-3 py-2 text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-all duration-200 font-medium"
                   :title="$t('settings.wallets.actions.delete')"
                 >
-                  <i class="fas fa-trash"></i>
+                  <i class="fas fa-trash mr-1"></i>
+                  {{ $t('settings.wallets.actions.delete') }}
                 </button>
               </div>
             </div>
           </div>
         </div>
-        <div v-else class="text-center py-8 text-gray-500">
-          <i class="fas fa-wallet text-4xl mb-4"></i>
-          <p>{{ $t('common.noData') }}</p>
+        <div v-else class="text-center py-12 text-gray-500">
+          <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-wallet text-2xl text-gray-400"></i>
+          </div>
+          <p class="text-lg font-medium">{{ $t('common.noData') }}</p>
+          <p class="text-sm">{{ $t('settings.wallets.noAddressesHint') }}</p>
         </div>
       </div>
 
       <!-- 缓存管理 -->
-      <div v-show="activeTab === 'cache'" class="bg-white rounded-xl shadow-lg p-6 mb-6">
+      <div v-show="activeTab === 'cache'" class="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-2xl font-bold text-gray-800">
-            <i class="fas fa-database text-teal-600 mr-2"></i>
+          <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+            <div class="w-10 h-10 bg-teal-600 rounded-lg flex items-center justify-center mr-3">
+              <i class="fas fa-database text-white"></i>
+            </div>
             {{ $t('common.cache') }}{{ $t('common.management') }}
           </h2>
           <button
             @click="refreshCacheStats"
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg font-medium"
           >
             <i class="fas fa-sync-alt mr-2"></i>
             {{ $t('common.refreshStatistics') }}
@@ -257,28 +312,38 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <!-- 总览 -->
-          <div class="bg-gray-50 rounded-lg p-6 text-center">
-            <h3 class="text-lg font-semibold text-gray-700">{{ $t('common.overview') }}</h3>
-            <p class="text-3xl font-bold text-teal-600 mt-2">{{ cacheStats.total?.count || 0 }}</p>
-            <p class="text-sm text-gray-500">{{ $t('common.totalCacheEntries') }}</p>
-            <p class="text-2xl font-bold text-teal-600 mt-4">{{ cacheStats.total?.size || '0.00' }} KB</p>
+          <div class="bg-gradient-to-br from-teal-50 to-cyan-50 border-2 border-teal-200 rounded-xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 bg-teal-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-chart-pie text-white text-xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">{{ $t('common.overview') }}</h3>
+            <p class="text-3xl font-bold text-teal-600 mb-1">{{ cacheStats.total?.count || 0 }}</p>
+            <p class="text-sm text-gray-500 mb-3">{{ $t('common.totalCacheEntries') }}</p>
+            <p class="text-2xl font-bold text-teal-600 mb-1">{{ cacheStats.total?.size || '0.00' }} KB</p>
             <p class="text-sm text-gray-500">{{ $t('common.totalSize') }} ({{ $t('common.approximately') }})</p>
           </div>
 
           <!-- 各类缓存详情 -->
-          <div v-for="cache in cacheDetails" :key="cache.key" class="bg-white border border-gray-200 rounded-lg p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ cache.name }}</h3>
-            <div class="flex justify-between items-center mb-2">
-              <span class="text-gray-600">{{ $t('common.cacheEntries') }}:</span>
-              <span class="font-mono font-semibold text-gray-800">{{ cacheStats[cache.key]?.count || 0 }}</span>
+          <div v-for="cache in cacheDetails" :key="cache.key" class="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center mb-4">
+              <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                <i class="fas fa-folder text-gray-600"></i>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-800">{{ cache.name }}</h3>
             </div>
-            <div class="flex justify-between items-center mb-6">
-              <span class="text-gray-600">{{ $t('common.size') }}:</span>
-              <span class="font-mono font-semibold text-gray-800">{{ cacheStats[cache.key]?.size || '0.00' }} KB</span>
+            <div class="space-y-3 mb-6">
+              <div class="flex justify-between items-center bg-gray-50 rounded-lg px-3 py-2">
+                <span class="text-gray-600 font-medium">{{ $t('common.cacheEntries') }}:</span>
+                <span class="font-mono font-bold text-gray-800">{{ cacheStats[cache.key]?.count || 0 }}</span>
+              </div>
+              <div class="flex justify-between items-center bg-gray-50 rounded-lg px-3 py-2">
+                <span class="text-gray-600 font-medium">{{ $t('common.size') }}:</span>
+                <span class="font-mono font-bold text-gray-800">{{ cacheStats[cache.key]?.size || '0.00' }} KB</span>
+              </div>
             </div>
             <button
               @click="clearCache(cache.key)"
-              class="w-full px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+              class="w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg font-medium"
             >
               <i class="fas fa-trash mr-2"></i>
               {{ $t('common.clear') }}{{ cache.name }}
@@ -288,14 +353,16 @@
       </div>
 
       <!-- Alpha代币管理 -->
-      <div v-show="activeTab === 'alpha'" class="bg-white rounded-xl shadow-lg p-6">
+      <div v-show="activeTab === 'alpha'" class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-2xl font-bold text-gray-800">
-            <i class="fas fa-rocket text-yellow-600 mr-2"></i>
+          <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+            <div class="w-10 h-10 bg-yellow-600 rounded-lg flex items-center justify-center mr-3">
+              <i class="fas fa-rocket text-white"></i>
+            </div>
             {{ $t('settings.tokens.title') }}
           </h2>
           <div class="flex items-center space-x-4">
-             <div class="text-sm text-gray-500">
+             <div class="text-sm text-gray-500 bg-gray-100 rounded-lg px-3 py-2">
               <span v-if="alphaTokenList.length > 0">
                 {{ $t('common.total') }} {{ alphaTokenList.length }} {{ $t('common.tokens') }}
               </span>
@@ -303,7 +370,7 @@
             <button
               @click="refreshAlphaTokens"
               :disabled="loading"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              class="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-all shadow-md hover:shadow-lg font-medium"
             >
               <i :class="loading ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'" class="mr-2"></i>
               {{ loading ? $t('common.refreshing') : $t('common.manualRefresh') }}
@@ -312,43 +379,51 @@
         </div>
 
         <!-- 缓存信息 -->
-        <div class="bg-blue-50 p-4 rounded-lg mb-6">
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4 mb-6">
           <div class="flex items-center justify-between">
-            <div class="text-sm text-blue-800">
+            <div class="text-sm text-blue-800 flex items-center">
+              <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                <i class="fas fa-info-circle text-white text-sm"></i>
+              </div>
               <p>{{ $t('settings.tokens.lastUpdate') }}: {{ alphaTokensLastUpdated }}</p>
             </div>
             <button
               @click="clearAlphaTokensCache"
-              class="px-3 py-1 text-sm bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors"
+              class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg font-medium"
             >
+              <i class="fas fa-trash mr-1"></i>
               {{ $t('common.clearCache') }}
             </button>
           </div>
         </div>
 
         <!-- Alpha代币列表 (Grouped) -->
-        <div v-if="Object.keys(groupedAlphaTokenList).length > 0" class="space-y-6">
+        <div v-if="Object.keys(groupedAlphaTokenList).length > 0" class="space-y-4">
           <div
             v-for="(tokens, chainName) in groupedAlphaTokenList"
             :key="chainName"
-            class="border border-gray-200 rounded-lg overflow-hidden"
+            class="border-2 border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
           >
             <div
               @click="toggleChain(chainName)"
-              class="flex items-center justify-between p-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
+              class="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 cursor-pointer hover:from-gray-100 hover:to-gray-200 transition-all duration-200"
             >
-              <h3 class="text-lg font-semibold text-gray-800">
-                <i :class="getChainIcon(chainName)" class="mr-2"></i>
+              <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center mr-3 shadow-sm">
+                  <i :class="getChainIcon(chainName)" class="text-gray-600"></i>
+                </div>
                 {{ chainName }}
-                <span class="text-sm font-normal text-gray-500 ml-2">({{ tokens.length }}{{ $t('common.tokens') }})</span>
+                <span class="text-sm font-normal text-gray-500 ml-2 bg-gray-200 rounded-full px-3 py-1">({{ tokens.length }}{{ $t('common.tokens') }})</span>
               </h3>
-              <i
-                :class="expandedChains.includes(chainName) ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"
-                class="text-gray-500 transition-transform duration-200"
-              ></i>
+              <div class="flex items-center">
+                <i
+                  :class="expandedChains.includes(chainName) ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"
+                  class="text-gray-500 transition-transform duration-200"
+                ></i>
+              </div>
             </div>
 
-            <div v-show="expandedChains.includes(chainName)" class="divide-y divide-gray-100">
+            <div v-show="expandedChains.includes(chainName)" class="divide-y divide-gray-100 bg-white">
               <div
                 v-for="token in tokens"
                 :key="token.id"

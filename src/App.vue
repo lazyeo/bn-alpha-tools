@@ -19,7 +19,7 @@
       <!-- 侧栏头部 -->
       <div
         :class="[
-          'bg-gradient-to-r from-blue-600 to-purple-600 relative overflow-hidden',
+          'bg-gradient-to-r from-gray-800 to-gray-700 relative overflow-hidden',
           sidebarCollapsed && !isMobile ? 'px-2 py-6' : 'px-6 py-8'
         ]"
       >
@@ -99,7 +99,7 @@
             'flex items-center rounded-xl transition-all duration-300 group relative backdrop-blur-sm',
             sidebarCollapsed && !isMobile ? 'px-3 py-3 justify-center' : 'px-4 py-4',
             isActiveRoute(item.path)
-              ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
+              ? 'bg-gradient-to-r from-gray-700 to-gray-600 text-white shadow-lg'
               : 'text-gray-300 hover:bg-gray-700 hover:bg-opacity-60 hover:text-white hover:shadow-md'
           ]"
         >
@@ -378,7 +378,7 @@ onUnmounted(() => {
 
 /* 确保活跃状态下的样式优先级 */
 .router-link.router-link-active {
-  background: linear-gradient(to right, #3b82f6, #8b5cf6) !important;
+  background: linear-gradient(to right, #374151, #4b5563) !important;
   color: white !important;
 }
 

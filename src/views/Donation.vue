@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- 头部 -->
-    <div class="bg-gradient-to-br from-yellow-500 via-orange-600 to-red-700 px-4 py-6 text-white">
+    <div class="bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 px-4 py-6 text-white">
       <div class="mb-4">
         <h1 class="text-2xl font-bold flex items-center">
           <i class="fas fa-utensils mr-2"></i>

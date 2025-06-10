@@ -75,20 +75,20 @@ const toggleLanguage = () => {
   position: relative;
   width: 72px;
   height: 36px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
   border-radius: 18px;
   overflow: hidden;
   box-shadow:
-    0 4px 12px rgba(102, 126, 234, 0.4),
+    0 4px 12px rgba(75, 85, 99, 0.4),
     inset 0 2px 4px rgba(255, 255, 255, 0.1);
   transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   will-change: background, box-shadow, transform;
 }
 
 .language-toggle.toggle-active .toggle-track {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
   box-shadow:
-    0 4px 12px rgba(245, 87, 108, 0.4),
+    0 4px 12px rgba(107, 114, 128, 0.4),
     inset 0 2px 4px rgba(255, 255, 255, 0.1);
 }
 
@@ -163,13 +163,13 @@ const toggleLanguage = () => {
 .language-toggle:hover .toggle-track {
   transform: scale(1.05);
   box-shadow:
-    0 6px 20px rgba(102, 126, 234, 0.5),
+    0 6px 20px rgba(75, 85, 99, 0.5),
     inset 0 2px 4px rgba(255, 255, 255, 0.1);
 }
 
 .language-toggle.toggle-active:hover .toggle-track {
   box-shadow:
-    0 6px 20px rgba(245, 87, 108, 0.5),
+    0 6px 20px rgba(107, 114, 128, 0.5),
     inset 0 2px 4px rgba(255, 255, 255, 0.1);
 }
 

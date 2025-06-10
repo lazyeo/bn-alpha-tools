@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- 头部 -->
-    <div class="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 px-4 py-6 text-white">
+    <div class="bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 px-4 py-6 text-white">
       <div class="mb-4">
         <h1 class="text-2xl font-bold flex items-center">
           <i class="fas fa-wallet mr-2"></i>
@@ -14,7 +14,7 @@
     <!-- 主要内容 -->
     <div class="px-4 py-4">
       <!-- API Key 设置区域 -->
-      <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+      <div class="bg-gray-50 rounded-xl shadow-sm p-4 mb-4">
         <div class="flex items-center justify-between mb-4">
           <div>
             <h3 class="font-semibold text-gray-800 flex items-center">
@@ -74,7 +74,7 @@
               <button
                 @click="saveApiKey"
                 :disabled="!newApiKey.trim()"
-                class="px-4 py-3 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-lg font-medium transition-colors"
+                class="px-4 py-3 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-300 text-white rounded-lg font-medium transition-colors"
               >
                 保存
               </button>
@@ -117,7 +117,7 @@
       </div>
 
       <!-- 添加地址按钮 -->
-      <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+      <div class="bg-gray-50 rounded-xl shadow-sm p-4 mb-4">
         <div class="flex items-center justify-between">
           <div>
             <h3 class="font-semibold text-gray-800 flex items-center">
@@ -130,7 +130,7 @@
           </div>
           <button
             @click="openAddModal"
-            class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-all duration-200 flex items-center"
+            class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-all duration-200 flex items-center"
           >
             <i class="fas fa-plus mr-2"></i>
             添加地址
@@ -139,7 +139,7 @@
       </div>
 
       <!-- 地址列表 -->
-      <div class="bg-white rounded-xl shadow-sm p-4">
+      <div class="bg-gray-50 rounded-xl shadow-sm p-4">
         <!-- 空状态 -->
         <div v-if="addresses.length === 0" class="text-center py-12">
           <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -149,7 +149,7 @@
           <p class="text-gray-400 text-sm mb-4">添加您的第一个BSC地址开始管理</p>
           <button
             @click="openAddModal"
-            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-all duration-200 inline-flex items-center"
+            class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-all duration-200 inline-flex items-center"
           >
             <i class="fas fa-plus mr-2"></i>
             添加地址
@@ -198,7 +198,7 @@
                 <!-- 查询按钮 -->
                 <button
                   @click="queryAddress(item.address)"
-                  class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                  class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                   title="查询交易"
                 >
                   <i class="fas fa-search"></i>
@@ -207,7 +207,7 @@
                 <!-- 复制按钮 -->
                 <button
                   @click="copyAddress(item.address)"
-                  class="p-2 text-green-500 hover:bg-green-50 rounded-lg transition-colors"
+                  class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                   title="复制地址"
                 >
                   <i class="fas fa-copy"></i>
@@ -225,7 +225,7 @@
                 <!-- 删除按钮 -->
                 <button
                   @click="deleteAddress(index)"
-                  class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                   title="删除"
                 >
                   <i class="fas fa-trash"></i>
@@ -259,9 +259,9 @@
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
       @click.self="closeModal"
     >
-      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+              <div class="bg-gray-50 rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <!-- 弹窗头部 -->
-        <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4 text-white rounded-t-xl">
+        <div class="bg-gradient-to-r from-gray-700 to-gray-600 px-6 py-4 text-white rounded-t-xl">
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-semibold flex items-center">
               <i :class="editingIndex !== null ? 'fas fa-edit' : 'fas fa-plus-circle'" class="mr-2"></i>
@@ -340,8 +340,8 @@
                 !isFormValid
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : editingIndex !== null
-                    ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                    : 'bg-green-500 hover:bg-green-600 text-white'
+                                  ? 'bg-gray-600 hover:bg-gray-700 text-white'
+              : 'bg-gray-600 hover:bg-gray-700 text-white'
               ]"
             >
               <i :class="editingIndex !== null ? 'fas fa-save' : 'fas fa-plus'" class="mr-2"></i>

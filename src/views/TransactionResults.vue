@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- 头部 -->
-    <div class="bg-gradient-to-br from-blue-500 via-purple-600 to-blue-700 px-4 py-6 text-white shadow-lg sticky top-0 z-10">
+    <div class="bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 px-4 py-6 text-white shadow-lg sticky top-0 z-10">
       <div class="mb-4">
         <h1 class="text-2xl font-bold mb-2">{{ currentViewTitle }}</h1>
         <p v-if="currentAddress" class="text-blue-100 text-sm break-all">
@@ -262,7 +262,7 @@
     <!-- Statistics View (Points Statistics) -->
     <div v-if="currentView === 'statistics'" class="p-4 space-y-8">
       <!-- 顶部：积分总览大卡片 -->
-      <div class="bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 rounded-2xl p-8 text-white shadow-xl">
+      <div class="bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 rounded-2xl p-8 text-white shadow-xl">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
           <div class="mb-4 lg:mb-0">
             <h3 class="text-3xl font-bold mb-2 flex items-center">
