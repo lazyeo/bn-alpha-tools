@@ -2,7 +2,8 @@ import type { IPriceConnector, PriceInfo } from './connectors';
 import type { CachingService } from '../caching/caching.service';
 
 const COIN_ID_CACHE_TTL = 24 * 3600; // 24 hours
-const PRICE_CACHE_TTL = 1 * 3600;    // 1 hour
+const PRICE_CACHE_TTL = 15 * 24 * 3600;    // 15 days for historical prices (history doesn't change)
+const CURRENT_PRICE_CACHE_TTL = 5 * 60;    // 5 minutes for current prices (real-time data)
 const ALPHA_TOKEN_CACHE_TTL = 6 * 3600; // 6 hours for alpha token data
 
 // Fixed alpha token ID from CoinGecko
@@ -220,8 +221,8 @@ export class CoinGeckoPriceConnector implements IPriceConnector {
             const price = priceData[ALPHA_TOKEN_FIXED_ID]?.usd;
 
             if (price !== undefined && price !== null) {
-                // Cache for 5 minutes (300 seconds)
-                this.cachingService.set(cacheKey, price, 300);
+                // Cache for 5 minutes for current prices
+                this.cachingService.set(cacheKey, price, CURRENT_PRICE_CACHE_TTL);
                 console.log(`[CoinGecko] Successfully fetched current price for alpha token: $${price}`);
                 return price;
             } else {
@@ -446,9 +447,9 @@ export class CoinGeckoPriceConnector implements IPriceConnector {
 
                         price = closestPrice;
 
-                        // Cache the result for 6 hours
+                        // Cache the result for 15 days (historical prices don't change)
                         if (price !== null) {
-                            this.cachingService.set(cacheKey, price, 6 * 3600);
+                            this.cachingService.set(cacheKey, price, PRICE_CACHE_TTL);
                         }
                     } else {
                         price = null;
