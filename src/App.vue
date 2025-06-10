@@ -38,7 +38,7 @@
           >
             <span
               :class="[
-                'inline-block bg-white text-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg overflow-hidden',
+                'inline-block flex items-center justify-center flex-shrink-0',
                 sidebarCollapsed && !isMobile ? 'w-8 h-8' : 'w-10 h-10 mr-3'
               ]"
             >
