@@ -38,11 +38,22 @@
           >
             <span
               :class="[
-                'inline-block bg-white text-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg',
+                'inline-block bg-white text-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg overflow-hidden',
                 sidebarCollapsed && !isMobile ? 'w-8 h-8' : 'w-10 h-10 mr-3'
               ]"
             >
+              <!-- 图片Logo - 如果有logo图片则显示，否则显示SVG -->
+              <img
+                v-if="logoImagePath"
+                :src="logoImagePath"
+                :alt="$t('app.title')"
+                :class="[
+                  'object-contain w-full h-full'
+                ]"
+              />
+              <!-- 默认SVG Logo -->
               <svg
+                v-else
                 xmlns="http://www.w3.org/2000/svg"
                 :class="[sidebarCollapsed && !isMobile ? 'h-5 w-5' : 'h-6 w-6']"
                 fill="none"
@@ -89,7 +100,7 @@
             sidebarCollapsed && !isMobile ? 'px-3 py-3 justify-center' : 'px-4 py-4',
             isActiveRoute(item.path)
               ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
-              : 'text-gray-300 hover:bg-white hover:bg-opacity-10 hover:text-white hover:shadow-md'
+              : 'text-gray-300 hover:bg-gray-700 hover:bg-opacity-60 hover:text-white hover:shadow-md'
           ]"
         >
           <!-- 图标容器 -->
@@ -163,7 +174,7 @@
         <button
           @click="toggleSidebar"
           :class="[
-            'w-full flex items-center transition-all duration-300 group backdrop-blur-sm text-gray-300 hover:text-gray-800 hover:bg-gray-200 rounded-xl',
+            'w-full flex items-center transition-all duration-300 group backdrop-blur-sm text-gray-300 hover:text-white hover:bg-gray-700 hover:bg-opacity-60 rounded-xl',
             sidebarCollapsed ? 'justify-center px-2 py-3' : 'justify-center px-4 py-3'
           ]"
         >
@@ -219,6 +230,11 @@ const { t } = useI18n()
 const sidebarCollapsed = ref(false)
 const sidebarOpen = ref(false)
 const windowWidth = ref(window.innerWidth)
+
+// Logo配置 - 如果您有自定义logo图片，请将路径设置在这里
+// 例如：const logoImagePath = ref('/src/assets/logo.png')
+// 如果设置为null或空字符串，将显示默认的SVG图标
+const logoImagePath = ref('/src/assets/logo.png')
 
 // 计算属性
 const isMobile = computed(() => windowWidth.value < 768)
@@ -348,6 +364,26 @@ onUnmounted(() => {
 
 .language-switcher-container.scale-75 {
   transform: scale(1);
+}
+
+/* 修复侧栏导航链接悬浮状态 */
+.router-link:hover:not(.router-link-active) {
+  background: rgba(55, 65, 81, 0.6) !important;
+  color: white !important;
+}
+
+.router-link:hover:not(.router-link-active) .fas {
+  color: white !important;
+}
+
+/* 确保活跃状态下的样式优先级 */
+.router-link.router-link-active {
+  background: linear-gradient(to right, #3b82f6, #8b5cf6) !important;
+  color: white !important;
+}
+
+.router-link.router-link-active .fas {
+  color: white !important;
 }
 </style>
 
