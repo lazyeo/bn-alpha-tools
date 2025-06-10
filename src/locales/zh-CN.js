@@ -106,7 +106,11 @@ export default {
     },
     currentTime: '当前时间',
     unnamedAddress: '未命名地址',
-    viewInSettings: '设置'
+    viewInSettings: '设置',
+    save: '保存',
+    saveAddress: '保存地址',
+    enterRemarkForAddress: '为地址 {address} 输入备注:',
+    remarkCannotBeEmpty: '备注不能为空'
   },
 
   // 错误页面

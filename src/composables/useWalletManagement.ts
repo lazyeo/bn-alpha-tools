@@ -22,13 +22,26 @@ export function useWalletManagement() {
     localStorage.setItem(SAVED_ADDRESSES_KEY, JSON.stringify(addresses.value));
   };
 
-  const addAddress = () => {
-    if (isValidAddress(newAddress.address)) {
-      addresses.value.push({ ...newAddress });
+  const addAddress = (wallet) => {
+    const addressToAdd = wallet || newAddress;
+    if (isValidAddress(addressToAdd.address)) {
+      // Check for duplicates
+      if (addresses.value.some(a => a.address.toLowerCase() === addressToAdd.address.toLowerCase())) {
+        ElMessage.warning('该地址已存在');
+        return;
+      }
+
+      addresses.value.push({ ...addressToAdd, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
       saveAddresses();
-      newAddress.address = '';
-      newAddress.remark = '';
+
+      if (!wallet) {
+        newAddress.address = '';
+        newAddress.remark = '';
+      }
+
       ElMessage.success('地址已添加');
+    } else {
+      ElMessage.error('无效的BSC地址');
     }
   };
 

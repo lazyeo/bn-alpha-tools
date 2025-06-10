@@ -106,7 +106,11 @@ export default {
     },
     currentTime: 'Current Time',
     unnamedAddress: 'Unnamed Address',
-    viewInSettings: 'Settings'
+    viewInSettings: 'Settings',
+    save: 'Save',
+    saveAddress: 'Save Address',
+    enterRemarkForAddress: 'Enter remark for address {address}:',
+    remarkCannotBeEmpty: 'Remark cannot be empty'
   },
 
   // Error Page

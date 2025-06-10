@@ -108,13 +108,29 @@
           >
             <div
               @click="useHistoryAddress(address)"
-              class="flex-1 cursor-pointer"
+              class="flex-1 cursor-pointer min-w-0"
             >
               <div class="font-medium text-gray-800 truncate">
-                {{ address.slice(0, 8) }}...{{ address.slice(-6) }}
+                {{ getWalletRemark(address) || t('home.unnamedAddress') }}
               </div>
-              <div class="text-sm text-gray-500">{{ formatAddressTime() }}</div>
+              <div class="text-sm text-gray-500 font-mono truncate">
+                {{ address }}
+              </div>
             </div>
+            <button
+              @click.stop="copyAddress(address)"
+              class="text-blue-500 hover:text-blue-700 transition-colors mr-2 px-2 py-1 rounded-md bg-blue-100 text-xs"
+            >
+              <i class="fas fa-copy"></i>
+            </button>
+            <button
+              v-if="!isWalletSaved(address)"
+              @click.stop="promptAndSaveAddress(address)"
+              class="text-green-500 hover:text-green-700 transition-colors mr-2 px-2 py-1 rounded-md bg-green-100 text-xs"
+            >
+              <i class="fas fa-save mr-1"></i>
+              {{ $t('home.save') }}
+            </button>
             <button
               @click="removeHistoryAddress(index)"
               class="text-red-400 hover:text-red-600 transition-colors"
@@ -169,11 +185,18 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { useClipboard } from '@vueuse/core'
 // import { StorageUtils } from '@/utils/storage' // DELETED
 import { useBscStore } from '@/stores/bsc'
+import { useWalletManagement } from '@/composables/useWalletManagement'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const store = useBscStore()
+const { addresses: savedWallets, addAddress: saveWallet } = useWalletManagement()
+const { t } = useI18n()
+const { copy } = useClipboard()
 
 // The store is now the single source of truth for search history
 const searchHistory = computed(() => store.searchHistory)
@@ -267,20 +290,12 @@ const onInputBlur = () => {
 // 更新时间
 const updateTime = () => {
   const now = new Date()
-  currentTime.value = now.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
+  currentTime.value = now.toLocaleTimeString('zh-CN', {
     hour: '2-digit',
     minute: '2-digit',
-    second: '2-digit'
+    second: '2-digit',
+    hour12: false
   })
-}
-
-// 格式化地址时间（模拟）
-const formatAddressTime = () => {
-  // 这里可以根据实际需求实现，比如从本地存储获取查询时间
-  return '最近查询'
 }
 
 // BSC地址验证函数
@@ -318,6 +333,46 @@ const useHistoryAddress = (address) => {
 const removeHistoryAddress = (index) => {
   // Remove from history via store action
   store.removeFromSearchHistory(index)
+}
+
+// 检查地址是否已保存
+const isWalletSaved = (address) => {
+  return savedWallets.value.some(wallet => wallet.address.toLowerCase() === address.toLowerCase())
+}
+
+// 获取已保存钱包的备注
+const getWalletRemark = (address) => {
+  const wallet = savedWallets.value.find(w => w.address.toLowerCase() === address.toLowerCase())
+  return wallet ? wallet.remark : null
+}
+
+// 提示并保存地址
+const promptAndSaveAddress = async (address) => {
+  try {
+    const { value: remark } = await ElMessageBox.prompt(
+      t('home.enterRemarkForAddress', { address: formatAddress(address) }),
+      t('home.saveAddress'),
+      {
+        confirmButtonText: t('common.save'),
+        cancelButtonText: t('common.cancel'),
+        inputPattern: /\S+/,
+        inputErrorMessage: t('home.remarkCannotBeEmpty'),
+      }
+    )
+
+    if (remark && remark.trim() !== '') {
+      const newWallet = { address, remark: remark.trim() };
+      saveWallet(newWallet);
+    }
+  } catch (error) {
+    // 用户取消输入
+    ElMessage.info(t('common.cancel'));
+  }
+}
+
+const copyAddress = (address) => {
+  copy(address)
+  ElMessage.success(t('common.copied'))
 }
 </script>
 
