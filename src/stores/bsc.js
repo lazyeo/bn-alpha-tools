@@ -518,10 +518,62 @@ export const useBscStore = defineStore('bsc', {
       return false;
     },
 
+    // 检查并自动刷新Alpha Token缓存
+    async ensureAlphaTokensAvailable() {
+      // 检查缓存是否过期或不存在
+      if (this.isAlphaTokensCacheExpired || !this.alphaTokens || this.alphaTokens.size === 0) {
+        console.log('[ALPHA] Alpha token缓存过期或不存在，自动刷新中...');
+
+        // 检查是否有必要的API密钥
+        if (!this.apiKeys.cmc) {
+          console.warn('[ALPHA] CMC API密钥未配置，但将尝试免费查询...');
+        }
+
+        try {
+          await this.fetchAlphaTokens(true);
+          return {
+            success: true,
+            hasApiKey: !!this.apiKeys.cmc,
+            tokensCount: this.alphaTokens?.size || 0
+          };
+        } catch (error) {
+          console.error('[ALPHA] 自动刷新Alpha Token失败:', error);
+          return {
+            success: false,
+            hasApiKey: !!this.apiKeys.cmc,
+            error: error.message,
+            tokensCount: 0
+          };
+        }
+      }
+
+      return {
+        success: true,
+        hasApiKey: !!this.apiKeys.cmc,
+        tokensCount: this.alphaTokens?.size || 0,
+        fromCache: true
+      };
+    },
+
     // --- REFACTORED TRANSACTION ACTION ---
     async fetchAndProcessTransactions(address, force = false) {
       this.setLoading(true);
       this.clearError();
+
+      // 自动检查并刷新Alpha Token缓存
+      const alphaTokenResult = await this.ensureAlphaTokensAvailable();
+      if (!alphaTokenResult.success) {
+        // 如果Alpha Token获取失败但不是关键错误，继续处理交易
+        console.warn('[ALPHA] Alpha Token不可用，交易处理将继续，但积分计算可能不准确');
+
+        // 设置警告信息
+        if (!alphaTokenResult.hasApiKey) {
+          this.setError(generateApiKeyGuidance(['cmc'],
+            '⚠️ 未配置CoinMarketCap API密钥，Alpha积分计算可能不准确。建议配置API密钥以获得完整功能。'));
+        }
+      } else {
+        console.log(`[ALPHA] Alpha Token可用: ${alphaTokenResult.tokensCount} 个代币 ${alphaTokenResult.fromCache ? '(来自缓存)' : '(已刷新)'}`);
+      }
 
       const cacheKey = TRANSACTIONS_CACHE_PREFIX + address.toLowerCase();
       const statsCacheKey = STATISTICS_CACHE_PREFIX + address.toLowerCase();
@@ -1293,12 +1345,58 @@ export const useBscStore = defineStore('bsc', {
       settingsCache.set(API_KEYS_CACHE_KEY, this.apiKeys, 365 * 24 * 60 * 60) // 1 year expiry
     },
 
+    // 检查Alpha Token状态并给出建议
+    checkAlphaTokensStatus() {
+      const status = {
+        available: !!(this.alphaTokens && this.alphaTokens.size > 0),
+        expired: this.isAlphaTokensCacheExpired,
+        hasApiKey: !!this.apiKeys.cmc,
+        count: this.alphaTokens?.size || 0,
+        lastUpdated: this.alphaTokensLastUpdated
+      }
+
+      let message = ''
+      let type = 'info'
+
+      if (!status.available) {
+        message = '❌ Alpha代币列表不可用，请刷新或检查API配置'
+        type = 'error'
+      } else if (status.expired) {
+        message = '⏰ Alpha代币列表已过期，建议刷新以获取最新数据'
+        type = 'warning'
+      } else if (!status.hasApiKey) {
+        message = `✅ Alpha代币列表可用 (${status.count} 个) - 免费模式`
+        type = 'info'
+      } else {
+        message = `✅ Alpha代币列表可用 (${status.count} 个) - API模式`
+        type = 'success'
+      }
+
+      console.log(`[ALPHA_STATUS] ${message}`)
+
+      return {
+        ...status,
+        message,
+        type,
+        needsRefresh: !status.available || status.expired,
+        needsApiKey: !status.hasApiKey
+      }
+    },
+
     // 初始化store
     init() {
       this.loadSearchHistory()
       this.loadSettings()
       this.loadApiKeys()
       this.loadAlphaTokensFromCache()
+
+      // 检查Alpha Token状态
+      setTimeout(() => {
+        const status = this.checkAlphaTokensStatus()
+        if (status.needsRefresh) {
+          console.log('[ALPHA] 初始化时发现需要刷新Alpha Token列表')
+        }
+      }, 1000)
     }
   }
 })

@@ -53,7 +53,8 @@
       </div>
 
       <!-- 数据状态指示器 -->
-      <div class="mb-4 text-center">
+      <div class="mb-4 text-center space-y-2">
+          <!-- 主要数据状态 -->
           <div class="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1 text-xs text-blue-100">
               <span v-if="hasHistoricalPrices" class="flex items-center">
                   <span class="w-2 h-2 bg-green-400 rounded-full mr-1"></span>
@@ -65,6 +66,26 @@
               </span>
               <span class="text-blue-200">|</span>
               <span>{{ transactionData.length }}{{ $t('transactionResults.daysData') }}</span>
+          </div>
+
+          <!-- Alpha Token状态指示器 -->
+          <div class="inline-flex items-center space-x-2 bg-white/15 backdrop-blur-sm rounded-lg px-3 py-1 text-xs">
+              <span v-if="alphaTokenStatus.available" class="flex items-center text-green-100">
+                  <span class="w-2 h-2 bg-green-400 rounded-full mr-1"></span>
+                  Alpha积分: {{ alphaTokenStatus.count }} 个代币
+                  <span v-if="!alphaTokenStatus.hasApiKey" class="ml-1 text-yellow-300">(免费模式)</span>
+              </span>
+              <span v-else-if="alphaTokenStatus.loading" class="flex items-center text-blue-100">
+                  <i class="fas fa-spinner fa-spin w-2 h-2 mr-1"></i>
+                  正在获取Alpha代币列表...
+              </span>
+              <span v-else class="flex items-center text-red-100">
+                  <span class="w-2 h-2 bg-red-400 rounded-full mr-1"></span>
+                  Alpha积分不可用
+                  <button @click="refreshAlphaTokens" class="ml-2 px-2 py-1 bg-white/20 rounded text-xs hover:bg-white/30 transition-colors">
+                      <i class="fas fa-refresh mr-1"></i>刷新
+                  </button>
+              </span>
           </div>
       </div>
 
@@ -120,14 +141,52 @@
             <span class="text-sm text-gray-500">({{ day.transactions.length }} {{ $t('transactionResults.transactions') }})</span>
             <i :class="[expandedDays.has(day.date) ? 'fas fa-chevron-up' : 'fas fa-chevron-down', 'ml-2 text-gray-400 transition-transform']"></i>
           </div>
-          <button
-            @click.stop="calculateDailyStatisticsForDay(day)"
-            :disabled="loading"
-            class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-sm shadow-md hover:shadow-lg"
-          >
-            <i :class="[loading && dayBeingProcessed === day.date ? 'fas fa-spinner fa-spin' : 'fas fa-calculator', 'mr-2']"></i>
-            <span>{{ day.statistics ? $t('transactionResults.recalculate') : $t('transactionResults.calculateTransactions') }}</span>
-          </button>
+          <div class="flex items-center gap-2">
+                                                <!-- 刷分模式按钮 - 仅显示在当日条目 -->
+            <button
+              v-if="isToday(day.date)"
+              @click.stop="toggleRefreshMode(day)"
+              :class="[
+                'px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center relative',
+                refreshMode.active && refreshMode.dayDate === day.date
+                  ? 'bg-red-500 text-white hover:bg-red-600 shadow-lg animate-pulse'
+                  : 'bg-green-500 text-white hover:bg-green-600 shadow-md hover:shadow-lg'
+              ]"
+              :title="getRefreshModeTooltip(day.date)"
+            >
+              <i :class="[
+                refreshMode.active && refreshMode.dayDate === day.date
+                  ? 'fas fa-stop'
+                  : 'fas fa-play',
+                'mr-1'
+              ]"></i>
+              <span class="hidden sm:inline">
+                {{ refreshMode.active && refreshMode.dayDate === day.date ? '停止刷分' : '刷分模式' }}
+              </span>
+
+              <!-- 状态指示器 - 右上角小圆点 -->
+              <div v-if="refreshMode.active && refreshMode.dayDate === day.date"
+                   class="absolute -top-1 -right-1 w-3 h-3 rounded-full">
+                <div :class="[
+                  'w-3 h-3 rounded-full border border-white',
+                  refreshMode.apiErrorCount > 0
+                    ? 'bg-orange-400 animate-pulse'
+                    : 'bg-green-400'
+                ]">
+                </div>
+              </div>
+            </button>
+
+            <!-- 计算统计按钮 -->
+            <button
+              @click.stop="calculateDailyStatisticsForDay(day)"
+              :disabled="loading"
+              class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-sm shadow-md hover:shadow-lg"
+            >
+              <i :class="[loading && dayBeingProcessed === day.date ? 'fas fa-spinner fa-spin' : 'fas fa-calculator', 'mr-2']"></i>
+              <span>{{ day.statistics ? $t('transactionResults.recalculate') : $t('transactionResults.calculateTransactions') }}</span>
+            </button>
+          </div>
         </div>
 
         <!-- Daily Statistics Summary -->
@@ -649,7 +708,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useBscStore } from '@/stores/bsc'
@@ -667,8 +726,21 @@ const {
   statistics,
   loading,
   error: errorMessage,
-  currentAddress
+  currentAddress,
+  alphaTokens,
+  alphaTokensLastUpdated,
+  apiKeys
 } = storeToRefs(bscStore)
+
+// 安全获取computed值
+const isAlphaTokensCacheExpired = computed(() => {
+  try {
+    return bscStore.isAlphaTokensCacheExpired || false
+  } catch (error) {
+    console.warn('Error accessing isAlphaTokensCacheExpired:', error)
+    return false
+  }
+})
 
 // 积分调整相关的缓存服务
 const pointsCache = new CachingService('localStorage')
@@ -1223,6 +1295,31 @@ watch(predictedDailyPoints, () => {
   calculateTargetAchievement()
 })
 
+// 监听Alpha Token缓存状态
+watch(isAlphaTokensCacheExpired, (expired) => {
+  if (expired && alphaTokens.value && alphaTokens.value.size > 0) {
+    console.log('[ALPHA] 检测到Alpha Token缓存过期，将在下次交易处理时自动刷新')
+  }
+})
+
+// 监听Alpha Token可用性
+watch(alphaTokenStatus, (newStatus, oldStatus) => {
+  if (oldStatus && !newStatus.available && oldStatus.available) {
+    ElMessage.warning({
+      message: 'Alpha代币列表不可用，积分计算可能不准确',
+      duration: 5000
+    })
+  } else if (newStatus.available && (!oldStatus || !oldStatus.available)) {
+    console.log(`[ALPHA] Alpha代币列表已加载：${newStatus.count} 个代币`)
+    if (!newStatus.hasApiKey) {
+      ElMessage.info({
+        message: '当前使用免费模式获取Alpha代币列表，建议配置CoinMarketCap API密钥获得更稳定的服务',
+        duration: 8000
+      })
+    }
+  }
+}, { deep: true })
+
 // Function to toggle day expansion
 const toggleDayExpansion = (date) => {
   if (expandedDays.value.has(date)) {
@@ -1231,6 +1328,299 @@ const toggleDayExpansion = (date) => {
     expandedDays.value.add(date);
   }
 }
+
+// 新增的刷新模式相关逻辑
+const refreshMode = ref({
+  active: false,
+  dayDate: null,
+  intervalId: null,
+  volumeCalculationIntervalId: null,
+  lastPoints: 0,
+  lastVolume: 0,
+  lastTransactionCount: 0,
+  apiErrorCount: 0,
+  lastSuccessfulRefresh: null
+})
+
+// 音频对象用于播放提示音
+const audioContext = ref(null)
+const createAudioContext = () => {
+  if (!audioContext.value) {
+    audioContext.value = new (window.AudioContext || window.webkitAudioContext)()
+  }
+  return audioContext.value
+}
+
+// 播放提示音
+const playNotificationSound = () => {
+  try {
+    const ctx = createAudioContext()
+    const oscillator = ctx.createOscillator()
+    const gainNode = ctx.createGain()
+
+    oscillator.connect(gainNode)
+    gainNode.connect(ctx.destination)
+
+    // 设置音调为温和的提示音
+    oscillator.frequency.setValueAtTime(800, ctx.currentTime)
+    oscillator.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.1)
+
+    // 设置音量
+    gainNode.gain.setValueAtTime(0.1, ctx.currentTime)
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2)
+
+    oscillator.start(ctx.currentTime)
+    oscillator.stop(ctx.currentTime + 0.2)
+  } catch (error) {
+    console.warn('无法播放提示音:', error)
+  }
+}
+
+// 检查是否触及API限制
+const checkApiLimits = (error) => {
+  const errorMsg = error.message?.toLowerCase() || ''
+  const isRateLimit = errorMsg.includes('rate limit') ||
+                     errorMsg.includes('too many requests') ||
+                     errorMsg.includes('429') ||
+                     errorMsg.includes('超限')
+
+  if (isRateLimit) {
+    refreshMode.value.apiErrorCount++
+    console.warn(`⚠️ API限制检测到，错误次数: ${refreshMode.value.apiErrorCount}`)
+    return true
+  }
+
+  return false
+}
+
+// 获取智能退避延迟时间
+const getBackoffDelay = () => {
+  // 指数退避：2^errorCount * 30秒，最大10分钟
+  const baseDelay = 30000 // 30秒
+  const maxDelay = 600000 // 10分钟
+  const delay = Math.min(baseDelay * Math.pow(2, refreshMode.value.apiErrorCount), maxDelay)
+  return delay
+}
+
+// 启动/停止刷分模式
+const toggleRefreshMode = (day) => {
+  if (refreshMode.value.active && refreshMode.value.dayDate === day.date) {
+    // 停止刷分模式
+    stopRefreshMode()
+  } else {
+    // 启动刷分模式
+    startRefreshMode(day)
+  }
+}
+
+// 启动刷分模式
+const startRefreshMode = (day) => {
+  refreshMode.value.active = true
+  refreshMode.value.dayDate = day.date
+
+  // 初始化数据
+  if (day.statistics) {
+    refreshMode.value.lastPoints = day.statistics.points || 0
+    refreshMode.value.lastVolume = day.statistics.totalDayVolume || 0
+  }
+
+  // 降低频率：每30秒刷新交易数据（避免API超限）
+  refreshMode.value.intervalId = setInterval(async () => {
+    if (currentAddress.value && !loading.value) { // 避免重复请求
+      try {
+        console.log('刷分模式：开始获取最新交易数据...')
+        await bscStore.fetchAndProcessTransactions(currentAddress.value, true)
+
+        // 找到当前日期的数据
+        const currentDay = transactionData.value.find(d => d.date === day.date)
+        if (currentDay && currentDay.statistics) {
+          const currentPoints = currentDay.statistics.points || 0
+
+          // 检查积分是否增加
+          if (currentPoints > refreshMode.value.lastPoints) {
+            playNotificationSound()
+            console.log(`🎉 刷分模式：积分增加 ${(currentPoints - refreshMode.value.lastPoints).toFixed(2)} 点！`)
+            refreshMode.value.lastPoints = currentPoints
+          }
+        }
+              } catch (error) {
+          console.error('刷分模式数据刷新失败:', error)
+
+          // 检查是否是API限制错误
+          if (checkApiLimits(error)) {
+            const backoffDelay = getBackoffDelay()
+            console.log(`🛑 检测到API限制，暂停 ${Math.round(backoffDelay/1000)} 秒...`)
+
+            // 停止当前定时器
+            clearInterval(refreshMode.value.intervalId)
+            refreshMode.value.intervalId = null
+
+            // 使用指数退避重新启动
+            setTimeout(() => {
+              if (refreshMode.value.active) {
+                console.log('🔄 重新启动刷分模式...')
+                startRefreshMode(day)
+              }
+            }, backoffDelay)
+          } else {
+            // 重置错误计数（非API限制错误）
+            refreshMode.value.apiErrorCount = 0
+          }
+        }
+    }
+  }, 30000) // 改为30秒
+
+  // 降低频率：每5分钟计算一次统计（只在有新交易时）
+  refreshMode.value.volumeCalculationIntervalId = setInterval(async () => {
+    if (currentAddress.value && !loading.value) {
+      try {
+        const currentDay = transactionData.value.find(d => d.date === day.date)
+        if (currentDay) {
+          const oldTransactionCount = currentDay.transactions?.length || 0
+
+          // 先检查是否有新交易
+          await bscStore.fetchAndProcessTransactions(currentAddress.value, true)
+          const updatedDay = transactionData.value.find(d => d.date === day.date)
+          const newTransactionCount = updatedDay?.transactions?.length || 0
+
+          // 只有当有新交易时才重新计算统计
+          if (newTransactionCount > oldTransactionCount) {
+            console.log(`刷分模式：检测到 ${newTransactionCount - oldTransactionCount} 笔新交易，重新计算统计...`)
+            await calculateDailyStatisticsForDay(updatedDay)
+
+            // 检查交易量变化
+            if (updatedDay.statistics) {
+              const currentVolume = updatedDay.statistics.totalDayVolume || 0
+              if (currentVolume > refreshMode.value.lastVolume) {
+                console.log(`📈 刷分模式：交易量增加 $${(currentVolume - refreshMode.value.lastVolume).toFixed(2)}`)
+                refreshMode.value.lastVolume = currentVolume
+              }
+            }
+          } else {
+            console.log('刷分模式：无新交易，跳过统计计算')
+          }
+        }
+              } catch (error) {
+          console.error('刷分模式统计计算失败:', error)
+
+          // 检查是否是API限制错误
+          if (checkApiLimits(error)) {
+            const backoffDelay = getBackoffDelay()
+            console.log(`🛑 统计计算遇到API限制，延长计算间隔到 ${Math.round(backoffDelay/60000)} 分钟`)
+
+            // 调整计算频率
+            clearInterval(refreshMode.value.volumeCalculationIntervalId)
+            refreshMode.value.volumeCalculationIntervalId = setInterval(async () => {
+              // 重复相同的统计计算逻辑，但频率更低
+              if (currentAddress.value && !loading.value) {
+                try {
+                  const currentDay = transactionData.value.find(d => d.date === day.date)
+                  if (currentDay) {
+                    const oldTransactionCount = currentDay.transactions?.length || 0
+
+                    await bscStore.fetchAndProcessTransactions(currentAddress.value, true)
+                    const updatedDay = transactionData.value.find(d => d.date === day.date)
+                    const newTransactionCount = updatedDay?.transactions?.length || 0
+
+                    if (newTransactionCount > oldTransactionCount) {
+                      console.log(`刷分模式：检测到 ${newTransactionCount - oldTransactionCount} 笔新交易，重新计算统计...`)
+                      await calculateDailyStatisticsForDay(updatedDay)
+
+                      if (updatedDay.statistics) {
+                        const currentVolume = updatedDay.statistics.totalDayVolume || 0
+                        if (currentVolume > refreshMode.value.lastVolume) {
+                          console.log(`📈 刷分模式：交易量增加 $${(currentVolume - refreshMode.value.lastVolume).toFixed(2)}`)
+                          refreshMode.value.lastVolume = currentVolume
+                        }
+                      }
+                    }
+                  }
+                } catch (err) {
+                  console.error('统计计算重试失败:', err)
+                }
+              }
+            }, Math.max(backoffDelay, 600000)) // 至少10分钟
+          }
+        }
+    }
+  }, 300000) // 改为5分钟
+
+  console.log(`🚀 刷分模式已启动：${day.date}（数据刷新：30秒，统计计算：5分钟）`)
+}
+
+// 停止刷分模式
+const stopRefreshMode = () => {
+  if (refreshMode.value.intervalId) {
+    clearInterval(refreshMode.value.intervalId)
+    refreshMode.value.intervalId = null
+  }
+
+  if (refreshMode.value.volumeCalculationIntervalId) {
+    clearInterval(refreshMode.value.volumeCalculationIntervalId)
+    refreshMode.value.volumeCalculationIntervalId = null
+  }
+
+  refreshMode.value.active = false
+  refreshMode.value.dayDate = null
+  refreshMode.value.lastPoints = 0
+  refreshMode.value.lastVolume = 0
+  refreshMode.value.lastTransactionCount = 0
+  refreshMode.value.apiErrorCount = 0
+  refreshMode.value.lastSuccessfulRefresh = null
+
+  console.log('🛑 刷分模式已停止')
+}
+
+// Alpha Token状态计算
+const alphaTokenStatus = computed(() => {
+  const tokens = alphaTokens.value
+  const keys = apiKeys.value
+  const hasTokens = tokens && tokens.size > 0
+  const hasApiKey = !!(keys && keys.cmc)
+
+  return {
+    available: hasTokens,
+    loading: loading.value && (!hasTokens || (isAlphaTokensCacheExpired.value || false)),
+    hasApiKey,
+    count: hasTokens ? tokens.size : 0,
+    lastUpdated: alphaTokensLastUpdated.value || null,
+    expired: isAlphaTokensCacheExpired.value || false
+  }
+})
+
+// 手动刷新Alpha Token
+const refreshAlphaTokens = async () => {
+  try {
+    await bscStore.fetchAlphaTokens(true)
+    ElMessage.success('Alpha代币列表已更新')
+  } catch (error) {
+    ElMessage.error('Alpha代币列表更新失败: ' + error.message)
+  }
+}
+
+// 检查是否为今天
+const isToday = (date) => {
+  const today = new Date().toISOString().split('T')[0]
+  return date === today
+}
+
+// 获取刷分模式工具提示
+const getRefreshModeTooltip = (date) => {
+  if (!refreshMode.value.active || refreshMode.value.dayDate !== date) {
+    return '启动刷分模式：每30秒自动刷新数据，积分增加时播放提示音'
+  }
+
+  if (refreshMode.value.apiErrorCount > 0) {
+    return `刷分模式运行中 - API限制 x${refreshMode.value.apiErrorCount}（橙色闪烁）`
+  }
+
+  return '刷分模式运行中 - 运行正常（绿色指示）'
+}
+
+// 组件卸载时清理定时器
+onBeforeUnmount(() => {
+  stopRefreshMode()
+})
 </script>
 
 <style scoped>

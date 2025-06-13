@@ -214,6 +214,8 @@
         <router-view />
       </main>
     </div>
+
+    <StagewiseToolbar v-if="isDev" :config="{ plugins: [VuePlugin] }" />
   </div>
 </template>
 
@@ -223,9 +225,14 @@ import { RouterView, useRoute, RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import logoImage from '@/assets/logo.png'
+import { StagewiseToolbar } from '@stagewise/toolbar-vue'
+import { VuePlugin } from '@stagewise-plugins/vue'
 
 const route = useRoute()
 const { t } = useI18n()
+
+// 开发环境判断
+const isDev = import.meta.env.DEV
 
 // 响应式状态
 const sidebarCollapsed = ref(false)
