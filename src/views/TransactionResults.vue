@@ -1302,6 +1302,33 @@ watch(isAlphaTokensCacheExpired, (expired) => {
   }
 })
 
+// Alpha Token状态计算 - 必须在watch之前定义
+const alphaTokenStatus = computed(() => {
+  const tokens = alphaTokens.value
+  const keys = apiKeys.value
+  const hasTokens = tokens && tokens.size > 0
+  const hasApiKey = !!(keys && keys.cmc)
+
+  return {
+    available: hasTokens,
+    loading: loading.value && (!hasTokens || (isAlphaTokensCacheExpired.value || false)),
+    hasApiKey,
+    count: hasTokens ? tokens.size : 0,
+    lastUpdated: alphaTokensLastUpdated.value || null,
+    expired: isAlphaTokensCacheExpired.value || false
+  }
+})
+
+// 手动刷新Alpha Token
+const refreshAlphaTokens = async () => {
+  try {
+    await bscStore.fetchAlphaTokens(true)
+    ElMessage.success('Alpha代币列表已更新')
+  } catch (error) {
+    ElMessage.error('Alpha代币列表更新失败: ' + error.message)
+  }
+}
+
 // 监听Alpha Token可用性
 watch(alphaTokenStatus, (newStatus, oldStatus) => {
   if (oldStatus && !newStatus.available && oldStatus.available) {
@@ -1571,32 +1598,7 @@ const stopRefreshMode = () => {
   console.log('🛑 刷分模式已停止')
 }
 
-// Alpha Token状态计算
-const alphaTokenStatus = computed(() => {
-  const tokens = alphaTokens.value
-  const keys = apiKeys.value
-  const hasTokens = tokens && tokens.size > 0
-  const hasApiKey = !!(keys && keys.cmc)
 
-  return {
-    available: hasTokens,
-    loading: loading.value && (!hasTokens || (isAlphaTokensCacheExpired.value || false)),
-    hasApiKey,
-    count: hasTokens ? tokens.size : 0,
-    lastUpdated: alphaTokensLastUpdated.value || null,
-    expired: isAlphaTokensCacheExpired.value || false
-  }
-})
-
-// 手动刷新Alpha Token
-const refreshAlphaTokens = async () => {
-  try {
-    await bscStore.fetchAlphaTokens(true)
-    ElMessage.success('Alpha代币列表已更新')
-  } catch (error) {
-    ElMessage.error('Alpha代币列表更新失败: ' + error.message)
-  }
-}
 
 // 检查是否为今天
 const isToday = (date) => {
