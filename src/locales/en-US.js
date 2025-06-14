@@ -357,6 +357,9 @@ export default {
     outflow: 'Outflow',
     noPriceData: 'No price data',
     noTransactionRecords: 'No transaction records found',
+    noTransactionsToday: 'No transactions today',
+    noTransactionsThisDay: 'No transactions for this day',
+    useRefreshModeToMonitor: 'Use refresh mode to monitor new transactions',
     statisticsViewInDevelopment: 'Statistics view in development',
     chartsAndAnalysisComingSoon: 'Charts and analysis features coming soon',
     // Points statistics related

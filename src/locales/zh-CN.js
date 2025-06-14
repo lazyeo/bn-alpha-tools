@@ -357,6 +357,9 @@ export default {
     outflow: '流出',
     noPriceData: '无价格数据',
     noTransactionRecords: '暂无交易记录',
+    noTransactionsToday: '今日暂无交易记录',
+    noTransactionsThisDay: '当日暂无交易记录',
+    useRefreshModeToMonitor: '可启用刷分模式实时监控新交易',
     statisticsViewInDevelopment: '统计视图开发中',
     chartsAndAnalysisComingSoon: '图表和分析功能即将推出',
     // 积分统计相关

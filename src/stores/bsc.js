@@ -1110,9 +1110,63 @@ export const useBscStore = defineStore('bsc', {
       return Array.from(grouped.values()).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     },
 
+    // 确保今日条目存在（用于刷分模式）
+    ensureTodayEntry(results) {
+      if (!results || !Array.isArray(results)) return results || []
+
+      const today = new Date().toISOString().split('T')[0]
+      const hasToday = results.some(day => day.date === today)
+
+      if (!hasToday) {
+        console.log('[TODAY_ENTRY] 今日无交易记录，创建空的今日条目以支持刷分模式')
+
+        // 创建空的今日条目
+        const todayEntry = {
+          date: today,
+          transactions: [],
+          tokenStats: {},
+          statistics: null,
+          lastCalculated: null,
+          gasStats: {
+            totalGasBnb: 0,
+            totalGasUsd: 0,
+            transactionCount: 0
+          },
+          flowStats: {
+            alphaInflow: 0,
+            alphaOutflow: 0,
+            stablecoinInflow: 0,
+            stablecoinOutflow: 0,
+            bnbInflow: 0,
+            bnbOutflow: 0,
+            netAlphaUsd: 0,
+            netStablecoinUsd: 0,
+            netBnbUsd: 0,
+            totalNetUsd: 0
+          },
+          alphaVolume: 0,
+          alphaInflowUsd: 0,
+          bscBonusUsd: 0,
+          totalBnb: 0,
+          totalUsdProfit: 0,
+          points: 0
+        }
+
+        // 添加到结果开头（最新日期在前）
+        const resultsCopy = [...results]
+        resultsCopy.unshift(todayEntry)
+
+        return resultsCopy
+      }
+
+      return results
+    },
+
     // 设置搜索结果
     setSearchResults(results) {
-      this.searchResults = results || []
+      // 确保今日条目存在
+      const resultsWithToday = this.ensureTodayEntry(results)
+      this.searchResults = resultsWithToday
       this.calculateStatistics()
     },
 

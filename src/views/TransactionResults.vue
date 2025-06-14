@@ -277,7 +277,22 @@
 
         <!-- 可收缩的交易列表 -->
         <div v-show="expandedDays.has(day.date)" class="transition-all duration-300">
-          <ul class="divide-y divide-gray-200">
+          <!-- 空交易列表提示（主要用于今日无交易的情况） -->
+          <div v-if="day.transactions.length === 0" class="p-6 text-center bg-gray-50">
+            <div class="text-gray-400 mb-2">
+              <i class="fas fa-hourglass-half text-2xl"></i>
+            </div>
+            <p class="text-gray-500 text-sm">
+              <span v-if="isToday(day.date)">{{ $t('transactionResults.noTransactionsToday') }}</span>
+              <span v-else>{{ $t('transactionResults.noTransactionsThisDay') }}</span>
+            </p>
+            <p v-if="isToday(day.date)" class="text-gray-400 text-xs mt-2">
+              {{ $t('transactionResults.useRefreshModeToMonitor') }}
+            </p>
+          </div>
+
+          <!-- 正常交易列表 -->
+          <ul v-else class="divide-y divide-gray-200">
             <li v-for="tx in day.transactions" :key="tx.hash" class="p-3 hover:bg-gray-50 transition-colors duration-200">
               <div class="flex justify-between items-center text-xs mb-2">
                   <a :href="`https://bscscan.com/tx/${tx.hash}`" target="_blank" class="font-mono text-blue-600 hover:underline">
